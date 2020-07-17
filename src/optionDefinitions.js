@@ -19,11 +19,50 @@ const optionDefinitions = [
     typeLabel: '{underline file path}'
   },
   {
+    name: 'configPath', type: String,
+    description: 'Path to config file for options. Lower priority than ' +
+      'other CLI options. Defaults to non-use.',
+    typeLabel: '{underline path to config file}'
+  },
+  {
     name: 'outputPath', type: String, alias: 'o',
     multiple: true,
     description: 'Path(s) to which to save the file if different from ' +
       'input; globs are ignored. Defaults to `file`.',
     typeLabel: '{underline outputPath}'
+  },
+  {
+    name: 'cdnBasePath', type (cliString) {
+      return new RegExp(cliString, 'gum');
+    },
+    multiple: true,
+    description: 'Path(s) ',
+    typeLabel: '{underline base path}'
+  },
+  {
+    name: 'noConfig', type: Boolean,
+    description: 'Avoid checking any config, including defaulting to ' +
+      'checking `package.json`. Defaults to `false`.'
+  },
+  {
+    name: 'packageJsonPath', type: String,
+    description: 'Path to `package.json` for discovery of its ' +
+      '`updateCDNURLs` property. If `noConfig` is `false` (the default), ' +
+      'defaults to checking `process.cwd()`, but if `true` will default ' +
+      'to not checking for a `package.json` and just using the regular ' +
+      'CLI options. This option is ignored if `configPath` is set.',
+    typeLabel: '{underline path to package.json}'
+  },
+  {
+    name: 'cwd', type: String,
+    description: 'Current working directory path. Defaults to ' +
+      '`process.cwd()`.',
+    typeLabel: '{underline cwd path}'
+  },
+  {
+    name: 'noGlobs', type: Boolean,
+    description: '`file` files will be treated by default as globs. Set ' +
+      'this to `true` to disable. Defaults to `false`.'
   },
   {
     name: 'logging', type: String,

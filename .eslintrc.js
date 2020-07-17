@@ -45,6 +45,9 @@ module.exports = {
   rules: {
     'import/no-commonjs': 0,
 
+    // Browser only
+    'compat/compat': 0,
+
     // Reenabled by plugin:node/recommended-script
     'no-process-exit': 0
   }

@@ -8,6 +8,8 @@
     "ucu": "./bin/index.js"
   },
   "scripts": {
+    "cli": "./bin/index.js",
+    "example": "./bin/index.js --file \"test/fixtures/sample.html\" --cdnBasePath=\"https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^'\\\"]*)\"",
     "eslint": "eslint --ext=js,md,html .",
     "mocha": "mocha --require chai/register-expect",
     "nyc": "nyc --cache=false npm run mocha",
@@ -30,7 +32,8 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
-    "command-line-basics": "^0.8.0"
+    "command-line-basics": "^0.8.0",
+    "globby": "^11.0.1"
   },
   "devDependencies": {
     "@mysticatea/eslint-plugin": "^13.0.0",
