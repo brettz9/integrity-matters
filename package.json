@@ -9,7 +9,8 @@
   },
   "scripts": {
     "cli": "./bin/index.js",
-    "example": "./bin/index.js --file \"test/fixtures/sample.html\" --cdnBasePath=\"https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^'\\\"]*)\"",
+    "example": "./bin/index.js --file \"test/fixtures/sample.html\"",
+    "example-basepath": "./bin/index.js --file \"test/fixtures/sample.html\" --cdnBasePath=\"https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^'\\\"]*)\"",
     "eslint": "eslint --ext=js,md,html .",
     "mocha": "mocha --require chai/register-expect",
     "nyc": "nyc --cache=false npm run mocha",

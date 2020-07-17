@@ -4,8 +4,15 @@ const {readFile: readFileCallback} = require('fs');
 const {resolve: pathResolve} = require('path');
 const {promisify} = require('util');
 const globby = require('globby');
+const {basePathToRegex} = require('./common.js');
 
 const readFile = promisify(readFileCallback);
+
+const defaultCdnBasePaths = [
+  '[\'"]https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^\'"]*)'
+].map((url) => {
+  return basePathToRegex(url);
+});
 
 /**
  * @param {UpdateCDNURLsOptions} options
@@ -30,7 +37,10 @@ async function updateCDNURLs (options) {
       };
 
   const {
-    file: fileArray, noGlobs, cdnBasePath: cdnBasePaths, cwd = process.cwd()
+    file: fileArray,
+    cdnBasePath: cdnBasePaths = defaultCdnBasePaths,
+    noGlobs,
+    cwd = process.cwd()
     // , outputPath
   } = opts;
 
@@ -48,9 +58,14 @@ async function updateCDNURLs (options) {
     cdnBasePaths.forEach((cdnBasePath) => {
       // https://unpkg.com/leaflet@1.4.0/dist/leaflet.css
       let match;
+      // Todo[engine:node@>=12]: use `matchAll` instead:
+      // `for (const match of fileContents.matchAll(cdnBasePath)) {`
       while ((match = cdnBasePath.exec(fileContents)) !== null) {
         // eslint-disable-next-line no-console -- a
-        console.log(`Hello ${match.groups.name} ${match.groups.version} ${match.groups.path}`);
+        console.log(
+          // eslint-disable-next-line max-len -- a
+          `Hello ${match.groups.name} ${match.groups.version} ${match.groups.path}`
+        );
       }
     });
   });

@@ -1,6 +1,7 @@
 'use strict';
 
 const pkg = require('../package.json');
+const {basePathToRegex} = require('./common.js');
 
 // Todo: We really need a comamnd-line-args-TO-typedef-jsdoc generator!
 //  Might see about https://github.com/dsheiko/bycontract/
@@ -32,11 +33,14 @@ const optionDefinitions = [
     typeLabel: '{underline outputPath}'
   },
   {
-    name: 'cdnBasePath', type (cliString) {
-      return new RegExp(cliString, 'gum');
-    },
+    name: 'cdnBasePath', type: basePathToRegex,
     multiple: true,
-    description: 'Path(s) ',
+    description: 'Regular expression path(s) with named capturing groups, ' +
+      '"name", "version", and "path", indicating how to find CDN URLs and ' +
+      'identify the name, version, and path portions. Defaults to an array ' +
+      'of these URLs: ' +
+      '[\'"]https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/' +
+        '(?<path>[^\'"]*)',
     typeLabel: '{underline base path}'
   },
   {
