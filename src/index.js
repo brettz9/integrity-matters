@@ -9,7 +9,7 @@ const {basePathToRegex} = require('./common.js');
 const readFile = promisify(readFileCallback);
 
 const defaultCdnBasePaths = [
-  '[\'"]https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^\'"]*)'
+  'https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^ \'"]*)'
 ].map((url) => {
   return basePathToRegex(url);
 });
