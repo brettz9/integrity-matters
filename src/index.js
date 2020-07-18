@@ -1,6 +1,6 @@
 'use strict';
 
-const {readFile: readFileCallback} = require('fs');
+const {readFile: readFileCallback, readFileSync} = require('fs');
 const {resolve: pathResolve} = require('path');
 const {promisify} = require('util');
 const globby = require('globby');
@@ -114,6 +114,7 @@ async function updateCDNURLs (options) {
           // Todo: Get version added with a replace expression
           return true;
         }
+        console.log('aaa', readFileSync(`../node_modules/${name}/package.json`));
 
         const cdnBasePathReplacement = cdnBasePathReplacements[i];
         // eslint-disable-next-line no-console -- disable
