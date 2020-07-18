@@ -39,9 +39,17 @@ const optionDefinitions = [
       '"name", "version", and "path", indicating how to find CDN URLs and ' +
       'identify the name, version, and path portions. Defaults to an array ' +
       'of these URLs: ' +
-      'https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/' +
-        '(?<path>[^ \'"]*)',
+      '`https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/' +
+        '(?<path>[^ \'"]*)`, `node_modules/(?<name>[^/]*)/(?<path>[^\'"]*)`',
     typeLabel: '{underline base path}'
+  },
+  {
+    name: 'cdnBasePathReplacements', type: String,
+    multiple: true,
+    description: 'Regular expression replacement expression with named ' +
+      'capturing replacements (`$<name>`, `$<path>`, and optionally ' +
+      '`$<version>`; the latter default to the detected installed version).',
+    typeLabel: '{underline path replacement expression}'
   },
   {
     name: 'noConfig', type: Boolean,

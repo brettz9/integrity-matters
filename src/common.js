@@ -1,5 +1,5 @@
 'use strict';
 
 exports.basePathToRegex = (cliString) => {
-  return new RegExp(cliString, 'gum');
+  return new RegExp(cliString, 'um');
 };
