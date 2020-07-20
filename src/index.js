@@ -8,6 +8,7 @@ const {basePathToRegex} = require('./common.js');
 
 const readFile = promisify(readFileCallback);
 
+// Todo: add other CDN expressions
 const defaultCdnBasePaths = [
   'https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^ \'"]*)',
   'node_modules/(?<name>[^/]*)/(?<path>[^\'"]*)'
@@ -68,37 +69,53 @@ async function updateCDNURLs (options) {
   * @property {Integer} lastIndex
   */
 
-  // Todo: Make for links
   // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
   const scriptPattern = /<script\s+src=['"](?<src>[^'"]*)"(?:\s+integrity="(?<integrity>[^'"]*))?"[^>]*?><\/script>/gum;
+
+  // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
+  const linkPattern = /<link\s+rel="stylesheet"\s+href=['"](?<src>[^'"]*)"(?:\s+integrity="(?<integrity>[^'"]*))?"[^>]*?(?:\/ ?)?>/gum;
+
   /**
    * @todo Replace this with htmlparser2 routine
+   * @callback ObjectGetter
    * @param {string} fileContents
    * @returns {TagObject[]}
    */
-  function getScriptObjects (fileContents) {
-    const matches = [];
-    let match;
-    // Todo[engine:node@>=12]: use `matchAll` instead:
-    // `for (const match of fileContents.matchAll(cdnBasePath)) {`
-    while ((match = scriptPattern.exec(fileContents)) !== null) {
-      const {groups: {src, integrity}} = match;
-      const obj = {
-        src,
-        integrity,
-        // Add this to find position in original string if replacing in place
-        lastIndex: scriptPattern.lastIndex
-      };
-      matches.push(obj);
-    }
-    return matches;
+
+  /**
+   * @param {string} type
+   * @param {RegExp} pattern
+   * @returns {ObjectGetter}
+   */
+  function getObjects (type, pattern) {
+    return (fileContents) => {
+      const matches = [];
+      let match;
+      // Todo[engine:node@>=12]: use `matchAll` instead:
+      // `for (const match of fileContents.matchAll(cdnBasePath)) {`
+      while ((match = pattern.exec(fileContents)) !== null) {
+        const {groups: {src, integrity}} = match;
+        const obj = {
+          src,
+          integrity,
+          // Add this to find position in original string if replacing in place
+          lastIndex: pattern.lastIndex
+        };
+        matches.push(obj);
+      }
+      return matches;
+    };
   }
+
+  const getScriptObjects = getObjects('script', scriptPattern);
+  const getLinkObjects = getObjects('link', linkPattern);
 
   fileContentsArr.forEach((fileContents) => {
     const scriptObjects = getScriptObjects(fileContents);
-    // console.log('scriptObjects', scriptObjects);
+    const linkObjects = getLinkObjects(fileContents);
+    const objects = [...scriptObjects, ...linkObjects];
 
-    scriptObjects.forEach(({src}) => {
+    objects.forEach(({src}) => {
       cdnBasePaths.some((cdnBasePath, i) => {
         // https://unpkg.com/leaflet@1.4.0/dist/leaflet.css
         const match = src.match(cdnBasePath);
@@ -114,7 +131,14 @@ async function updateCDNURLs (options) {
           // Todo: Get version added with a replace expression
           return true;
         }
-        console.log('aaa', readFileSync(`../node_modules/${name}/package.json`));
+
+        // eslint-disable-next-line no-console -- Testing
+        console.log(
+          'version',
+          JSON.parse(readFileSync(
+            `${__dirname}/../node_modules/${name}/package.json`, 'utf8'
+          )).version
+        );
 
         const cdnBasePathReplacement = cdnBasePathReplacements[i];
         // eslint-disable-next-line no-console -- disable
