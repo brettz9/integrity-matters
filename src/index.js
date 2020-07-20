@@ -432,6 +432,7 @@ async function updateCDNURLs (options) {
         const {groups: {src, integrity}} = match;
         const obj = {
           src,
+          type,
           integrity,
           // Add this to find position in original string if replacing in place
           lastIndex: pattern.lastIndex
