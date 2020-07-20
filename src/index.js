@@ -288,7 +288,7 @@ async function updateCDNURLs (options) {
     const linkObjects = getLinkObjects(fileContents);
     const objects = [...scriptObjects, ...linkObjects];
 
-    for (const {src} of objects) {
+    for (const {src, integrity} of objects) {
       for (const [i, cdnBasePath] of cdnBasePaths.entries()) {
         // https://unpkg.com/leaflet@1.4.0/dist/leaflet.css
         const match = src.match(cdnBasePath);
@@ -308,7 +308,7 @@ async function updateCDNURLs (options) {
         const lockDeps = packageLockJSON && packageLockJSON.dependencies;
         const lockDep = lockDeps && lockDeps[name];
         if (lockDep) {
-          const {version: lockVersion, dev, integrity} = lockDep;
+          const {version: lockVersion, dev, integrity: lockIntegrity} = lockDep;
           if (dev && dependencyType !== 'devDependency') {
             throw new Error(
               `Your \`package-lock.json\` treats "${name}" as a ` +
@@ -332,9 +332,9 @@ async function updateCDNURLs (options) {
             const gt = semver.gt(lockVersion, version);
             if (gt) {
               // eslint-disable-next-line no-console -- CLI
-              console.log(
-                `The \`package-lock.json\` version ${lockVersion} is ` +
-                `greater for package "${name}" than the URL version ` +
+              console.warn(
+                `WARNING: The \`package-lock.json\` version ${lockVersion} ` +
+                `is greater for package "${name}" than the URL version ` +
                 `${version}. Updating your URL version...`
                 // `(or downgrade the \`package-lock.json\` version).`
               );
@@ -349,14 +349,35 @@ async function updateCDNURLs (options) {
                   // `(or downgrade the \`package-lock.json\` version).`
                 );
               }
-              // eslint-disable-next-line no-console -- CLI
-              console.log(
-                `The \`package-lock.json\` version ${lockVersion} ` +
-                `for package "${name}" matches the URL version already.`
+              throw new Error(
+                'Unexpected error: Not greater or less than version, nor ' +
+                `satisfied. Comparing version of package ${name} in ` +
+                `\`package-lock.json\` (${lockVersion}) to the version ` +
+                `(${version}) found in the URL.`
               );
             }
           }
-          console.log('integrity', integrity);
+          if (integrity === lockIntegrity) {
+            // eslint-disable-next-line no-console -- CLI
+            console.log(
+              `INFO: integrity in \`package-lock.json\` already ` +
+              `matches the URL (${integrity}).`
+            );
+          } else {
+            // eslint-disable-next-line no-console -- CLI
+            console.warn(
+              `WARNING: integrity in \`package-lock.json\` does ` +
+              `not match the URL integrity portion. Updating ` +
+              `the URL integrity...`
+            );
+            /*
+            console.log(
+              `integrity in \`package-lock.json\` ${lockIntegrity} does ` +
+              `not match the URL integrity portion (${integrity}). Updating ` +
+              `the URL integrity...`
+            );
+            */
+          }
         }
 
         // eslint-disable-next-line no-console -- Testing
