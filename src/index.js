@@ -8,17 +8,27 @@ const {basePathToRegex} = require('./common.js');
 
 const readFile = promisify(readFileCallback);
 
-// Todo: add other CDN expressions
+const semverVersionString = '(?<version>\\d+\\.\\d+.\\d+)';
+const pathVersionString = '(?<path>[^ \'"]*)';
+
 const defaultCdnBasePaths = [
-  'https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^ \'"]*)',
-  'node_modules/(?<name>[^/]*)/(?<path>[^\'"]*)'
+  'https://unpkg.com/(?<name>[^@]*)@' + semverVersionString + pathVersionString,
+  'node_modules/(?<name>[^/]*)/' + pathVersionString,
+  'https://code.jquery.com/(?<name>[^-]*?)-' + semverVersionString + pathVersionString,
+  'https://cdn.jsdelivr.net/npm/(?<name>[^@]*?)@' + semverVersionString + pathVersionString,
+  'https://stackpath.bootstrapcdn.com/(?<name>[^/]*)/' + semverVersionString + pathVersionString
 ].map((url) => {
   return basePathToRegex(url);
 });
 
+// Todo: May need to have replacements back to node_modules, e.g., if CDN
+//  doesn't show `dist`
 const defaultCdnBasePathReplacements = [
-  'https://unpkg.com/$<name>@$<version>/$<path>',
-  'https://unpkg.com/$<name>@$<version>/$<path>'
+  'https://unpkg.com/$<name>@$<version>$<path>',
+  'https://unpkg.com/$<name>@$<version>$<path>',
+  'https://code.jquery.com/$<name>-$<version>$<path>',
+  'https://cdn.jsdelivr.net/npm/$<name>@$<version>$<path>',
+  'https://stackpath.bootstrapcdn.com/$<name>/$<version>$<path>'
 ];
 
 /**
@@ -144,7 +154,8 @@ async function updateCDNURLs (options) {
         // eslint-disable-next-line no-console -- disable
         console.log(
           'cdnBasePathReplacement',
-          src.replace(cdnBasePath, cdnBasePathReplacement)
+          src.replace(cdnBasePath, cdnBasePathReplacement),
+          '\n'
         );
         return true;
       });
