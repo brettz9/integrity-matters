@@ -4,32 +4,41 @@
   <meta charset="utf-8">
   <title>Test</title>
 
+  <!-- Leave in place other links -->
+  <link href="css/main.css" rel="stylesheet">
+
   <!--
   Bootstrap core CSS
   Get path and integrity at:
   https://getbootstrap.com/docs/
   -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+    crossorigin="anonymous">
 
-  <!-- Fontawesome CSS -->
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/brands.css" integrity="sha384-n9+6/aSqa9lBidZMRCQHTHKJscPq6NW4pCQBiMmHdUCvPN8ZOg2zJJTkC7WIezWv" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/fontawesome.css" integrity="sha384-vd1e11sR28tEK9YANUtpIOdjGW14pS87bUBuOIoBILVWLFnS+MCX9T6MMf0VdPGq" crossorigin="anonymous">
-
-  <link href="css/main.css" rel="stylesheet">
-
-  <!-- Leaflet CSS from CDN -->
+  <!--
+  Get path and integrity at: https://leafletjs.com/download.html#using-a-hosted-version-of-leaflet
+  -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
     integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
     crossorigin=""/>
 
-  <!-- Esri Leaflet Geocoder CSS from CDN -->
-  <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.13/dist/esri-leaflet-geocoder.css"
-      integrity="sha512-v5YmWLm8KqAAmg5808pETiccEohtt8rPVMGQ1jA6jqkWVydV5Cuz3nJ9fQ7ittSxvuqsvI9RSGfVoKPaAJZ/AQ=="
-      crossorigin="">
-
 </head>
 
 <body id="page-top">
+
+  <!--
+  Get path and integrity at:
+  -->
+
+  <!--
+  Get path and integrity at: https://leafletjs.com/download.html#using-a-hosted-version-of-leaflet
+  -->
+  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+    integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+    crossorigin=""></script>
 
   <!--
   Bootstrap core JavaScript
@@ -37,31 +46,21 @@
   Get path and integrity at:
   https://getbootstrap.com/docs/
   -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+  <script
+    src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+    integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+    crossorigin="anonymous"></script>
 
-  <!--
-  Get path and integrity at:
-  -->
-
-  <!-- Load Leaflet from CDN -->
-  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-  integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
-  crossorigin=""></script>
-
-  <!-- Load Leaflet.Geodesic from CDN -->
-  <script src="https://unpkg.com/leaflet.geodesic@2.5.2/dist/leaflet.geodesic.umd.min.js"
-  integrity="sha512-wYk8FT/6iIHITfr6/fVDlwhmeBwSAdLYjJ0bheLYJXArkrnv6uDsuwt/fCd9OYJgeQImWZ0eJTp27fMrTafvRQ=="
-  crossorigin=""></script>
-
-  <!-- Load Esri Leaflet from CDN -->
-  <script src="https://unpkg.com/esri-leaflet@2.2.4/dist/esri-leaflet.js"
-    integrity="sha512-tyPum7h2h36X52O2gz+Pe8z/3l+Y9S1yEUscbVs5r5aEY5dFmP1WWRY/WLLElnFHa+k1JBQZSCDGwEAnm2IxAQ=="
-    crossorigin=""></script>
-  <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.13/dist/esri-leaflet-geocoder.js"
-    integrity="sha512-zdT4Pc2tIrc6uoYly2Wp8jh6EPEWaveqqD3sT0lf5yei19BC1WulGuh5CesB0ldBKZieKGD7Qyf/G0jdSe016A=="
-    crossorigin=""></script>
+  <!-- Leave in place other scripts -->
+  <script src="index.js"></script>
 
 </body>
 </html>
