@@ -5,7 +5,7 @@ const {resolve: pathResolve, join} = require('path');
 const {promisify} = require('util');
 
 const semver = require('semver');
-const prompts = require('prompts');
+// const prompts = require('prompts');
 const globby = require('globby');
 const {basePathToRegex} = require('./common.js');
 
@@ -149,11 +149,15 @@ async function updateCDNURLs (options) {
       const type = depRange ? 'dependency' : 'devDependency';
       const range = depRange || (devDependencies && devDependencies[name]);
       const satisfied = semver.satisfies(versionToCheck, range);
+      const gtr = semver.gtr(versionToCheck, range);
+      const ltr = semver.ltr(versionToCheck, range);
       return range
         ? {
           type,
           range,
-          satisfied
+          satisfied,
+          gtr,
+          ltr
         }
         : {};
     };
@@ -208,13 +212,19 @@ async function updateCDNURLs (options) {
         const {
           type,
           range,
+          ltr,
+          gtr,
           satisfied
         } = checkDependency(name, version);
 
         if (!type) {
           const errorMessage =
             `Package "${name}" is not found in \`package.json\`.`;
+          // eslint-disable-next-line max-len -- Over
+          // eslint-disable-next-line sonarjs/no-all-duplicated-branches -- May change later
           if (cli) {
+            throw new Error(errorMessage);
+            // Todo: Add prompt to optionally install?
             // await prompts();
           } else {
             throw new Error(errorMessage);
@@ -224,21 +234,44 @@ async function updateCDNURLs (options) {
         if (satisfied) {
           // eslint-disable-next-line no-console -- CLI
           console.log(
-            `For package "${name}", the version range "${range}" is ` +
-            `satisfied by ${version}.`
+            `The URL's version (${version}) is satisfied by the ` +
+            `dependency "${name}"'s current '\`package.json\` range, ` +
+            `"${range}"...Continuing...`
+          );
+        } else if (ltr) {
+          // Todo: We'd ideally have an option to update to the max version
+          //   in the range ourselves (or update the range to the max
+          //   available on npm); see `.idea/notes.js`
+          // + ' Please point the URL to at least a minimum supported version.';
+          const info =
+            `The URL's version (${version}) is less than the dependency ` +
+            `"${name}"'s current '\`package.json\` range, "${range}."` +
+            ' Updating URL version...';
+          // eslint-disable-next-line no-console -- CLI
+          console.info(info);
+        } else if (gtr) {
+          // eslint-disable-next-line max-len -- Fails
+          // // eslint-disable-next-line no-await-in-loop -- Prompt should be blocking
+          /*
+          await prompts({
+            type: 'text',
+            name: 'newVersion',
+            message: ''
+          });
+          */
+
+          const errorMessage =
+            `The URL's version (${version}) is greater than the dependency ` +
+            `"${name}"'s current '\`package.json\` range, "${range}."` +
+            ' Please either update your `package.json` range to support the ' +
+            ' higher URL version (or downgrade your version in the URL).';
+          throw new Error(
+            errorMessage
           );
         } else {
-          const errorMessage =
-            `For package "${name}", the version range "${range}" is not ` +
-              `satisfied by ${version}.`;
-
-          if (cli) {
-            // await prompts();
-          } else {
-            throw new Error(
-              errorMessage
-            );
-          }
+          throw new Error(
+            'Unexpected error: Not greater or less than range, nor satisfied.'
+          );
         }
 
         console.log(
