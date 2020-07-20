@@ -145,6 +145,8 @@ async function updateCDNURLs (options) {
 
   const yarnLockDeps = {};
   try {
+    // Todo: Should use a proper parser, but https://www.npmjs.com/package/parse-yarn-lock
+    //  seems to be for older verions only.
     const yarnContents = readFileSync(join(cwd, 'yarn.lock'), 'utf8');
     // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
     const yarnPattern = /^"?(?<dep>@?[^"@\n\d]*).*?:\n {2}version "(?<version>[^"\n]*)"(?:\n {2}resolved (?<resolved>[^\n]*))?\n {2}integrity (?<integrity>[^\n]*)\n/gum;
