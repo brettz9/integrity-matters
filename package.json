@@ -35,6 +35,7 @@
   "dependencies": {
     "command-line-basics": "^0.8.0",
     "globby": "^11.0.1",
+    "prompts": "^2.3.2",
     "semver": "^7.3.2"
   },
   "devDependencies": {

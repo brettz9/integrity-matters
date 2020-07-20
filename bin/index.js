@@ -16,7 +16,10 @@ if (!optionDefinitions) { // cliBasics handled
 
 (async () => {
 try {
-  await updateCDNURLs(optionDefinitions);
+  await updateCDNURLs({
+    ...optionDefinitions,
+    cli: true
+  });
 } catch (err) {
   // eslint-disable-next-line no-console -- Report error to user
   console.error(err);

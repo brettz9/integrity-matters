@@ -5,6 +5,7 @@ const {resolve: pathResolve, join} = require('path');
 const {promisify} = require('util');
 
 const semver = require('semver');
+const prompts = require('prompts');
 const globby = require('globby');
 const {basePathToRegex} = require('./common.js');
 
@@ -47,6 +48,7 @@ const defaultCdnBasePathReplacements = [
 
 /**
  * @param {UpdateCDNURLsOptions} options
+ * @throws {Error}
  * @returns {void}
  */
 async function updateCDNURLs (options) {
@@ -73,6 +75,7 @@ async function updateCDNURLs (options) {
     cdnBasePathReplacements = defaultCdnBasePathReplacements,
     nodeModulesReplacements = defaultNodeModulesReplacements,
     noGlobs,
+    cli,
     cwd = process.cwd()
     // , outputPath
   } = opts;
@@ -180,17 +183,17 @@ async function updateCDNURLs (options) {
     yarnLockJSON && yarnLockJSON.version
   );
 
-  fileContentsArr.forEach((fileContents) => {
+  for (const fileContents of fileContentsArr) {
     const scriptObjects = getScriptObjects(fileContents);
     const linkObjects = getLinkObjects(fileContents);
     const objects = [...scriptObjects, ...linkObjects];
 
-    objects.forEach(({src}) => {
-      cdnBasePaths.some((cdnBasePath, i) => {
+    for (const {src} of objects) {
+      for (const [i, cdnBasePath] of cdnBasePaths.entries()) {
         // https://unpkg.com/leaflet@1.4.0/dist/leaflet.css
         const match = src.match(cdnBasePath);
         if (!match) {
-          return false;
+          continue;
         }
         const {groups: {name, version, path}} = match;
         // eslint-disable-next-line no-console -- a
@@ -199,14 +202,44 @@ async function updateCDNURLs (options) {
         );
         if (name && path && !version) {
           // Todo: Get version added with a replace expression
-          return true;
+          break;
         }
 
         const {
           type,
           range,
           satisfied
-        } = checkDependency(name, version)
+        } = checkDependency(name, version);
+
+        if (!type) {
+          const errorMessage =
+            `Package "${name}" is not found in \`package.json\`.`;
+          if (cli) {
+            // await prompts();
+          } else {
+            throw new Error(errorMessage);
+          }
+        }
+
+        if (satisfied) {
+          // eslint-disable-next-line no-console -- CLI
+          console.log(
+            `For package "${name}", the version range "${range}" is ` +
+            `satisfied by ${version}.`
+          );
+        } else {
+          const errorMessage =
+            `For package "${name}", the version range "${range}" is not ` +
+              `satisfied by ${version}.`;
+
+          if (cli) {
+            // await prompts();
+          } else {
+            throw new Error(
+              errorMessage
+            );
+          }
+        }
 
         console.log(
           'version range in package.json',
@@ -237,10 +270,10 @@ async function updateCDNURLs (options) {
           nmPath
         );
         console.log('existsSync', existsSync(nmPath), '\n');
-        return true;
-      });
-    });
-  });
+        break;
+      }
+    }
+  }
   // // eslint-disable-next-line no-console -- CLI
   // console.log('fileContentsArr', fileContentsArr);
 }
