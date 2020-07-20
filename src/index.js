@@ -146,14 +146,14 @@ async function updateCDNURLs (options) {
     const {dependencies, devDependencies} = packageJSON;
     checkDependency = (name, versionToCheck) => {
       const depRange = dependencies && dependencies[name];
-      const type = depRange ? 'dependency' : 'devDependency';
+      const dependencyType = depRange ? 'dependency' : 'devDependency';
       const range = depRange || (devDependencies && devDependencies[name]);
       const satisfied = semver.satisfies(versionToCheck, range);
       const gtr = semver.gtr(versionToCheck, range);
       const ltr = semver.ltr(versionToCheck, range);
       return range
         ? {
-          type,
+          dependencyType,
           range,
           satisfied,
           gtr,
@@ -210,14 +210,14 @@ async function updateCDNURLs (options) {
         }
 
         const {
-          type,
+          dependencyType,
           range,
           ltr,
           gtr,
           satisfied
         } = checkDependency(name, version);
 
-        if (!type) {
+        if (!dependencyType) {
           const errorMessage =
             `Package "${name}" is not found in \`package.json\`.`;
           // eslint-disable-next-line max-len -- Over
@@ -235,8 +235,8 @@ async function updateCDNURLs (options) {
           // eslint-disable-next-line no-console -- CLI
           console.log(
             `The URL's version (${version}) is satisfied by the ` +
-            `dependency "${name}"'s current '\`package.json\` range, ` +
-            `"${range}"...Continuing...`
+            `${dependencyType} "${name}"'s current '\`package.json\` range, ` +
+            `"${range}". Continuing...`
           );
         } else if (ltr) {
           // Todo: We'd ideally have an option to update to the max version
@@ -244,9 +244,10 @@ async function updateCDNURLs (options) {
           //   available on npm); see `.idea/notes.js`
           // + ' Please point the URL to at least a minimum supported version.';
           const info =
-            `The URL's version (${version}) is less than the dependency ` +
-            `"${name}"'s current '\`package.json\` range, "${range}."` +
-            ' Updating URL version...';
+            `The URL's version (${version}) is less than the ` +
+            `${dependencyType} "${name}"'s current '\`package.json\` range, ` +
+            `"${range}". ` +
+            'Updating URL version...';
           // eslint-disable-next-line no-console -- CLI
           console.info(info);
         } else if (gtr) {
@@ -261,9 +262,10 @@ async function updateCDNURLs (options) {
           */
 
           const errorMessage =
-            `The URL's version (${version}) is greater than the dependency ` +
-            `"${name}"'s current '\`package.json\` range, "${range}."` +
-            ' Please either update your `package.json` range to support the ' +
+            `The URL's version (${version}) is greater than the ` +
+            `${dependencyType} "${name}"'s current '\`package.json\` range, ` +
+            `"${range}". ` +
+            'Please either update your `package.json` range to support the ' +
             ' higher URL version (or downgrade your version in the URL).';
           throw new Error(
             errorMessage
@@ -273,13 +275,6 @@ async function updateCDNURLs (options) {
             'Unexpected error: Not greater or less than range, nor satisfied.'
           );
         }
-
-        console.log(
-          'version range in package.json',
-          range,
-          type,
-          satisfied
-        );
 
         // eslint-disable-next-line no-console -- Testing
         console.log(
