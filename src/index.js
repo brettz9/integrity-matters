@@ -133,6 +133,16 @@ async function updateCDNURLs (options) {
   const getScriptObjects = getObjects('script', scriptPattern);
   const getLinkObjects = getObjects('link', linkPattern);
 
+  let packageJSON;
+  try {
+    packageJSON = getLocalJSON(
+      join(cwd, 'package.json')
+    );
+  } catch (e) {
+    //
+  }
+  console.log('packageJSON version', packageJSON.version);
+
   let packageLockJSON, yarnLockJSON;
   try {
     packageLockJSON = getLocalJSON(
