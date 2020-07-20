@@ -48,7 +48,15 @@ const optionDefinitions = [
     multiple: true,
     description: 'Regular expression replacement expression with named ' +
       'capturing replacements (`$<name>`, `$<path>`, and optionally ' +
-      '`$<version>`; the latter default to the detected installed version).',
+      '`$<version>`; the latter defaults to the detected installed version).',
+    typeLabel: '{underline path replacement expression}'
+  },
+  {
+    name: 'nodeModulesReplacements', type: String,
+    multiple: true,
+    description: 'Regular expression replacement expression with named ' +
+      'capturing replacements (`$<name>`, `$<path>`, and optionally ' +
+      '`$<version>`). Used to convert a CDN pattern to local `node_modules`.',
     typeLabel: '{underline path replacement expression}'
   },
   {

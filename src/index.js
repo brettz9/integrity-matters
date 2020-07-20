@@ -21,6 +21,14 @@ const defaultCdnBasePaths = [
   return basePathToRegex(url);
 });
 
+const defaultNodeModulesReplacements = [
+  'node_modules/$<name>$<path>',
+  'node_modules/$<name>$<path>',
+  'node_modules/$<name>/dist/jquery$<path>',
+  'node_modules/$<name>$<path>',
+  'node_modules/$<name>/dist$<path>'
+];
+
 // Todo: May need to have replacements back to node_modules, e.g., if CDN
 //  doesn't show `dist`
 const defaultCdnBasePathReplacements = [
@@ -57,6 +65,7 @@ async function updateCDNURLs (options) {
     file: fileArray,
     cdnBasePath: cdnBasePaths = defaultCdnBasePaths,
     cdnBasePathReplacements = defaultCdnBasePathReplacements,
+    nodeModulesReplacements = defaultNodeModulesReplacements,
     noGlobs,
     cwd = process.cwd()
     // , outputPath
@@ -154,7 +163,13 @@ async function updateCDNURLs (options) {
         // eslint-disable-next-line no-console -- disable
         console.log(
           'cdnBasePathReplacement',
-          src.replace(cdnBasePath, cdnBasePathReplacement),
+          src.replace(cdnBasePath, cdnBasePathReplacement)
+        );
+
+        const nodeModulesReplacement = nodeModulesReplacements[i];
+        console.log(
+          'nodeModulesReplacements',
+          src.replace(cdnBasePath, nodeModulesReplacement),
           '\n'
         );
         return true;
