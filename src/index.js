@@ -1,12 +1,16 @@
 'use strict';
 
-const {readFile: readFileCallback, readFileSync} = require('fs');
-const {resolve: pathResolve} = require('path');
+const {readFile: readFileCallback, readFileSync, existsSync} = require('fs');
+const {resolve: pathResolve, join} = require('path');
 const {promisify} = require('util');
 const globby = require('globby');
 const {basePathToRegex} = require('./common.js');
 
 const readFile = promisify(readFileCallback);
+
+const getLocalJSON = (path) => {
+  return JSON.parse(readFileSync(path), 'utf8');
+};
 
 const semverVersionString = '(?<version>\\d+\\.\\d+.\\d+)';
 const pathVersionString = '(?<path>[^ \'"]*)';
@@ -129,6 +133,28 @@ async function updateCDNURLs (options) {
   const getScriptObjects = getObjects('script', scriptPattern);
   const getLinkObjects = getObjects('link', linkPattern);
 
+  let packageLockJSON, yarnLockJSON;
+  try {
+    packageLockJSON = getLocalJSON(
+      join(cwd, 'package-lock.json')
+    );
+  } catch (err) {
+    //
+  }
+  try {
+    yarnLockJSON = getLocalJSON(
+      join(cwd, 'yarn.lock')
+    );
+  } catch (err) {
+    //
+  }
+
+  console.log(
+    'lock',
+    packageLockJSON && packageLockJSON.version,
+    yarnLockJSON && yarnLockJSON.version
+  );
+
   fileContentsArr.forEach((fileContents) => {
     const scriptObjects = getScriptObjects(fileContents);
     const linkObjects = getLinkObjects(fileContents);
@@ -154,9 +180,9 @@ async function updateCDNURLs (options) {
         // eslint-disable-next-line no-console -- Testing
         console.log(
           'version',
-          JSON.parse(readFileSync(
-            `${__dirname}/../node_modules/${name}/package.json`, 'utf8'
-          )).version
+          getLocalJSON(
+            join(cwd, 'node_modules', name, 'package.json')
+          ).version
         );
 
         const cdnBasePathReplacement = cdnBasePathReplacements[i];
@@ -167,11 +193,12 @@ async function updateCDNURLs (options) {
         );
 
         const nodeModulesReplacement = nodeModulesReplacements[i];
+        const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
         console.log(
           'nodeModulesReplacements',
-          src.replace(cdnBasePath, nodeModulesReplacement),
-          '\n'
+          nmPath
         );
+        console.log('existsSync', existsSync(nmPath), '\n');
         return true;
       });
     });
