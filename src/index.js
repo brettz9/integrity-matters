@@ -419,9 +419,7 @@ async function updateCDNURLs (options) {
 
         const nodeModulesReplacement = nodeModulesReplacements[i];
         const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
-        console.log(
-          `Path: ${path}`
-        );
+        // console.log(`Path: ${path}`);
         console.log(
           'nodeModulesReplacements',
           nmPath
@@ -432,7 +430,12 @@ async function updateCDNURLs (options) {
         // eslint-disable-next-line no-console -- disable
         console.log(
           'cdnBasePathReplacement',
-          src.replace(cdnBasePath, cdnBasePathReplacement),
+          src,
+          src.replace(
+            cdnBasePath,
+            // Todo: Replace by suitable version
+            cdnBasePathReplacement.replace(/\$<version>/u, version)
+          ),
           '\n'
         );
         break;
