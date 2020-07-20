@@ -198,7 +198,8 @@ async function updateCDNURLs (options) {
   /**
    * @param {string} name
    * @param {string} version
-   * @param {"URL"|"package-lock.json"} versionSourceType
+   * @param {"URL"|"`package-lock.json`"|
+   * "`node_modules` `package.json`"} versionSourceType
    * @throws {Error}
    * @returns {VersionInfo}
    */
@@ -238,9 +239,9 @@ async function updateCDNURLs (options) {
         `The ${versionSourceType}'s version (${version}) is less ` +
         `than the ${dependencyType} "${name}"'s current '\`package.json\` ` +
         `range, "${range}".`;
-      if (versionSourceType === 'package-lock.json') {
+      if (versionSourceType !== 'URL') {
         throw new Error(
-          `${info}. Please update your \`package-lock.json\` (e.g., as with ` +
+          `${info}. Please update your ${versionSourceType} (e.g., as with ` +
             `\`npm install\`).`
         );
       }
@@ -378,15 +379,21 @@ async function updateCDNURLs (options) {
             );
             */
           }
+          checkVersions(name, lockVersion, '`package-lock.json`');
         }
 
-        // eslint-disable-next-line no-console -- Testing
-        console.log(
-          'version in nm',
-          getLocalJSON(
+        let nmVersion;
+        try {
+          ({version: nmVersion} = getLocalJSON(
             join(cwd, 'node_modules', name, 'package.json')
-          ).version
-        );
+          ));
+        } catch (err) {
+          //
+        }
+
+        if (nmVersion) {
+          checkVersions(name, nmVersion, '`node_modules` `package.json`');
+        }
 
         const nodeModulesReplacement = nodeModulesReplacements[i];
         const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
