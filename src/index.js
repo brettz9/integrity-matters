@@ -19,11 +19,15 @@ const semverVersionString = '(?<version>\\d+\\.\\d+.\\d+)';
 const pathVersionString = '(?<path>[^ \'"]*)';
 
 const defaultCdnBasePaths = [
-  'https://unpkg.com/(?<name>[^@]*)@' + semverVersionString + pathVersionString,
+  'https://unpkg.com/(?<name>[^@]*)@' + semverVersionString +
+    pathVersionString,
   'node_modules/(?<name>[^/]*)/' + pathVersionString,
-  'https://code.jquery.com/(?<name>[^-]*?)-' + semverVersionString + pathVersionString,
-  'https://cdn.jsdelivr.net/npm/(?<name>[^@]*?)@' + semverVersionString + pathVersionString,
-  'https://stackpath.bootstrapcdn.com/(?<name>[^/]*)/' + semverVersionString + pathVersionString
+  'https://code.jquery.com/(?<name>[^-]*?)-' + semverVersionString +
+    pathVersionString,
+  'https://cdn.jsdelivr.net/npm/(?<name>[^@]*?)@' + semverVersionString +
+    pathVersionString,
+  'https://stackpath.bootstrapcdn.com/(?<name>[^/]*)/' + semverVersionString +
+    pathVersionString
 ].map((url) => {
   return basePathToRegex(url);
 });
@@ -183,9 +187,101 @@ async function updateCDNURLs (options) {
 
   console.log(
     'lock',
-    packageLockJSON && packageLockJSON.version,
     yarnLockJSON && yarnLockJSON.version
   );
+
+  /**
+  * @typedef {PlainObject} VersionInfo
+  * @property {"dependency"|"devDependency"} dependencyType
+  */
+
+  /**
+   * @param {string} name
+   * @param {string} version
+   * @param {"URL"|"package-lock.json"} versionSourceType
+   * @throws {Error}
+   * @returns {VersionInfo}
+   */
+  function checkVersions (name, version, versionSourceType) {
+    const {
+      dependencyType,
+      range,
+      ltr,
+      gtr,
+      satisfied
+    } = checkDependency(name, version);
+
+    if (!dependencyType) {
+      const errorMessage =
+        `Package "${name}" is not found in \`package.json\`.`;
+      // eslint-disable-next-line max-len -- Over
+      // eslint-disable-next-line sonarjs/no-all-duplicated-branches -- May change later
+      if (cli) {
+        throw new Error(errorMessage);
+        // Todo: Add prompt to optionally install?
+        // await prompts();
+      } else {
+        throw new Error(errorMessage);
+      }
+    }
+
+    if (satisfied) {
+      // eslint-disable-next-line no-console -- CLI
+      console.log(
+        `INFO: The ${versionSourceType}'s version (${version}) is satisfied ` +
+        `by the ${dependencyType} "${name}"'s current '\`package.json\` ` +
+        `range, "${range}". Continuing...`
+      );
+    } else if (ltr) {
+      // Todo: Give CLI option to update `package-lock.json`
+      const info =
+        `The ${versionSourceType}'s version (${version}) is less ` +
+        `than the ${dependencyType} "${name}"'s current '\`package.json\` ` +
+        `range, "${range}".`;
+      if (versionSourceType === 'package-lock.json') {
+        throw new Error(
+          `${info}. Please update your \`package-lock.json\` (e.g., as with ` +
+            `\`npm install\`).`
+        );
+      }
+      // Todo: We'd ideally have an option to update to the max version
+      //   in the range ourselves (or update the range to the max
+      //   available on npm); see `.idea/notes.js`
+      // + ' Please point the URL to at least a minimum supported version.';
+      // eslint-disable-next-line no-console -- CLI
+      console.warn(`WARNING: ${info} Updating URL version...`);
+    } else if (gtr) {
+      // eslint-disable-next-line max-len -- Fails
+      // // eslint-disable-next-line no-await-in-loop -- Prompt should be blocking
+      /*
+      await prompts({
+        type: 'text',
+        name: 'newVersion',
+        message: ''
+      });
+      */
+
+      const errorMessage =
+        `The ${versionSourceType}'s version (${version}) is greater than ` +
+        `the ${dependencyType} "${name}"'s current '\`package.json\` ` +
+        `range, "${range}". ` +
+        'Please either update your `package.json` range to support the ' +
+        ` higher ${versionSourceType} version (or downgrade your version ` +
+        `in the ${versionSourceType}).`;
+      throw new Error(
+        errorMessage
+      );
+    } else {
+      throw new Error(
+        'Unexpected error: Not greater or less than range, nor satisfied. ' +
+        `Comparing package ${name} in \`package.json\` to the version ` +
+        `(${version}) found in the ${versionSourceType}.`
+      );
+    }
+    return {
+      dependencyType
+    };
+  }
 
   for (const fileContents of fileContentsArr) {
     const scriptObjects = getScriptObjects(fileContents);
@@ -203,75 +299,64 @@ async function updateCDNURLs (options) {
         if (name && path && !version) {
           // Todo: Get version added with a replace expression
           // eslint-disable-next-line no-console -- CLI
-          console.log('Not yet implemented');
+          console.error('Not yet implemented');
           break;
         }
 
-        const {
-          dependencyType,
-          range,
-          ltr,
-          gtr,
-          satisfied
-        } = checkDependency(name, version);
+        const {dependencyType} = checkVersions(name, version, 'URL');
 
-        if (!dependencyType) {
-          const errorMessage =
-            `Package "${name}" is not found in \`package.json\`.`;
-          // eslint-disable-next-line max-len -- Over
-          // eslint-disable-next-line sonarjs/no-all-duplicated-branches -- May change later
-          if (cli) {
-            throw new Error(errorMessage);
-            // Todo: Add prompt to optionally install?
-            // await prompts();
-          } else {
-            throw new Error(errorMessage);
+        const lockDeps = packageLockJSON && packageLockJSON.dependencies;
+        const lockDep = lockDeps && lockDeps[name];
+        if (lockDep) {
+          const {version: lockVersion, dev, integrity} = lockDep;
+          if (dev && dependencyType !== 'devDependency') {
+            throw new Error(
+              `Your \`package-lock.json\` treats "${name}" as a ` +
+              `devDependency while your \`package.json\` treats it otherwise.`
+            );
+          } else if (!dev && dependencyType !== 'dependency') {
+            throw new Error(
+              `Your \`package-lock.json\` treats "${name}" as a ` +
+              `(non-dev) dependency while your \`package.json\` treats it as ` +
+              `a dev dependency.`
+            );
           }
-        }
 
-        if (satisfied) {
-          // eslint-disable-next-line no-console -- CLI
-          console.log(
-            `The URL's version (${version}) is satisfied by the ` +
-            `${dependencyType} "${name}"'s current '\`package.json\` range, ` +
-            `"${range}". Continuing...`
-          );
-        } else if (ltr) {
-          // Todo: We'd ideally have an option to update to the max version
-          //   in the range ourselves (or update the range to the max
-          //   available on npm); see `.idea/notes.js`
-          // + ' Please point the URL to at least a minimum supported version.';
-          const info =
-            `The URL's version (${version}) is less than the ` +
-            `${dependencyType} "${name}"'s current '\`package.json\` range, ` +
-            `"${range}". ` +
-            'Updating URL version...';
-          // eslint-disable-next-line no-console -- CLI
-          console.info(info);
-        } else if (gtr) {
-          // eslint-disable-next-line max-len -- Fails
-          // // eslint-disable-next-line no-await-in-loop -- Prompt should be blocking
-          /*
-          await prompts({
-            type: 'text',
-            name: 'newVersion',
-            message: ''
-          });
-          */
-
-          const errorMessage =
-            `The URL's version (${version}) is greater than the ` +
-            `${dependencyType} "${name}"'s current '\`package.json\` range, ` +
-            `"${range}". ` +
-            'Please either update your `package.json` range to support the ' +
-            ' higher URL version (or downgrade your version in the URL).';
-          throw new Error(
-            errorMessage
-          );
-        } else {
-          throw new Error(
-            'Unexpected error: Not greater or less than range, nor satisfied.'
-          );
+          if (lockVersion === version) {
+            // eslint-disable-next-line no-console -- CLI
+            console.log(
+              `INFO: Dependency ${name} in \`package-lock.json\` already ` +
+              `matches URL version (${version}).`
+            );
+          } else {
+            const gt = semver.gt(lockVersion, version);
+            if (gt) {
+              // eslint-disable-next-line no-console -- CLI
+              console.log(
+                `The \`package-lock.json\` version ${lockVersion} is ` +
+                `greater for package "${name}" than the URL version ` +
+                `${version}. Updating your URL version...`
+                // `(or downgrade the \`package-lock.json\` version).`
+              );
+            } else {
+              const lt = semver.lt(lockVersion, version);
+              if (lt) {
+                throw new Error(
+                  `The \`package-lock.json\` version ${lockVersion} is ` +
+                  `less for package "${name}" than the URL version ` +
+                  `${version}. Please update your \`package-lock\` (or ` +
+                  `downgrade the version in your URL)...`
+                  // `(or downgrade the \`package-lock.json\` version).`
+                );
+              }
+              // eslint-disable-next-line no-console -- CLI
+              console.log(
+                `The \`package-lock.json\` version ${lockVersion} ` +
+                `for package "${name}" matches the URL version already.`
+              );
+            }
+          }
+          console.log('integrity', integrity);
         }
 
         // eslint-disable-next-line no-console -- Testing
