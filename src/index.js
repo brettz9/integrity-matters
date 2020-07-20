@@ -70,7 +70,7 @@ async function updateCDNURLs (options) {
 
   // Todo: Make for links
   // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
-  const scriptPattern = /<script src=['"](?<src>[^'"]*)"(?:\s+integrity="(?<integrity>[^'"]*))?"[^>]*?><\/script>/gum;
+  const scriptPattern = /<script\s+src=['"](?<src>[^'"]*)"(?:\s+integrity="(?<integrity>[^'"]*))?"[^>]*?><\/script>/gum;
   /**
    * @todo Replace this with htmlparser2 routine
    * @param {string} fileContents
