@@ -200,12 +200,10 @@ async function updateCDNURLs (options) {
           continue;
         }
         const {groups: {name, version, path}} = match;
-        // eslint-disable-next-line no-console -- a
-        console.log(
-          `Hello ${name} ${version} ${path}`
-        );
         if (name && path && !version) {
           // Todo: Get version added with a replace expression
+          // eslint-disable-next-line no-console -- CLI
+          console.log('Not yet implemented');
           break;
         }
 
@@ -284,20 +282,24 @@ async function updateCDNURLs (options) {
           ).version
         );
 
-        const cdnBasePathReplacement = cdnBasePathReplacements[i];
-        // eslint-disable-next-line no-console -- disable
-        console.log(
-          'cdnBasePathReplacement',
-          src.replace(cdnBasePath, cdnBasePathReplacement)
-        );
-
         const nodeModulesReplacement = nodeModulesReplacements[i];
         const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
+        console.log(
+          `Path: ${path}`
+        );
         console.log(
           'nodeModulesReplacements',
           nmPath
         );
-        console.log('existsSync', existsSync(nmPath), '\n');
+        console.log('existsSync', existsSync(nmPath));
+
+        const cdnBasePathReplacement = cdnBasePathReplacements[i];
+        // eslint-disable-next-line no-console -- disable
+        console.log(
+          'cdnBasePathReplacement',
+          src.replace(cdnBasePath, cdnBasePathReplacement),
+          '\n'
+        );
         break;
       }
     }
