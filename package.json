@@ -34,7 +34,8 @@
   },
   "dependencies": {
     "command-line-basics": "^0.8.0",
-    "globby": "^11.0.1"
+    "globby": "^11.0.1",
+    "semver": "^7.3.2"
   },
   "devDependencies": {
     "@mysticatea/eslint-plugin": "^13.0.0",

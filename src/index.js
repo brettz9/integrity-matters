@@ -3,6 +3,8 @@
 const {readFile: readFileCallback, readFileSync, existsSync} = require('fs');
 const {resolve: pathResolve, join} = require('path');
 const {promisify} = require('util');
+
+const semver = require('semver');
 const globby = require('globby');
 const {basePathToRegex} = require('./common.js');
 
@@ -133,15 +135,28 @@ async function updateCDNURLs (options) {
   const getScriptObjects = getObjects('script', scriptPattern);
   const getLinkObjects = getObjects('link', linkPattern);
 
-  let packageJSON;
+  let checkDependency;
   try {
-    packageJSON = getLocalJSON(
+    const packageJSON = getLocalJSON(
       join(cwd, 'package.json')
     );
+    const {dependencies, devDependencies} = packageJSON;
+    checkDependency = (name, versionToCheck) => {
+      const depRange = dependencies && dependencies[name];
+      const type = depRange ? 'dependency' : 'devDependency';
+      const range = depRange || (devDependencies && devDependencies[name]);
+      const satisfied = semver.satisfies(versionToCheck, range);
+      return range
+        ? {
+          type,
+          range,
+          satisfied
+        }
+        : {};
+    };
   } catch (e) {
     //
   }
-  console.log('packageJSON version', packageJSON.version);
 
   let packageLockJSON, yarnLockJSON;
   try {
@@ -187,9 +202,22 @@ async function updateCDNURLs (options) {
           return true;
         }
 
+        const {
+          type,
+          range,
+          satisfied
+        } = checkDependency(name, version)
+
+        console.log(
+          'version range in package.json',
+          range,
+          type,
+          satisfied
+        );
+
         // eslint-disable-next-line no-console -- Testing
         console.log(
-          'version',
+          'version in nm',
           getLocalJSON(
             join(cwd, 'node_modules', name, 'package.json')
           ).version
