@@ -107,41 +107,6 @@ async function updateCDNURLs (options) {
   // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
   const linkPattern = /<link\s+rel="stylesheet"\s+href=['"](?<src>[^'"]*)"(?:\s+integrity="(?<integrity>[^'"]*))?"[^>]*?(?:\/ ?)?>/gum;
 
-  /**
-   * @todo Replace this with htmlparser2 routine
-   * @callback ObjectGetter
-   * @param {string} fileContents
-   * @returns {TagObject[]}
-   */
-
-  /**
-   * @param {string} type
-   * @param {RegExp} pattern
-   * @returns {ObjectGetter}
-   */
-  function getObjects (type, pattern) {
-    return (fileContents) => {
-      const matches = [];
-      let match;
-      // Todo[engine:node@>=12]: use `matchAll` instead:
-      // `for (const match of fileContents.matchAll(cdnBasePath)) {`
-      while ((match = pattern.exec(fileContents)) !== null) {
-        const {groups: {src, integrity}} = match;
-        const obj = {
-          src,
-          integrity,
-          // Add this to find position in original string if replacing in place
-          lastIndex: pattern.lastIndex
-        };
-        matches.push(obj);
-      }
-      return matches;
-    };
-  }
-
-  const getScriptObjects = getObjects('script', scriptPattern);
-  const getLinkObjects = getObjects('link', linkPattern);
-
   let checkDependency;
   try {
     const packageJSON = getLocalJSON(
@@ -289,157 +254,202 @@ async function updateCDNURLs (options) {
     };
   }
 
+  /**
+   * @param {PlainObject} cfg
+   * @param {string} cfg.src
+   * @param {string} cfg.integrity
+   * @returns {void}
+   */
+  function updateResources ({src, integrity}) {
+    for (const [i, cdnBasePath] of cdnBasePaths.entries()) {
+      // https://unpkg.com/leaflet@1.4.0/dist/leaflet.css
+      const match = src.match(cdnBasePath);
+      if (!match) {
+        continue;
+      }
+      const {groups: {name, version, path}} = match;
+      if (name && path && !version) {
+        // Todo: Get version added with a replace expression
+        // eslint-disable-next-line no-console -- CLI
+        console.error('Not yet implemented');
+        break;
+      }
+
+      const {dependencyType} = checkVersions(name, version, 'URL');
+
+      const compareLockToPackage = (lockVersion, lockIntegrity, dev) => {
+        if (dev !== undefined) {
+          if (dev && dependencyType !== 'devDependency') {
+            throw new Error(
+              `Your lock file treats "${name}" as a ` +
+              `devDependency while your \`package.json\` treats it otherwise.`
+            );
+          } else if (!dev && dependencyType !== 'dependency') {
+            throw new Error(
+              `Your lock file treats "${name}" as a ` +
+              `(non-dev) dependency while your \`package.json\` treats it ` +
+              `as a dev dependency.`
+            );
+          }
+        }
+
+        if (lockVersion === version) {
+          // eslint-disable-next-line no-console -- CLI
+          console.log(
+            `INFO: Dependency ${name} in your lock file already ` +
+            `matches URL version (${version}).`
+          );
+        } else {
+          const gt = semver.gt(lockVersion, version);
+          if (gt) {
+            // eslint-disable-next-line no-console -- CLI
+            console.warn(
+              `WARNING: The lock file version ${lockVersion} ` +
+              `is greater for package "${name}" than the URL version ` +
+              `${version}. Updating your URL version...`
+              // `(or downgrade the \`package-lock.json\` version).`
+            );
+          } else {
+            const lt = semver.lt(lockVersion, version);
+            if (lt) {
+              throw new Error(
+                `The lock file version ${lockVersion} is ` +
+                `less for package "${name}" than the URL version ` +
+                `${version}. Please update your lock file (or ` +
+                `downgrade the version in your URL)...`
+                // `(or downgrade the \`package-lock.json\` version).`
+              );
+            }
+            throw new Error(
+              'Unexpected error: Not greater or less than version, nor ' +
+              `satisfied. Comparing version of package ${name} in ` +
+              `lock file (${lockVersion}) to the version ` +
+              `(${version}) found in the URL.`
+            );
+          }
+        }
+        if (integrity === lockIntegrity) {
+          // eslint-disable-next-line no-console -- CLI
+          console.log(
+            `INFO: integrity in your lock file already ` +
+            `matches the URL (${integrity}).`
+          );
+        } else {
+          // eslint-disable-next-line no-console -- CLI
+          console.warn(
+            `WARNING: integrity in your lock file does ` +
+            `not match the URL integrity portion. Updating ` +
+            `the URL integrity...`
+          );
+          /*
+          console.log(
+            `integrity in your lock file ${lockIntegrity} does ` +
+            `not match the URL integrity portion (${integrity}). Updating ` +
+            `the URL integrity...`
+          );
+          */
+        }
+      };
+
+      const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
+      const npmLockDep = npmLockDeps && npmLockDeps[name];
+      if (npmLockDep) {
+        const {
+          version: lockVersion, dev, integrity: lockIntegrity
+        } = npmLockDep;
+        compareLockToPackage(lockVersion, lockIntegrity, dev);
+        checkVersions(name, lockVersion, '`package-lock.json`');
+      } else {
+        const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
+        if (yarnLockDep) {
+          const {
+            version: lockVersion, integrity: lockIntegrity
+          } = npmLockDep;
+          compareLockToPackage(lockVersion, lockIntegrity);
+          checkVersions(name, lockVersion, '`yarn.lock`');
+        }
+      }
+
+      let nmVersion;
+      try {
+        ({version: nmVersion} = getLocalJSON(
+          join(cwd, 'node_modules', name, 'package.json')
+        ));
+      } catch (err) {
+        //
+      }
+
+      if (nmVersion) {
+        checkVersions(name, nmVersion, '`node_modules` `package.json`');
+      }
+
+      const nodeModulesReplacement = nodeModulesReplacements[i];
+      const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
+      // console.log(`Path: ${path}`);
+      console.log(
+        'nodeModulesReplacements',
+        nmPath
+      );
+      console.log('existsSync', existsSync(nmPath));
+
+      const cdnBasePathReplacement = cdnBasePathReplacements[i];
+      // eslint-disable-next-line no-console -- disable
+      console.log(
+        'cdnBasePathReplacement',
+        src,
+        src.replace(
+          cdnBasePath,
+          // Todo: Replace by suitable version
+          cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, version)
+        ),
+        '\n'
+      );
+      break;
+    }
+  }
+
+  /**
+   * @todo Replace this with htmlparser2 routine
+   * @callback ObjectGetter
+   * @param {string} fileContents
+   * @returns {TagObject[]}
+   */
+
+  /**
+   * @param {string} type
+   * @param {RegExp} pattern
+   * @returns {ObjectGetter}
+   */
+  function getObjects (type, pattern) {
+    return (fileContents) => {
+      const matches = [];
+      let match;
+      // Todo[engine:node@>=12]: use `matchAll` instead:
+      // `for (const match of fileContents.matchAll(cdnBasePath)) {`
+      while ((match = pattern.exec(fileContents)) !== null) {
+        const {groups: {src, integrity}} = match;
+        const obj = {
+          src,
+          integrity,
+          // Add this to find position in original string if replacing in place
+          lastIndex: pattern.lastIndex
+        };
+        matches.push(obj);
+      }
+      return matches;
+    };
+  }
+
+  const getScriptObjects = getObjects('script', scriptPattern);
+  const getLinkObjects = getObjects('link', linkPattern);
+
   for (const fileContents of fileContentsArr) {
     const scriptObjects = getScriptObjects(fileContents);
     const linkObjects = getLinkObjects(fileContents);
     const objects = [...scriptObjects, ...linkObjects];
 
     for (const {src, integrity} of objects) {
-      for (const [i, cdnBasePath] of cdnBasePaths.entries()) {
-        // https://unpkg.com/leaflet@1.4.0/dist/leaflet.css
-        const match = src.match(cdnBasePath);
-        if (!match) {
-          continue;
-        }
-        const {groups: {name, version, path}} = match;
-        if (name && path && !version) {
-          // Todo: Get version added with a replace expression
-          // eslint-disable-next-line no-console -- CLI
-          console.error('Not yet implemented');
-          break;
-        }
-
-        const {dependencyType} = checkVersions(name, version, 'URL');
-
-        const compareLockToPackage = (lockVersion, lockIntegrity, dev) => {
-          if (dev !== undefined) {
-            if (dev && dependencyType !== 'devDependency') {
-              throw new Error(
-                `Your lock file treats "${name}" as a ` +
-                `devDependency while your \`package.json\` treats it otherwise.`
-              );
-            } else if (!dev && dependencyType !== 'dependency') {
-              throw new Error(
-                `Your lock file treats "${name}" as a ` +
-                `(non-dev) dependency while your \`package.json\` treats it ` +
-                `as a dev dependency.`
-              );
-            }
-          }
-
-          if (lockVersion === version) {
-            // eslint-disable-next-line no-console -- CLI
-            console.log(
-              `INFO: Dependency ${name} in your lock file already ` +
-              `matches URL version (${version}).`
-            );
-          } else {
-            const gt = semver.gt(lockVersion, version);
-            if (gt) {
-              // eslint-disable-next-line no-console -- CLI
-              console.warn(
-                `WARNING: The lock file version ${lockVersion} ` +
-                `is greater for package "${name}" than the URL version ` +
-                `${version}. Updating your URL version...`
-                // `(or downgrade the \`package-lock.json\` version).`
-              );
-            } else {
-              const lt = semver.lt(lockVersion, version);
-              if (lt) {
-                throw new Error(
-                  `The lock file version ${lockVersion} is ` +
-                  `less for package "${name}" than the URL version ` +
-                  `${version}. Please update your lock file (or ` +
-                  `downgrade the version in your URL)...`
-                  // `(or downgrade the \`package-lock.json\` version).`
-                );
-              }
-              throw new Error(
-                'Unexpected error: Not greater or less than version, nor ' +
-                `satisfied. Comparing version of package ${name} in ` +
-                `lock file (${lockVersion}) to the version ` +
-                `(${version}) found in the URL.`
-              );
-            }
-          }
-          if (integrity === lockIntegrity) {
-            // eslint-disable-next-line no-console -- CLI
-            console.log(
-              `INFO: integrity in your lock file already ` +
-              `matches the URL (${integrity}).`
-            );
-          } else {
-            // eslint-disable-next-line no-console -- CLI
-            console.warn(
-              `WARNING: integrity in your lock file does ` +
-              `not match the URL integrity portion. Updating ` +
-              `the URL integrity...`
-            );
-            /*
-            console.log(
-              `integrity in your lock file ${lockIntegrity} does ` +
-              `not match the URL integrity portion (${integrity}). Updating ` +
-              `the URL integrity...`
-            );
-            */
-          }
-        };
-
-        const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
-        const npmLockDep = npmLockDeps && npmLockDeps[name];
-        if (npmLockDep) {
-          const {
-            version: lockVersion, dev, integrity: lockIntegrity
-          } = npmLockDep;
-          compareLockToPackage(lockVersion, lockIntegrity, dev);
-          checkVersions(name, lockVersion, '`package-lock.json`');
-        } else {
-          const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
-          if (yarnLockDep) {
-            const {
-              version: lockVersion, integrity: lockIntegrity
-            } = npmLockDep;
-            compareLockToPackage(lockVersion, lockIntegrity);
-            checkVersions(name, lockVersion, '`yarn.lock`');
-          }
-        }
-
-        let nmVersion;
-        try {
-          ({version: nmVersion} = getLocalJSON(
-            join(cwd, 'node_modules', name, 'package.json')
-          ));
-        } catch (err) {
-          //
-        }
-
-        if (nmVersion) {
-          checkVersions(name, nmVersion, '`node_modules` `package.json`');
-        }
-
-        const nodeModulesReplacement = nodeModulesReplacements[i];
-        const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
-        // console.log(`Path: ${path}`);
-        console.log(
-          'nodeModulesReplacements',
-          nmPath
-        );
-        console.log('existsSync', existsSync(nmPath));
-
-        const cdnBasePathReplacement = cdnBasePathReplacements[i];
-        // eslint-disable-next-line no-console -- disable
-        console.log(
-          'cdnBasePathReplacement',
-          src,
-          src.replace(
-            cdnBasePath,
-            // Todo: Replace by suitable version
-            cdnBasePathReplacement.replace(/\$<version>/u, version)
-          ),
-          '\n'
-        );
-        break;
-      }
+      updateResources({src, integrity});
     }
   }
   // // eslint-disable-next-line no-console -- CLI
