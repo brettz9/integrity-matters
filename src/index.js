@@ -51,6 +51,39 @@ const defaultCdnBasePathReplacements = [
 ];
 
 /**
+ * @todo Replace this with htmlparser2 routine
+ * @callback ObjectGetter
+ * @param {string} fileContents
+ * @returns {TagObject[]}
+ */
+
+/**
+ * @param {string} type
+ * @param {RegExp} pattern
+ * @returns {ObjectGetter}
+ */
+function getObjects (type, pattern) {
+  return (fileContents) => {
+    const matches = [];
+    let match;
+    // Todo[engine:node@>=12]: use `matchAll` instead:
+    // `for (const match of fileContents.matchAll(cdnBasePath)) {`
+    while ((match = pattern.exec(fileContents)) !== null) {
+      const {groups: {src, integrity}} = match;
+      const obj = {
+        src,
+        type,
+        integrity,
+        // Add this to find position in original string if replacing in place
+        lastIndex: pattern.lastIndex
+      };
+      matches.push(obj);
+    }
+    return matches;
+  };
+}
+
+/**
  * @param {UpdateCDNURLsOptions} options
  * @throws {Error}
  * @returns {void}
@@ -84,11 +117,13 @@ async function updateCDNURLs (options) {
     // , outputPath
   } = opts;
 
-  const files = noGlobs
-    ? fileArray
-    : await globby(fileArray, {
-      cwd
-    });
+  const files = fileArray
+    ? noGlobs
+      ? fileArray
+      : await globby(fileArray, {
+        cwd
+      })
+    : [];
 
   const fileContentsArr = await Promise.all(files.map((file) => {
     return readFile(file, 'utf8');
@@ -410,53 +445,22 @@ async function updateCDNURLs (options) {
     }
   }
 
-  /**
-   * @todo Replace this with htmlparser2 routine
-   * @callback ObjectGetter
-   * @param {string} fileContents
-   * @returns {TagObject[]}
-   */
+  if (fileContentsArr.length) {
+    const getScriptObjects = getObjects('script', scriptPattern);
+    const getLinkObjects = getObjects('link', linkPattern);
 
-  /**
-   * @param {string} type
-   * @param {RegExp} pattern
-   * @returns {ObjectGetter}
-   */
-  function getObjects (type, pattern) {
-    return (fileContents) => {
-      const matches = [];
-      let match;
-      // Todo[engine:node@>=12]: use `matchAll` instead:
-      // `for (const match of fileContents.matchAll(cdnBasePath)) {`
-      while ((match = pattern.exec(fileContents)) !== null) {
-        const {groups: {src, integrity}} = match;
-        const obj = {
-          src,
-          type,
-          integrity,
-          // Add this to find position in original string if replacing in place
-          lastIndex: pattern.lastIndex
-        };
-        matches.push(obj);
+    for (const fileContents of fileContentsArr) {
+      const scriptObjects = getScriptObjects(fileContents);
+      const linkObjects = getLinkObjects(fileContents);
+      const objects = [...scriptObjects, ...linkObjects];
+
+      for (const {src, integrity} of objects) {
+        updateResources({src, integrity});
       }
-      return matches;
-    };
-  }
-
-  const getScriptObjects = getObjects('script', scriptPattern);
-  const getLinkObjects = getObjects('link', linkPattern);
-
-  for (const fileContents of fileContentsArr) {
-    const scriptObjects = getScriptObjects(fileContents);
-    const linkObjects = getLinkObjects(fileContents);
-    const objects = [...scriptObjects, ...linkObjects];
-
-    for (const {src, integrity} of objects) {
-      updateResources({src, integrity});
     }
+    // // eslint-disable-next-line no-console -- CLI
+    // console.log('fileContentsArr', fileContentsArr);
   }
-  // // eslint-disable-next-line no-console -- CLI
-  // console.log('fileContentsArr', fileContentsArr);
 }
 
 exports.updateCDNURLs = updateCDNURLs;
