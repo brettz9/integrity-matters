@@ -135,13 +135,17 @@ class HTMLStrategy {
   /**
    * @param {SrcIntegrityObject} info
    * @param {string} newSrc
+   * @param {string} newIntegrity
    * @returns {void}
    */
-  update (info, newSrc) {
+  update (info, newSrc, newIntegrity) {
     if (info.type === 'link') {
       info.elem.attr('href', newSrc);
     } else {
       info.elem.attr('src', newSrc);
+    }
+    if (newIntegrity) {
+      info.elem.attr('integrity', newIntegrity);
     }
   }
 
@@ -269,7 +273,8 @@ async function updateCDNURLs (options) {
 
   const yarnLockDeps = {};
   try {
-    // Todo: Should use a proper parser, but https://www.npmjs.com/package/parse-yarn-lock
+    // Todo: Should use a proper parser, but
+    // https://www.npmjs.com/package/parse-yarn-lock
     //  seems to be for older verions only.
     const yarnContents = readFileSync(join(cwd, 'yarn.lock'), 'utf8');
     // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
@@ -364,8 +369,8 @@ async function updateCDNURLs (options) {
       );
       updatingVersion = true;
     } else if (gtr) {
-      // eslint-disable-next-line max-len -- Fails
-      // // eslint-disable-next-line no-await-in-loop -- Prompt should be blocking
+      // // eslint-disable-next-line no-await-in-loop -- Prompt should be
+      //     blocking
       /*
       await prompts({
         type: 'text',
@@ -540,7 +545,9 @@ async function updateCDNURLs (options) {
         console.info(`INFO: Found valid \`package.json\` for "${name}".`);
       } catch (err) {
         // eslint-disable-next-line no-console -- CLI
-        console.warn(`WARNING: No valid \`package.json\` found for "${name}".`);
+        console.warn(
+          `WARNING: No valid \`package.json\` found for "${name}".`
+        );
       }
 
       if (nmVersion) {
@@ -569,33 +576,49 @@ async function updateCDNURLs (options) {
         nmPath
       );
 
+      let newIntegrity;
       if (existsSync(nmPath)) {
         // Todo: Make configurable
         const integrityHashes = integrity.split(/\s+/u);
-        for (const integrityHash of integrityHashes) {
-          const hashMatch = integrityHash.match(/^(?<algorithm>sha\d{3})-(?<base64Hash>.*$)/u);
-          if (!hashMatch) {
-            return;
-          }
-          const {groups: {algorithm, base64Hash}} = hashMatch;
 
-          if (!htmlPermittedAlgorithms.has(algorithm)) {
-            throw new Error(
-              `Unrecognized algorithm: "${algorithm}" (obtained ` +
-                `from integrity value, "${integrityHash}")`
+        // eslint-disable-next-line no-await-in-loop -- Temporary
+        const localHashes = await Promise.all(
+          integrityHashes.map(async (integrityHash, j) => {
+            const hashMatch = integrityHash.match(
+              /^(?<algorithm>sha\d{3})-(?<base64Hash>.*$)/u
             );
-          }
-          const localHash = await getHash(algorithm, nmPath);
-          console.log(
-            nmPath,
-            '\n',
-            algorithm,
-            '\n',
-            base64Hash,
-            '\n',
-            localHash
-          );
-        }
+            if (!hashMatch) {
+              return integrityHash;
+            }
+            const {groups: {algorithm, base64Hash}} = hashMatch;
+
+            if (!htmlPermittedAlgorithms.has(algorithm)) {
+              throw new Error(
+                `Unrecognized algorithm: "${algorithm}" (obtained ` +
+                  `from integrity value, "${integrityHash}")`
+              );
+            }
+            const localHash = await getHash(algorithm, nmPath);
+            if (localHash !== base64Hash) {
+              // eslint-disable-next-line no-console -- CLI
+              console.warn(
+                `WARNING: Local hash ${localHash} does not match ` +
+                  `corresponding hash (index ${j}) within the integrity ` +
+                  `attribute (${base64Hash}); algorithm: ${algorithm}; ` +
+                  `file ${nmPath}`
+              );
+            } else {
+              // eslint-disable-next-line no-console -- CLI
+              console.log(
+                `INFO: Local hash matches corresponding hash (index ${j}) ` +
+                `within the integrity attribute; algorithm: ${algorithm}; ` +
+                `file ${nmPath}.`
+              );
+            }
+            return `${algorithm}-${localHash}`;
+          })
+        );
+        newIntegrity = localHashes.join(' ');
       }
 
       const cdnBasePathReplacement = cdnBasePathReplacements[i];
@@ -604,7 +627,7 @@ async function updateCDNURLs (options) {
         // Todo: Replace by suitable version
         cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
       );
-      strategy.update(info, newSrc);
+      strategy.update(info, newSrc, newIntegrity);
 
       // eslint-disable-next-line no-console -- CLI
       console.log('\n');
