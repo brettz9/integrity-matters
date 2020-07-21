@@ -1,6 +1,10 @@
 'use strict';
 
-const {readFile: readFileCallback, readFileSync, existsSync} = require('fs');
+const {
+  readFile: readFileCallback,
+  writeFile: writeFileCallback,
+  readFileSync, existsSync
+} = require('fs');
 const {resolve: pathResolve, join} = require('path');
 const {promisify} = require('util');
 
@@ -13,6 +17,7 @@ const {basePathToRegex} = require('./common.js');
 const handleDOM = require('./handleDOM.js');
 
 const readFile = promisify(readFileCallback);
+const writeFile = promisify(writeFileCallback);
 
 const getLocalJSON = (path) => {
   return JSON.parse(readFileSync(path), 'utf8');
@@ -61,12 +66,18 @@ const defaultCdnBasePathReplacements = [
 */
 
 /**
+* @typedef {PlainObject} ObjectInfo
+* @property {TagObject} doc
+* @property {TagObject[]} objects
+*/
+
+/**
  * @param {string} contents
- * @returns {Promise<TagObject[]>}
+ * @returns {Promise<ObjectInfo>}
  */
 async function getObjects (contents) {
-  const dom = await handleDOM(contents);
-  const $ = cheerio.load(dom);
+  const doc = await handleDOM(contents);
+  const $ = cheerio.load(doc);
 
   const scripts = $('script[src]').toArray().map((elem) => {
     const {
@@ -82,7 +93,11 @@ async function getObjects (contents) {
     return {src, integrity, type: 'link', elem: $(elem)};
   });
 
-  return [...scripts, ...links];
+  return {
+    // $,
+    doc,
+    objects: [...scripts, ...links]
+  };
 }
 
 /* eslint-disable class-methods-use-this -- Debugging */
@@ -96,6 +111,13 @@ class JSONStrategy {
    * @returns {void}
    */
   update (info, newSrc) {
+    // Todo:
+  }
+
+  /**
+   * @returns {void}
+   */
+  save () {
     // Todo:
   }
 }
@@ -115,14 +137,18 @@ class HTMLStrategy {
     } else {
       info.elem.attr('src', newSrc);
     }
-    console.log('info.elem', cheerio.html(info.elem));
   }
 
   /**
+   * @param {SrcIntegrityObject} info
+   * @param {string} file Path
    * @returns {void}
    */
-  serialize () {
+  async save (info, file) {
+    const serialized = cheerio.html(info);
+    // console.log('info.elem', serialized);
     // Todo:
+    await writeFile(file, serialized);
   }
 }
 /* eslint-enable class-methods-use-this -- Debugging */
@@ -185,6 +211,7 @@ async function updateCDNURLs (options) {
   const fileContentsArr = await Promise.all(files.map(async (file) => {
     const extension = file.match(/\..*$/u);
     return {
+      file,
       extension: extension && extension[0],
       contents: await readFile(file, 'utf8')
     };
@@ -550,18 +577,21 @@ async function updateCDNURLs (options) {
 
   if (fileContentsArr.length) {
     const fileContentObjectsArr = await Promise.all(
-      fileContentsArr.map(async ({contents, extension}) => {
-        const objects = await getObjects(contents);
-        return {objects, extension};
+      fileContentsArr.map(async ({file, contents, extension}) => {
+        const {objects, doc} = await getObjects(contents);
+        return {file, objects, doc, extension};
       })
     );
 
-    for (const {objects, extension} of fileContentObjectsArr) {
+    const proms = [];
+    for (const {objects, doc, file, extension} of fileContentObjectsArr) {
       const strategy = getStrategyForExtension(extension);
       for (const object of objects) {
         updateResources(object, strategy);
       }
+      proms.push(strategy.save(doc, file));
     }
+    await Promise.all(proms);
     // // eslint-disable-next-line no-console -- CLI
     // console.log('fileContentsArr', fileContentsArr);
   }
