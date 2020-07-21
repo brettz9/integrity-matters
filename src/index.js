@@ -26,6 +26,7 @@ const getLocalJSON = (path) => {
   return JSON.parse(readFileSync(path), 'utf8');
 };
 
+// https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 
 const semverVersionString = '(?<version>\\d+\\.\\d+.\\d+)';
