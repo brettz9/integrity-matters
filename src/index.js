@@ -359,7 +359,7 @@ async function updateCDNURLs (options) {
             `version to update the URL...`
             // `(or downgrade the \`package-lock.json\` version).`
           );
-          updatingInfo.updatingVersion = true;
+          updatingInfo.updatingVersion = lockVersion;
         } else {
           const lt = semver.lt(lockVersion, version);
           if (lt) {
@@ -445,8 +445,8 @@ async function updateCDNURLs (options) {
           }
         }
 
-        updatingInfo.updatingVersion = updatingInfo.updatingVersion ||
-          lockInfo.updatingVersion;
+        updatingInfo.updatingVersion = lockInfo.updatingVersion ||
+          updatingInfo.updatingVersion;
         updatingInfo.updatingIntegrity = lockInfo.updatingIntegrity;
       }
 
@@ -464,6 +464,7 @@ async function updateCDNURLs (options) {
 
       if (nmVersion) {
         checkVersions(name, nmVersion, '`node_modules` `package.json`');
+        // updatingInfo.updatingVersion = nmVersion;
 
         if (!updatingInfo.updatingVersion && !updatingInfo.updatingIntegrity) {
           break;
