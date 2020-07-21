@@ -48,7 +48,8 @@ const optionDefinitions = [
     multiple: true,
     description: 'Regular expression replacement expression with named ' +
       'capturing replacements (`$<name>`, `$<path>`, and optionally ' +
-      '`$<version>`; the latter defaults to the detected installed version).',
+      '`$<version>`; the latter defaults to the detected installed version).' +
+      'Defaults to a list of replacements (see source).',
     typeLabel: '{underline path replacement expression}'
   },
   {
@@ -56,7 +57,8 @@ const optionDefinitions = [
     multiple: true,
     description: 'Regular expression replacement expression with named ' +
       'capturing replacements (`$<name>`, `$<path>`, and optionally ' +
-      '`$<version>`). Used to convert a CDN pattern to local `node_modules`.',
+      '`$<version>`). Used to convert a CDN pattern to local `node_modules`.' +
+      'Defaults to a list of replacements (see source).',
     typeLabel: '{underline path replacement expression}'
   },
   {
@@ -68,7 +70,7 @@ const optionDefinitions = [
     name: 'packageJsonPath', type: String,
     description: 'Path to `package.json` for discovery of its ' +
       '`updateCDNURLs` property. If `noConfig` is `false` (the default), ' +
-      'defaults to checking `process.cwd()`, but if `true` will default ' +
+      'defaults to checking `process.cwd()`, but if `true`, defaults ' +
       'to not checking for a `package.json` and just using the regular ' +
       'CLI options. This option is ignored if `configPath` is set.',
     typeLabel: '{underline path to package.json}'
@@ -87,11 +89,15 @@ const optionDefinitions = [
   {
     name: 'forceIntegrityChecks', type: Boolean,
     description: 'Forces `integrity` checks even when the version ' +
-      'does not need to be changed. Default is `false`.'
+      'does not need to be changed. Defaults to `false`.'
+  },
+  {
+    name: 'dryRun', type: Boolean,
+    description: 'If set to `true`. Defaults to `false`.'
   },
   {
     name: 'logging', type: String,
-    description: 'Logging level; default is "off".',
+    description: 'Logging level; defaults to "off".',
     typeLabel: '{underline "verbose"|"off"}'
   }
 ];

@@ -150,8 +150,7 @@ class HTMLStrategy {
   async save (info, file) {
     const serialized = cheerio.html(info);
     // console.log('info.elem', serialized);
-    // Todo: Reenable
-    // await writeFile(file, serialized);
+    await writeFile(file, serialized);
   }
 }
 /* eslint-enable class-methods-use-this -- Debugging */
@@ -199,6 +198,7 @@ async function updateCDNURLs (options) {
     nodeModulesReplacements = defaultNodeModulesReplacements,
     noGlobs,
     forceIntegrityChecks,
+    dryRun,
     cli,
     cwd = process.cwd()
     // , outputPath
@@ -610,7 +610,9 @@ async function updateCDNURLs (options) {
       for (const object of objects) {
         await updateResources(object, strategy);
       }
-      proms.push(strategy.save(doc, file));
+      if (!dryRun) {
+        proms.push(strategy.save(doc, file));
+      }
     }
     await Promise.all(proms);
     // // eslint-disable-next-line no-console -- CLI
