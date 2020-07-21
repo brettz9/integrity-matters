@@ -72,17 +72,72 @@ async function getObjects (contents) {
     const {
       attribs: {src, integrity}
     } = elem;
-    return {src, integrity, elem};
+    return {src, integrity, type: 'script', elem: $(elem)};
   });
 
   const links = $('link[rel=stylesheet][href]').toArray().map((elem) => {
     const {
       attribs: {href: src, integrity}
     } = elem;
-    return {src, integrity, elem};
+    return {src, integrity, type: 'link', elem: $(elem)};
   });
 
   return [...scripts, ...links];
+}
+
+/* eslint-disable class-methods-use-this -- Debugging */
+/**
+ * For updating JSON files.
+ */
+class JSONStrategy {
+  /**
+   * @param {SrcIntegrityObject} info
+   * @param {string} newSrc
+   * @returns {void}
+   */
+  update (info, newSrc) {
+    // Todo:
+  }
+}
+
+/**
+ * For updating HTML files.
+ */
+class HTMLStrategy {
+  /**
+   * @param {SrcIntegrityObject} info
+   * @param {string} newSrc
+   * @returns {void}
+   */
+  update (info, newSrc) {
+    if (info.type === 'link') {
+      info.elem.attr('href', newSrc);
+    } else {
+      info.elem.attr('src', newSrc);
+    }
+    console.log('info.elem', cheerio.html(info.elem));
+  }
+
+  /**
+   * @returns {void}
+   */
+  serialize () {
+    // Todo:
+  }
+}
+/* eslint-enable class-methods-use-this -- Debugging */
+
+/**
+ * @param {string} extension
+ * @returns {UpdateStrategy}
+ */
+function getStrategyForExtension (extension) {
+  switch (extension) {
+  case '.json':
+    return new JSONStrategy();
+  case '.html': default:
+    return new HTMLStrategy();
+  }
 }
 
 /**
@@ -127,8 +182,12 @@ async function updateCDNURLs (options) {
       })
     : [];
 
-  const fileContentsArr = await Promise.all(files.map((file) => {
-    return readFile(file, 'utf8');
+  const fileContentsArr = await Promise.all(files.map(async (file) => {
+    const extension = file.match(/\..*$/u);
+    return {
+      extension: extension && extension[0],
+      contents: await readFile(file, 'utf8')
+    };
   }));
 
   let checkDependency;
@@ -251,7 +310,10 @@ async function updateCDNURLs (options) {
         `The ${versionSourceType}'s version (${version}) is less ` +
         `than the ${dependencyType} "${name}"'s current '\`package.json\` ` +
         `range, "${range}".`;
-      if (versionSourceType !== 'URL') {
+      if (![
+        'URL',
+        '`node_modules` `package.json`'
+      ].includes(versionSourceType)) {
         throw new Error(
           `${info}. Please update your ${versionSourceType} (e.g., as with ` +
             `\`npm install\`).`
@@ -302,17 +364,28 @@ async function updateCDNURLs (options) {
   }
 
   /**
-   * @param {PlainObject} cfg
-   * @param {string} cfg.src
-   * @param {string} cfg.integrity
+   * @interface UpdateStrategy
+  */
+  /**
+   * @todo Complete
+   * @function UpdateStrategy#update
    * @returns {void}
    */
-  function updateResources ({src, integrity}) {
-    /**
-    * @typedef {PlainObject} UpdatingInfo
-    * @property {boolean} updatingVersion
-    * @property {boolean} updatingIntegrity
-    */
+
+  /**
+  * @typedef {PlainObject} SrcIntegrityObject
+  * @property {string} src
+  * @property {string} integrity
+  * @property {"script"|"link"} type
+  */
+
+  /**
+   * @param {SrcIntegrityObject} info
+   * @param {UpdateStrategy} strategy
+   * @returns {void}
+   */
+  function updateResources (info, strategy) {
+    const {src, integrity} = info;
     /**
      * @param {string} name
      * @param {string} version
@@ -320,13 +393,13 @@ async function updateCDNURLs (options) {
      * @param {string} lockVersion
      * @param {string} lockIntegrity
      * @param {boolean} dev
-     * @returns {UpdatingInfo}
+     * @returns {boolean}
      */
     const compareLockToPackage = (
       name, version,
       dependencyType, lockVersion, lockIntegrity, dev
     ) => {
-      const updatingInfo = {};
+      let updateVersionLock = false;
       if (dev !== undefined) {
         if (dev && dependencyType !== 'devDependency') {
           throw new Error(
@@ -359,7 +432,7 @@ async function updateCDNURLs (options) {
             `version to update the URL...`
             // `(or downgrade the \`package-lock.json\` version).`
           );
-          updatingInfo.updatingVersion = lockVersion;
+          updateVersionLock = lockVersion;
         } else {
           const lt = semver.lt(lockVersion, version);
           if (lt) {
@@ -379,30 +452,8 @@ async function updateCDNURLs (options) {
           );
         }
       }
-      if (integrity === lockIntegrity) {
-        // eslint-disable-next-line no-console -- CLI
-        console.log(
-          `INFO: integrity in your lock file already ` +
-          `matches the URL (${integrity}).`
-        );
-      } else {
-        // eslint-disable-next-line no-console -- CLI
-        console.warn(
-          `WARNING: integrity in your lock file does ` +
-          `not match the URL integrity portion. Checking \`node_modules\` ` +
-          `for a valid installed version to update the URL...`
-        );
-        updatingInfo.updatingIntegrity = true;
-        /*
-        console.log(
-          `WARNING: integrity in your lock file ${lockIntegrity} does ` +
-          `not match the URL integrity portion (${integrity}). Checking ` +
-          ``\`node_modules\` for an installed version to update the URL...
-        );
-        */
-      }
 
-      return updatingInfo;
+      return updateVersionLock;
     };
 
     for (const [i, cdnBasePath] of cdnBasePaths.entries()) {
@@ -413,22 +464,22 @@ async function updateCDNURLs (options) {
       }
       const {groups: {name, version, path}} = match;
 
-      const updatingInfo = {};
+      let updatingVersion = false;
       if (version) {
         const {
           dependencyType, updatingVersion: updVers
         } = checkVersions(name, version, 'URL');
-        updatingInfo.updatingVersion = updVers;
+        updatingVersion = updVers;
 
         const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
         const npmLockDep = npmLockDeps && npmLockDeps[name];
 
-        let lockInfo;
+        let updateVersionLock;
         if (npmLockDep) {
           const {
             version: lockVersion, dev, integrity: lockIntegrity
           } = npmLockDep;
-          lockInfo = compareLockToPackage(
+          updateVersionLock = compareLockToPackage(
             name, version, dependencyType, lockVersion, lockIntegrity, dev
           );
           checkVersions(name, lockVersion, '`package-lock.json`');
@@ -438,16 +489,14 @@ async function updateCDNURLs (options) {
             const {
               version: lockVersion, integrity: lockIntegrity
             } = npmLockDep;
-            lockInfo = compareLockToPackage(
+            updateVersionLock = compareLockToPackage(
               name, version, dependencyType, lockVersion, lockIntegrity
             );
             checkVersions(name, lockVersion, '`yarn.lock`');
           }
         }
 
-        updatingInfo.updatingVersion = lockInfo.updatingVersion ||
-          updatingInfo.updatingVersion;
-        updatingInfo.updatingIntegrity = lockInfo.updatingIntegrity;
+        updatingVersion = updateVersionLock || updatingVersion;
       }
 
       let nmVersion;
@@ -464,34 +513,36 @@ async function updateCDNURLs (options) {
 
       if (nmVersion) {
         checkVersions(name, nmVersion, '`node_modules` `package.json`');
-        // updatingInfo.updatingVersion = nmVersion;
 
-        if (!updatingInfo.updatingVersion && !updatingInfo.updatingIntegrity) {
-          break;
+        // Can be `true` if should update URL based on URL being lower than
+        //  `package.json` range; but we don't currently allow overriding the
+        //  `package-lock.json` version
+        if (updatingVersion === true) {
+          updatingVersion = nmVersion;
         }
-        const nodeModulesReplacement = nodeModulesReplacements[i];
-        const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
-        // console.log(`Path: ${path}`);
-        console.log(
-          'nodeModulesReplacements',
-          path,
-          nmPath
-        );
-        console.log('existsSync', existsSync(nmPath));
-
-        const cdnBasePathReplacement = cdnBasePathReplacements[i];
-        // eslint-disable-next-line no-console -- disable
-        console.log(
-          'cdnBasePathReplacement',
-          src,
-          src.replace(
-            cdnBasePath,
-            // Todo: Replace by suitable version
-            cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, version)
-          )
-        );
-        console.log('\n');
       }
+
+      if (typeof updatingVersion !== 'string') {
+        break;
+      }
+      const nodeModulesReplacement = nodeModulesReplacements[i];
+      const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
+      // console.log(`Path: ${path}`);
+      console.log(
+        'nodeModulesReplacements',
+        path,
+        nmPath
+      );
+      console.log('existsSync', existsSync(nmPath));
+
+      const cdnBasePathReplacement = cdnBasePathReplacements[i];
+      const newSrc = src.replace(
+        cdnBasePath,
+        // Todo: Replace by suitable version
+        cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
+      );
+      strategy.update(info, newSrc);
+      console.log('\n');
 
       break;
     }
@@ -499,14 +550,16 @@ async function updateCDNURLs (options) {
 
   if (fileContentsArr.length) {
     const fileContentObjectsArr = await Promise.all(
-      fileContentsArr.map((fileContents) => {
-        return getObjects(fileContents);
+      fileContentsArr.map(async ({contents, extension}) => {
+        const objects = await getObjects(contents);
+        return {objects, extension};
       })
     );
 
-    for (const fileContentObjects of fileContentObjectsArr) {
-      for (const {src, integrity} of fileContentObjects) {
-        updateResources({src, integrity});
+    for (const {objects, extension} of fileContentObjectsArr) {
+      const strategy = getStrategyForExtension(extension);
+      for (const object of objects) {
+        updateResources(object, strategy);
       }
     }
     // // eslint-disable-next-line no-console -- CLI
