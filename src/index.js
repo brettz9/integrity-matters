@@ -423,14 +423,14 @@ async function updateCDNURLs (options) {
         const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
         const npmLockDep = npmLockDeps && npmLockDeps[name];
 
-        let updatingVersion, updatingIntegrity;
+        let lockInfo;
         if (npmLockDep) {
           const {
             version: lockVersion, dev, integrity: lockIntegrity
           } = npmLockDep;
-          ({updatingVersion, updatingIntegrity} = compareLockToPackage(
+          lockInfo = compareLockToPackage(
             name, version, dependencyType, lockVersion, lockIntegrity, dev
-          ));
+          );
           checkVersions(name, lockVersion, '`package-lock.json`');
         } else {
           const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
@@ -438,15 +438,16 @@ async function updateCDNURLs (options) {
             const {
               version: lockVersion, integrity: lockIntegrity
             } = npmLockDep;
-            ({updatingVersion, updatingIntegrity} = compareLockToPackage(
+            lockInfo = compareLockToPackage(
               name, version, dependencyType, lockVersion, lockIntegrity
-            ));
+            );
             checkVersions(name, lockVersion, '`yarn.lock`');
           }
         }
+
         updatingInfo.updatingVersion = updatingInfo.updatingVersion ||
-          updatingVersion;
-        updatingInfo.updatingIntegrity = updatingIntegrity;
+          lockInfo.updatingVersion;
+        updatingInfo.updatingIntegrity = lockInfo.updatingIntegrity;
       }
 
       let nmVersion;
