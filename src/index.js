@@ -202,7 +202,7 @@ async function updateCDNURLs (options) {
   /**
   * @typedef {PlainObject} VersionInfo
   * @property {"dependency"|"devDependency"} dependencyType
-  * @property {boolean} updating Whether to update the URL (for
+  * @property {boolean} updatingVersion Whether to update the URL (for
   * "URL" `versionSourceType`)
   */
 
@@ -215,7 +215,7 @@ async function updateCDNURLs (options) {
    * @returns {VersionInfo}
    */
   function checkVersions (name, version, versionSourceType) {
-    let updating = false;
+    let updatingVersion = false;
     const {
       dependencyType,
       range,
@@ -266,7 +266,7 @@ async function updateCDNURLs (options) {
         `WARNING: ${info} Checking \`node_modules\` for a valid installed ` +
         `version to update the URL...`
       );
-      updating = true;
+      updatingVersion = true;
     } else if (gtr) {
       // eslint-disable-next-line max-len -- Fails
       // // eslint-disable-next-line no-await-in-loop -- Prompt should be blocking
@@ -296,7 +296,7 @@ async function updateCDNURLs (options) {
       );
     }
     return {
-      updating,
+      updatingVersion,
       dependencyType
     };
   }
@@ -308,11 +308,25 @@ async function updateCDNURLs (options) {
    * @returns {void}
    */
   function updateResources ({src, integrity}) {
+    /**
+    * @typedef {PlainObject} UpdatingInfo
+    * @property {boolean} updatingVersion
+    * @property {boolean} updatingIntegrity
+    */
+    /**
+     * @param {string} name
+     * @param {string} version
+     * @param {"dependency"|"devDependency"} dependencyType
+     * @param {string} lockVersion
+     * @param {string} lockIntegrity
+     * @param {boolean} dev
+     * @returns {UpdatingInfo}
+     */
     const compareLockToPackage = (
       name, version,
       dependencyType, lockVersion, lockIntegrity, dev
     ) => {
-      let updating = false;
+      const updatingInfo = {};
       if (dev !== undefined) {
         if (dev && dependencyType !== 'devDependency') {
           throw new Error(
@@ -345,7 +359,7 @@ async function updateCDNURLs (options) {
             `version to update the URL...`
             // `(or downgrade the \`package-lock.json\` version).`
           );
-          updating = true;
+          updatingInfo.updatingVersion = true;
         } else {
           const lt = semver.lt(lockVersion, version);
           if (lt) {
@@ -378,7 +392,7 @@ async function updateCDNURLs (options) {
           `not match the URL integrity portion. Checking \`node_modules\` ` +
           `for a valid installed version to update the URL...`
         );
-        updating = true;
+        updatingInfo.updatingIntegrity = true;
         /*
         console.log(
           `WARNING: integrity in your lock file ${lockIntegrity} does ` +
@@ -388,7 +402,7 @@ async function updateCDNURLs (options) {
         */
       }
 
-      return updating;
+      return updatingInfo;
     };
 
     for (const [i, cdnBasePath] of cdnBasePaths.entries()) {
@@ -399,23 +413,24 @@ async function updateCDNURLs (options) {
       }
       const {groups: {name, version, path}} = match;
 
-      let updating;
+      const updatingInfo = {};
       if (version) {
-        const versionCheckInfo = checkVersions(name, version, 'URL');
-        const {dependencyType} = versionCheckInfo;
-        ({updating} = versionCheckInfo);
+        const {
+          dependencyType, updatingVersion: updVers
+        } = checkVersions(name, version, 'URL');
+        updatingInfo.updatingVersion = updVers;
 
         const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
         const npmLockDep = npmLockDeps && npmLockDeps[name];
+
+        let updatingVersion, updatingIntegrity;
         if (npmLockDep) {
           const {
             version: lockVersion, dev, integrity: lockIntegrity
           } = npmLockDep;
-          if (compareLockToPackage(
+          ({updatingVersion, updatingIntegrity} = compareLockToPackage(
             name, version, dependencyType, lockVersion, lockIntegrity, dev
-          )) {
-            updating = true;
-          }
+          ));
           checkVersions(name, lockVersion, '`package-lock.json`');
         } else {
           const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
@@ -423,14 +438,15 @@ async function updateCDNURLs (options) {
             const {
               version: lockVersion, integrity: lockIntegrity
             } = npmLockDep;
-            if (compareLockToPackage(
+            ({updatingVersion, updatingIntegrity} = compareLockToPackage(
               name, version, dependencyType, lockVersion, lockIntegrity
-            )) {
-              updating = true;
-            }
+            ));
             checkVersions(name, lockVersion, '`yarn.lock`');
           }
         }
+        updatingInfo.updatingVersion = updatingInfo.updatingVersion ||
+          updatingVersion;
+        updatingInfo.updatingIntegrity = updatingIntegrity;
       }
 
       let nmVersion;
@@ -448,7 +464,7 @@ async function updateCDNURLs (options) {
       if (nmVersion) {
         checkVersions(name, nmVersion, '`node_modules` `package.json`');
 
-        if (!updating) {
+        if (!updatingInfo.updatingVersion && !updatingInfo.updatingIntegrity) {
           break;
         }
         const nodeModulesReplacement = nodeModulesReplacements[i];
