@@ -154,8 +154,12 @@ async function updateCDNURLs (options) {
         }
         : {};
     };
+    // eslint-disable-next-line no-console -- CLI
+    console.info('INFO: Found `package.json`');
   } catch (e) {
-    //
+    // eslint-disable-next-line no-console -- CLI
+    console.error('Unable to retrieve `package.json`');
+    return;
   }
 
   let packageLockJSON;
@@ -163,8 +167,11 @@ async function updateCDNURLs (options) {
     packageLockJSON = getLocalJSON(
       join(cwd, 'package-lock.json')
     );
+    // eslint-disable-next-line no-console -- CLI
+    console.info('INFO: Found `package-lock.json`');
   } catch (err) {
-    //
+    // eslint-disable-next-line no-console -- CLI
+    console.info('INFO: No valid `package-lock.json` found.');
   }
 
   const yarnLockDeps = {};
@@ -182,13 +189,21 @@ async function updateCDNURLs (options) {
         integrity
       };
     }
+    // eslint-disable-next-line no-console -- CLI
+    console.info('INFO: Found `yarn.lock`');
   } catch (err) {
-    //
+    // eslint-disable-next-line no-console -- CLI
+    console.info('INFO: No valid `yarn.lock` found.');
   }
+
+  // eslint-disable-next-line no-console -- CLI
+  console.log('\n');
 
   /**
   * @typedef {PlainObject} VersionInfo
   * @property {"dependency"|"devDependency"} dependencyType
+  * @property {boolean} updating Whether to update the URL (for
+  * "URL" `versionSourceType`)
   */
 
   /**
@@ -200,6 +215,7 @@ async function updateCDNURLs (options) {
    * @returns {VersionInfo}
    */
   function checkVersions (name, version, versionSourceType) {
+    let updating = false;
     const {
       dependencyType,
       range,
@@ -246,7 +262,11 @@ async function updateCDNURLs (options) {
       //   available on npm); see `.idea/notes.js`
       // + ' Please point the URL to at least a minimum supported version.';
       // eslint-disable-next-line no-console -- CLI
-      console.warn(`WARNING: ${info} Updating URL version...`);
+      console.warn(
+        `WARNING: ${info} Checking \`node_modules\` for a valid installed ` +
+        `version to update the URL...`
+      );
+      updating = true;
     } else if (gtr) {
       // eslint-disable-next-line max-len -- Fails
       // // eslint-disable-next-line no-await-in-loop -- Prompt should be blocking
@@ -276,6 +296,7 @@ async function updateCDNURLs (options) {
       );
     }
     return {
+      updating,
       dependencyType
     };
   }
@@ -287,6 +308,89 @@ async function updateCDNURLs (options) {
    * @returns {void}
    */
   function updateResources ({src, integrity}) {
+    const compareLockToPackage = (
+      name, version,
+      dependencyType, lockVersion, lockIntegrity, dev
+    ) => {
+      let updating = false;
+      if (dev !== undefined) {
+        if (dev && dependencyType !== 'devDependency') {
+          throw new Error(
+            `Your lock file treats "${name}" as a ` +
+            `devDependency while your \`package.json\` treats it otherwise.`
+          );
+        } else if (!dev && dependencyType !== 'dependency') {
+          throw new Error(
+            `Your lock file treats "${name}" as a ` +
+            `(non-dev) dependency while your \`package.json\` treats it ` +
+            `as a dev dependency.`
+          );
+        }
+      }
+
+      if (lockVersion === version) {
+        // eslint-disable-next-line no-console -- CLI
+        console.log(
+          `INFO: Dependency ${name} in your lock file already ` +
+          `matches URL version (${version}).`
+        );
+      } else {
+        const gt = semver.gt(lockVersion, version);
+        if (gt) {
+          // eslint-disable-next-line no-console -- CLI
+          console.warn(
+            `WARNING: The lock file version ${lockVersion} ` +
+            `is greater for package "${name}" than the URL version ` +
+            `${version}. Checking \`node_modules\` for a valid installed ` +
+            `version to update the URL...`
+            // `(or downgrade the \`package-lock.json\` version).`
+          );
+          updating = true;
+        } else {
+          const lt = semver.lt(lockVersion, version);
+          if (lt) {
+            throw new Error(
+              `The lock file version ${lockVersion} is ` +
+              `less for package "${name}" than the URL version ` +
+              `${version}. Please update your lock file (or ` +
+              `downgrade the version in your URL)...`
+              // `(or downgrade the \`package-lock.json\` version).`
+            );
+          }
+          throw new Error(
+            'Unexpected error: Not greater or less than version, nor ' +
+            `satisfied. Comparing version of package ${name} in ` +
+            `lock file (${lockVersion}) to the version ` +
+            `(${version}) found in the URL.`
+          );
+        }
+      }
+      if (integrity === lockIntegrity) {
+        // eslint-disable-next-line no-console -- CLI
+        console.log(
+          `INFO: integrity in your lock file already ` +
+          `matches the URL (${integrity}).`
+        );
+      } else {
+        // eslint-disable-next-line no-console -- CLI
+        console.warn(
+          `WARNING: integrity in your lock file does ` +
+          `not match the URL integrity portion. Checking \`node_modules\` ` +
+          `for a valid installed version to update the URL...`
+        );
+        updating = true;
+        /*
+        console.log(
+          `WARNING: integrity in your lock file ${lockIntegrity} does ` +
+          `not match the URL integrity portion (${integrity}). Checking ` +
+          ``\`node_modules\` for an installed version to update the URL...
+        );
+        */
+      }
+
+      return updating;
+    };
+
     for (const [i, cdnBasePath] of cdnBasePaths.entries()) {
       // https://unpkg.com/leaflet@1.4.0/dist/leaflet.css
       const match = src.match(cdnBasePath);
@@ -301,81 +405,9 @@ async function updateCDNURLs (options) {
         break;
       }
 
-      const {dependencyType} = checkVersions(name, version, 'URL');
-
-      const compareLockToPackage = (lockVersion, lockIntegrity, dev) => {
-        if (dev !== undefined) {
-          if (dev && dependencyType !== 'devDependency') {
-            throw new Error(
-              `Your lock file treats "${name}" as a ` +
-              `devDependency while your \`package.json\` treats it otherwise.`
-            );
-          } else if (!dev && dependencyType !== 'dependency') {
-            throw new Error(
-              `Your lock file treats "${name}" as a ` +
-              `(non-dev) dependency while your \`package.json\` treats it ` +
-              `as a dev dependency.`
-            );
-          }
-        }
-
-        if (lockVersion === version) {
-          // eslint-disable-next-line no-console -- CLI
-          console.log(
-            `INFO: Dependency ${name} in your lock file already ` +
-            `matches URL version (${version}).`
-          );
-        } else {
-          const gt = semver.gt(lockVersion, version);
-          if (gt) {
-            // eslint-disable-next-line no-console -- CLI
-            console.warn(
-              `WARNING: The lock file version ${lockVersion} ` +
-              `is greater for package "${name}" than the URL version ` +
-              `${version}. Updating your URL version...`
-              // `(or downgrade the \`package-lock.json\` version).`
-            );
-          } else {
-            const lt = semver.lt(lockVersion, version);
-            if (lt) {
-              throw new Error(
-                `The lock file version ${lockVersion} is ` +
-                `less for package "${name}" than the URL version ` +
-                `${version}. Please update your lock file (or ` +
-                `downgrade the version in your URL)...`
-                // `(or downgrade the \`package-lock.json\` version).`
-              );
-            }
-            throw new Error(
-              'Unexpected error: Not greater or less than version, nor ' +
-              `satisfied. Comparing version of package ${name} in ` +
-              `lock file (${lockVersion}) to the version ` +
-              `(${version}) found in the URL.`
-            );
-          }
-        }
-        if (integrity === lockIntegrity) {
-          // eslint-disable-next-line no-console -- CLI
-          console.log(
-            `INFO: integrity in your lock file already ` +
-            `matches the URL (${integrity}).`
-          );
-        } else {
-          // eslint-disable-next-line no-console -- CLI
-          console.warn(
-            `WARNING: integrity in your lock file does ` +
-            `not match the URL integrity portion. Updating ` +
-            `the URL integrity...`
-          );
-          /*
-          console.log(
-            `integrity in your lock file ${lockIntegrity} does ` +
-            `not match the URL integrity portion (${integrity}). Updating ` +
-            `the URL integrity...`
-          );
-          */
-        }
-      };
+      const versionCheckInfo = checkVersions(name, version, 'URL');
+      const {dependencyType} = versionCheckInfo;
+      let {updating} = versionCheckInfo;
 
       const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
       const npmLockDep = npmLockDeps && npmLockDeps[name];
@@ -383,7 +415,11 @@ async function updateCDNURLs (options) {
         const {
           version: lockVersion, dev, integrity: lockIntegrity
         } = npmLockDep;
-        compareLockToPackage(lockVersion, lockIntegrity, dev);
+        if (compareLockToPackage(
+          name, version, dependencyType, lockVersion, lockIntegrity, dev
+        )) {
+          updating = true;
+        }
         checkVersions(name, lockVersion, '`package-lock.json`');
       } else {
         const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
@@ -391,7 +427,11 @@ async function updateCDNURLs (options) {
           const {
             version: lockVersion, integrity: lockIntegrity
           } = npmLockDep;
-          compareLockToPackage(lockVersion, lockIntegrity);
+          if (compareLockToPackage(
+            name, version, dependencyType, lockVersion, lockIntegrity
+          )) {
+            updating = true;
+          }
           checkVersions(name, lockVersion, '`yarn.lock`');
         }
       }
@@ -401,35 +441,41 @@ async function updateCDNURLs (options) {
         ({version: nmVersion} = getLocalJSON(
           join(cwd, 'node_modules', name, 'package.json')
         ));
+        // eslint-disable-next-line no-console -- CLI
+        console.info(`INFO: Found valid \`package.json\` for "${name}".`);
       } catch (err) {
-        //
+        // eslint-disable-next-line no-console -- CLI
+        console.warn(`WARNING: No valid \`package.json\` found for "${name}".`);
       }
 
       if (nmVersion) {
         checkVersions(name, nmVersion, '`node_modules` `package.json`');
+
+        if (updating) {
+          const nodeModulesReplacement = nodeModulesReplacements[i];
+          const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
+          // console.log(`Path: ${path}`);
+          console.log(
+            'nodeModulesReplacements',
+            nmPath
+          );
+          console.log('existsSync', existsSync(nmPath));
+
+          const cdnBasePathReplacement = cdnBasePathReplacements[i];
+          // eslint-disable-next-line no-console -- disable
+          console.log(
+            'cdnBasePathReplacement',
+            src,
+            src.replace(
+              cdnBasePath,
+              // Todo: Replace by suitable version
+              cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, version)
+            )
+          );
+          console.log('\n');
+        }
       }
 
-      const nodeModulesReplacement = nodeModulesReplacements[i];
-      const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
-      // console.log(`Path: ${path}`);
-      console.log(
-        'nodeModulesReplacements',
-        nmPath
-      );
-      console.log('existsSync', existsSync(nmPath));
-
-      const cdnBasePathReplacement = cdnBasePathReplacements[i];
-      // eslint-disable-next-line no-console -- disable
-      console.log(
-        'cdnBasePathReplacement',
-        src,
-        src.replace(
-          cdnBasePath,
-          // Todo: Replace by suitable version
-          cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, version)
-        ),
-        '\n'
-      );
       break;
     }
   }
