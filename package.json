@@ -33,8 +33,11 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
     "command-line-basics": "^0.8.0",
+    "domhandler": "^3.0.0",
     "globby": "^11.0.1",
+    "htmlparser2": "^4.1.0",
     "prompts": "^2.3.2",
     "semver": "^7.3.2"
   },

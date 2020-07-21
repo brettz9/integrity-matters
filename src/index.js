@@ -4,10 +4,13 @@ const {readFile: readFileCallback, readFileSync, existsSync} = require('fs');
 const {resolve: pathResolve, join} = require('path');
 const {promisify} = require('util');
 
+const cheerio = require('cheerio');
 const semver = require('semver');
 // const prompts = require('prompts');
 const globby = require('globby');
+
 const {basePathToRegex} = require('./common.js');
+const handleDOM = require('./handleDOM.js');
 
 const readFile = promisify(readFileCallback);
 
@@ -51,36 +54,35 @@ const defaultCdnBasePathReplacements = [
 ];
 
 /**
- * @todo Replace this with htmlparser2 routine
- * @callback ObjectGetter
- * @param {string} fileContents
- * @returns {TagObject[]}
- */
+* @typedef {PlainObject} TagObject
+* @property {string} src
+* @property {string} integrity
+* @property {Integer} lastIndex
+*/
 
 /**
- * @param {string} type
- * @param {RegExp} pattern
- * @returns {ObjectGetter}
+ * @param {string} contents
+ * @returns {Promise<TagObject[]>}
  */
-function getObjects (type, pattern) {
-  return (fileContents) => {
-    const matches = [];
-    let match;
-    // Todo[engine:node@>=12]: use `matchAll` instead:
-    // `for (const match of fileContents.matchAll(cdnBasePath)) {`
-    while ((match = pattern.exec(fileContents)) !== null) {
-      const {groups: {src, integrity}} = match;
-      const obj = {
-        src,
-        type,
-        integrity,
-        // Add this to find position in original string if replacing in place
-        lastIndex: pattern.lastIndex
-      };
-      matches.push(obj);
-    }
-    return matches;
-  };
+async function getObjects (contents) {
+  const dom = await handleDOM(contents);
+  const $ = cheerio.load(dom);
+
+  const scripts = $('script[src]').toArray().map((elem) => {
+    const {
+      attribs: {src, integrity}
+    } = elem;
+    return {src, integrity, elem};
+  });
+
+  const links = $('link[rel=stylesheet][href]').toArray().map((elem) => {
+    const {
+      attribs: {href: src, integrity}
+    } = elem;
+    return {src, integrity, elem};
+  });
+
+  return [...scripts, ...links];
 }
 
 /**
@@ -128,19 +130,6 @@ async function updateCDNURLs (options) {
   const fileContentsArr = await Promise.all(files.map((file) => {
     return readFile(file, 'utf8');
   }));
-
-  /**
-  * @typedef {PlainObject} TagObject
-  * @property {string} src
-  * @property {string} integrity
-  * @property {Integer} lastIndex
-  */
-
-  // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
-  const scriptPattern = /<script\s+src=['"](?<src>[^'"]*)"(?:\s+integrity="(?<integrity>[^'"]*))?"[^>]*?><\/script>/gum;
-
-  // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
-  const linkPattern = /<link\s+rel="stylesheet"\s+href=['"](?<src>[^'"]*)"(?:\s+integrity="(?<integrity>[^'"]*))?"[^>]*?(?:\/ ?)?>/gum;
 
   let checkDependency;
   try {
@@ -446,15 +435,14 @@ async function updateCDNURLs (options) {
   }
 
   if (fileContentsArr.length) {
-    const getScriptObjects = getObjects('script', scriptPattern);
-    const getLinkObjects = getObjects('link', linkPattern);
+    const fileContentObjectsArr = await Promise.all(
+      fileContentsArr.map((fileContents) => {
+        return getObjects(fileContents);
+      })
+    );
 
-    for (const fileContents of fileContentsArr) {
-      const scriptObjects = getScriptObjects(fileContents);
-      const linkObjects = getLinkObjects(fileContents);
-      const objects = [...scriptObjects, ...linkObjects];
-
-      for (const {src, integrity} of objects) {
+    for (const fileContentObjects of fileContentObjectsArr) {
+      for (const {src, integrity} of fileContentObjects) {
         updateResources({src, integrity});
       }
     }
