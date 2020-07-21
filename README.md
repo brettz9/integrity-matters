@@ -14,11 +14,12 @@ npm i -D update-cdn-urls
 1. Have a mode to optionally switch the URLs to local npm copies (or to
     auto-add `document.write` to the npm version as a fallback)
 2. Implement `JSONStrategy`
+3. See about getting HTML parser to preserve whitespace between attributes
+    so that preserves preexisting whitespace when re-serialized; possibly
+    use workaround at <https://github.com/fb55/htmlparser2/issues/421>?
 
 ## Potential to-dos
 
-1. See about getting HTML parser to preserve whitespace between attributes
-    so that preserves preexisting whitespace when re-serialized
 1. Deterministic logging order
 1. Could make optional to only update URL if that version is lower
     than the `package.json` range
