@@ -4,11 +4,9 @@ const {
   readFile: readFileCallback,
   writeFile: writeFileCallback,
   readFileSync,
-  existsSync,
-  createReadStream
+  existsSync
 } = require('fs');
 
-const crypto = require('crypto');
 const {resolve: pathResolve, join} = require('path');
 const {promisify} = require('util');
 
@@ -19,6 +17,7 @@ const globby = require('globby');
 
 const {basePathToRegex} = require('./common.js');
 const handleDOM = require('./handleDOM.js');
+const getHash = require('./getHash.js');
 
 const readFile = promisify(readFileCallback);
 const writeFile = promisify(writeFileCallback);
@@ -413,9 +412,9 @@ async function updateCDNURLs (options) {
   /**
    * @param {SrcIntegrityObject} info
    * @param {UpdateStrategy} strategy
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  function updateResources (info, strategy) {
+  async function updateResources (info, strategy) {
     const {src, integrity} = info;
     /**
      * @param {string} name
@@ -551,6 +550,8 @@ async function updateCDNURLs (options) {
       }
 
       if (typeof updatingVersion !== 'string') {
+        // eslint-disable-next-line no-console -- CLI
+        console.log('\n');
         break;
       }
       const nodeModulesReplacement = nodeModulesReplacements[i];
@@ -563,24 +564,16 @@ async function updateCDNURLs (options) {
 
       if (existsSync(nmPath)) {
         if ((/^sha\d{3}-/u).test(integrity)) {
-          const hash = crypto.createHash(integrity.slice(0, 6));
-          hash.on('readable', () => {
-            const data = hash.read();
-            if (data) {
-              console.log(
-                nmPath,
-                '\n',
-                integrity.slice(0, 6),
-                '\n',
-                integrity.slice(7),
-                '\n',
-                data.toString('base64'),
-                '\n'
-              );
-            }
-          });
-          const input = createReadStream(nmPath);
-          input.pipe(hash);
+          const hash = await getHash(integrity.slice(0, 6), nmPath);
+          console.log(
+            nmPath,
+            '\n',
+            integrity.slice(0, 6),
+            '\n',
+            integrity.slice(7),
+            '\n',
+            hash
+          );
         }
       }
 
@@ -611,7 +604,7 @@ async function updateCDNURLs (options) {
     for (const {objects, doc, file, extension} of fileContentObjectsArr) {
       const strategy = getStrategyForExtension(extension);
       for (const object of objects) {
-        updateResources(object, strategy);
+        await updateResources(object, strategy);
       }
       proms.push(strategy.save(doc, file));
     }
