@@ -87,6 +87,13 @@ const optionDefinitions = [
       'this to `true` to disable. Defaults to `false`.'
   },
   {
+    name: 'addCrossorigin', type: String,
+    description: 'Whether to add `crossorigin` to all scripts and links ' +
+      'with `integrity` and no preexisting `crossorigin`. Note that the ' +
+      'empty string and "anonymous" are equivalent in HTML.',
+    typeLabel: '{underline ""|"anonymous"|"use-credentials"}'
+  },
+  {
     name: 'forceIntegrityChecks', type: Boolean,
     description: 'Forces `integrity` checks even when the version ' +
       'does not need to be changed. Defaults to `false`.'

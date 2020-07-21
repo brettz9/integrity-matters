@@ -135,17 +135,21 @@ class HTMLStrategy {
   /**
    * @param {SrcIntegrityObject} info
    * @param {string} newSrc
-   * @param {string} newIntegrity
+   * @param {string} [newIntegrity]
+   * @param {string} [addCrossorigin]
    * @returns {void}
    */
-  update (info, newSrc, newIntegrity) {
-    if (info.type === 'link') {
-      info.elem.attr('href', newSrc);
+  update ({type, elem}, newSrc, newIntegrity, addCrossorigin) {
+    if (type === 'link') {
+      elem.attr('href', newSrc);
     } else {
-      info.elem.attr('src', newSrc);
+      elem.attr('src', newSrc);
     }
     if (newIntegrity) {
-      info.elem.attr('integrity', newIntegrity);
+      elem.attr('integrity', newIntegrity);
+    }
+    if (addCrossorigin !== undefined && elem.is('[integrity]')) {
+      elem.attr('crossorigin', addCrossorigin);
     }
   }
 
@@ -205,6 +209,7 @@ async function updateCDNURLs (options) {
     nodeModulesReplacements = defaultNodeModulesReplacements,
     noGlobs,
     forceIntegrityChecks,
+    addCrossorigin,
     dryRun,
     cli,
     cwd = process.cwd()
@@ -630,7 +635,7 @@ async function updateCDNURLs (options) {
         // Todo: Replace by suitable version
         cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
       );
-      strategy.update(info, newSrc, newIntegrity);
+      strategy.update(info, newSrc, newIntegrity, addCrossorigin);
 
       // eslint-disable-next-line no-console -- CLI
       console.log('\n');
