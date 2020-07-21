@@ -198,6 +198,7 @@ async function updateCDNURLs (options) {
     cdnBasePathReplacements = defaultCdnBasePathReplacements,
     nodeModulesReplacements = defaultNodeModulesReplacements,
     noGlobs,
+    forceIntegrityChecks,
     cli,
     cwd = process.cwd()
     // , outputPath
@@ -552,7 +553,9 @@ async function updateCDNURLs (options) {
       if (typeof updatingVersion !== 'string') {
         // eslint-disable-next-line no-console -- CLI
         console.log('\n');
-        break;
+        if (!forceIntegrityChecks) {
+          break;
+        }
       }
       const nodeModulesReplacement = nodeModulesReplacements[i];
       const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
@@ -563,6 +566,7 @@ async function updateCDNURLs (options) {
       );
 
       if (existsSync(nmPath)) {
+        // Todo: Make configurable
         if ((/^sha\d{3}-/u).test(integrity)) {
           const hash = await getHash(integrity.slice(0, 6), nmPath);
           console.log(

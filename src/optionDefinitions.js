@@ -85,6 +85,11 @@ const optionDefinitions = [
       'this to `true` to disable. Defaults to `false`.'
   },
   {
+    name: 'forceIntegrityChecks', type: Boolean,
+    description: 'Forces `integrity` checks even when the version ' +
+      'does not need to be changed. Default is `false`.'
+  },
+  {
     name: 'logging', type: String,
     description: 'Logging level; default is "off".',
     typeLabel: '{underline "verbose"|"off"}'
