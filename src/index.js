@@ -26,6 +26,8 @@ const getLocalJSON = (path) => {
   return JSON.parse(readFileSync(path), 'utf8');
 };
 
+const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
+
 const semverVersionString = '(?<version>\\d+\\.\\d+.\\d+)';
 const pathVersionString = '(?<path>[^ \'"]*)';
 
@@ -567,8 +569,11 @@ async function updateCDNURLs (options) {
 
       if (existsSync(nmPath)) {
         // Todo: Make configurable
-        if ((/^sha\d{3}-/u).test(integrity)) {
-          const hash = await getHash(integrity.slice(0, 6), nmPath);
+        let algorithm = integrity.match(/sha\d{3}/u);
+        algorithm = algorithm && algorithm[0];
+
+        if (htmlPermittedAlgorithms.has(algorithm)) {
+          const hash = await getHash(algorithm, nmPath);
           console.log(
             nmPath,
             '\n',
