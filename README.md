@@ -25,6 +25,7 @@ npm i -D update-cdn-urls
 
 ## Potential to-dos
 
-1. Could use `htmlparser2` for more precise finding of `script`/`link` tags
-    within HTML and use `esquery` to find `import` and `require` statements
-    (e.g., see usage in `es-file-traverse` for both types).
+1. Allow updating based on lock file only (even if not locally installed)?
+1. Could use `esquery` to find `import` and `require` statements
+    (e.g., see usage in `es-file-traverse`) though wouldn't allow updating
+    integrity--only the version.
