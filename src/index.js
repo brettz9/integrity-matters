@@ -581,7 +581,8 @@ async function updateCDNURLs (options) {
         // Todo: Make configurable
         const integrityHashes = integrity.split(/\s+/u);
 
-        // eslint-disable-next-line no-await-in-loop -- Temporary
+        /* eslint-disable no-await-in-loop -- This loop should be
+          serial */
         const localHashes = await Promise.all(
           integrityHashes.map(async (integrityHash, j) => {
             const hashMatch = integrityHash.match(
@@ -618,6 +619,8 @@ async function updateCDNURLs (options) {
             return `${algorithm}-${localHash}`;
           })
         );
+        /* eslint-enable no-await-in-loop -- This loop should be
+          serial */
         newIntegrity = localHashes.join(' ');
       }
 
@@ -644,17 +647,17 @@ async function updateCDNURLs (options) {
       })
     );
 
-    const proms = [];
-    for (const {objects, doc, file, extension} of fileContentObjectsArr) {
+    await Promise.all(fileContentObjectsArr.map(async (
+      {objects, doc, file, extension}
+    ) => {
       const strategy = getStrategyForExtension(extension);
-      for (const object of objects) {
-        await updateResources(object, strategy);
-      }
+      await Promise.all(objects.map((object) => {
+        return updateResources(object, strategy);
+      }));
       if (!dryRun) {
-        proms.push(strategy.save(doc, file));
+        strategy.save(doc, file);
       }
-    }
-    await Promise.all(proms);
+    }));
     // // eslint-disable-next-line no-console -- CLI
     // console.log('fileContentsArr', fileContentsArr);
   }
