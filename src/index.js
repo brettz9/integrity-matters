@@ -55,8 +55,6 @@ const defaultNodeModulesReplacements = [
   'node_modules/$<name>/dist$<path>'
 ];
 
-// Todo: May need to have replacements back to node_modules, e.g., if CDN
-//  doesn't show `dist`
 const defaultCdnBasePathReplacements = [
   'https://unpkg.com/$<name>@$<version>$<path>',
   'https://unpkg.com/$<name>@$<version>$<path>',
@@ -134,12 +132,8 @@ class JSONStrategy {
  */
 class HTMLStrategy {
   /**
-   * @param {SrcIntegrityObject} info
-   * @param {string} newSrc
-   * @param {string} [newIntegrity]
-   * @param {string} [addCrossorigin]
-   * @returns {void}
-   */
+  * @type {UpdateStrategy#update}
+  */
   update ({type, elem}, newSrc, newIntegrity, addCrossorigin) {
     if (type === 'link') {
       elem.attr('href', newSrc);
@@ -155,9 +149,7 @@ class HTMLStrategy {
   }
 
   /**
-   * @param {SrcIntegrityObject} info
-   * @param {string} file Path
-   * @returns {void}
+   * @type {UpdateStrategy#save}
    */
   async save (info, file) {
     const serialized = cheerio.html(info);
@@ -413,9 +405,18 @@ async function updateCDNURLs (options) {
    * @interface UpdateStrategy
   */
   /**
-   * @todo Complete
    * @function UpdateStrategy#update
+   * @param {SrcIntegrityObject} info
+   * @param {string} newSrc
+   * @param {string} [newIntegrity]
+   * @param {string} [addCrossorigin]
    * @returns {void}
+   */
+  /**
+   * @function UpdateStrategy#save
+   * @param {SrcIntegrityObject} info
+   * @param {string} file Path
+   * @returns {Promise<void>}
    */
 
   /**
@@ -585,7 +586,7 @@ async function updateCDNURLs (options) {
 
       let newIntegrity;
       if (existsSync(nmPath)) {
-        // Todo: Make configurable
+        // Todo: Allow user to force integrity
         const integrityHashes = integrity.split(/\s+/u);
 
         /* eslint-disable no-await-in-loop -- This loop should be
@@ -634,7 +635,6 @@ async function updateCDNURLs (options) {
       const cdnBasePathReplacement = cdnBasePathReplacements[i];
       const newSrc = src.replace(
         cdnBasePath,
-        // Todo: Replace by suitable version
         cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
       );
 
