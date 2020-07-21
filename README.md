@@ -13,7 +13,6 @@ npm i -D update-cdn-urls
 
 1. Have a mode to optionally switch the URLs to local npm copies (or to
     auto-add `document.write` to the npm version as a fallback)
-2. Optionally perform HEAD request to confirm URL exists
 
 ## Potential to-dos
 

@@ -38,6 +38,7 @@
     "domhandler": "^3.0.0",
     "globby": "^11.0.1",
     "htmlparser2": "^4.1.0",
+    "node-fetch": "^2.6.0",
     "prompts": "^2.3.2",
     "semver": "^7.3.2"
   },

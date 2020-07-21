@@ -99,6 +99,11 @@ const optionDefinitions = [
       'does not need to be changed. Defaults to `false`.'
   },
   {
+    name: 'ignoreURLFetches', type: Boolean,
+    description: 'Avoids sending HEAD requests to confirm that the new ' +
+      'URL can be successfully resolved. Defaults to `false`.'
+  },
+  {
     name: 'dryRun', type: Boolean,
     description: 'If set to `true`. Defaults to `false`.'
   },

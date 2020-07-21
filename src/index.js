@@ -14,6 +14,7 @@ const cheerio = require('cheerio');
 const semver = require('semver');
 // const prompts = require('prompts');
 const globby = require('globby');
+const fetch = require('node-fetch');
 
 const {basePathToRegex} = require('./common.js');
 const handleDOM = require('./handleDOM.js');
@@ -210,6 +211,7 @@ async function updateCDNURLs (options) {
     noGlobs,
     forceIntegrityChecks,
     addCrossorigin,
+    ignoreURLFetches,
     dryRun,
     cli,
     cwd = process.cwd()
@@ -635,6 +637,22 @@ async function updateCDNURLs (options) {
         // Todo: Replace by suitable version
         cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
       );
+
+      if (!ignoreURLFetches) {
+        const resp = await fetch(newSrc, {method: 'HEAD'});
+        if (resp.status !== 200) {
+          // eslint-disable-next-line no-console -- CLI
+          console.error(
+            `ERROR: Received status code ${resp.status} response for ${newSrc}.`
+          );
+          break;
+        }
+        // eslint-disable-next-line no-console -- CLI
+        console.log(
+          `INFO: Received status code ${resp.status} response for ${newSrc}.`
+        );
+      }
+
       strategy.update(info, newSrc, newIntegrity, addCrossorigin);
 
       // eslint-disable-next-line no-console -- CLI
