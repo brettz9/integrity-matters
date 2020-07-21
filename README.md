@@ -13,17 +13,17 @@ npm i -D update-cdn-urls
 
 1. Have a mode to optionally switch the URLs to local npm copies (or to
     auto-add `document.write` to the npm version as a fallback)
-2. See about getting HTML parser to preserve whitespace between attributes
+2. Tests/Coverage
+3. Implement `JSONStrategy`
+4. See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized?
-    Seems cheerio is using
+    Seems `cheerio` is using
     [dom-serializer](https://github.com/cheeriojs/dom-serializer/blob/master/src/index.ts)
     (`render` -> `renderNode` -> `renderTag` -> `formatAttributes`); could pass
     metadata (in addition to `attribs`); but need to add metadata in
     [domhandler](https://github.com/fb55/domhandler/blob/master/src/index.ts#L147)
     perhaps long lines of workaround at
     <https://github.com/fb55/htmlparser2/issues/421>
-3. Implement `JSONStrategy`
-4. Tests/Coverage
 
 ## Potential to-dos
 
