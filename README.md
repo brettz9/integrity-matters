@@ -13,10 +13,10 @@ npm i -D update-cdn-urls
 
 1. Have a mode to optionally switch the URLs to local npm copies (or to
     auto-add `document.write` to the npm version as a fallback)
-2. Implement `JSONStrategy`
-3. See about getting HTML parser to preserve whitespace between attributes
+2. See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized; possibly
     use workaround at <https://github.com/fb55/htmlparser2/issues/421>?
+3. Implement `JSONStrategy`
 
 ## Potential to-dos
 
