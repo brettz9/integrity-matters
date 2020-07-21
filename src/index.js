@@ -416,6 +416,7 @@ async function updateCDNURLs (options) {
   /**
    * @param {SrcIntegrityObject} info
    * @param {UpdateStrategy} strategy
+   * @throws {Error}
    * @returns {Promise<void>}
    */
   async function updateResources (info, strategy) {
@@ -570,19 +571,29 @@ async function updateCDNURLs (options) {
 
       if (existsSync(nmPath)) {
         // Todo: Make configurable
-        let algorithm = integrity.match(/sha\d{3}/u);
-        algorithm = algorithm && algorithm[0];
+        const integrityHashes = integrity.split(/\s+/u);
+        for (const integrityHash of integrityHashes) {
+          const hashMatch = integrityHash.match(/^(?<algorithm>sha\d{3})-(?<base64Hash>.*$)/u);
+          if (!hashMatch) {
+            return;
+          }
+          const {groups: {algorithm, base64Hash}} = hashMatch;
 
-        if (htmlPermittedAlgorithms.has(algorithm)) {
-          const hash = await getHash(algorithm, nmPath);
+          if (!htmlPermittedAlgorithms.has(algorithm)) {
+            throw new Error(
+              `Unrecognized algorithm: "${algorithm}" (obtained ` +
+                `from integrity value, "${integrityHash}")`
+            );
+          }
+          const localHash = await getHash(algorithm, nmPath);
           console.log(
             nmPath,
             '\n',
-            integrity.slice(0, 6),
+            algorithm,
             '\n',
-            integrity.slice(7),
+            base64Hash,
             '\n',
-            hash
+            localHash
           );
         }
       }
