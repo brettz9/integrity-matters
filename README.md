@@ -25,6 +25,7 @@ npm i -D update-cdn-urls
 
 ## Potential to-dos
 
+1. Deterministic logging order
 1. Could make optional to only update URL if that version is lower
     than the `package.json` range
 1. Allow updating based on lock file only (even if not locally installed)?
