@@ -26,6 +26,6 @@ npm i -D update-cdn-urls
 ## Potential to-dos
 
 1. Allow updating based on lock file only (even if not locally installed)?
-1. Could use `esquery` to find `import` and `require` statements
-    (e.g., see usage in `es-file-traverse`) though wouldn't allow updating
-    integrity--only the version.
+1. Could use `esquery` to find `import` statements (e.g., see usage in
+    `es-file-traverse`) though wouldn't allow updating integrity--only
+    the version (and only Deno currently supports full URLs).
