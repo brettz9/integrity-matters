@@ -3,8 +3,12 @@
 const {
   readFile: readFileCallback,
   writeFile: writeFileCallback,
-  readFileSync, existsSync
+  readFileSync,
+  existsSync,
+  createReadStream
 } = require('fs');
+
+const crypto = require('crypto');
 const {resolve: pathResolve, join} = require('path');
 const {promisify} = require('util');
 
@@ -147,8 +151,8 @@ class HTMLStrategy {
   async save (info, file) {
     const serialized = cheerio.html(info);
     // console.log('info.elem', serialized);
-    // Todo:
-    await writeFile(file, serialized);
+    // Todo: Reenable
+    // await writeFile(file, serialized);
   }
 }
 /* eslint-enable class-methods-use-this -- Debugging */
@@ -488,7 +492,9 @@ async function updateCDNURLs (options) {
       if (!match) {
         continue;
       }
-      const {groups: {name, version, path}} = match;
+      const {groups: {
+        name, version // , path
+      }} = match;
 
       let updatingVersion = false;
       if (version) {
@@ -552,10 +558,29 @@ async function updateCDNURLs (options) {
       // console.log(`Path: ${path}`);
       console.log(
         'nodeModulesReplacements',
-        path,
         nmPath
       );
-      console.log('existsSync', existsSync(nmPath));
+
+      if (existsSync(nmPath)) {
+        if ((/^sha\d{3}-/u).test(integrity)) {
+          const hash = crypto.createHash(integrity.slice(0, 6));
+          hash.on('readable', () => {
+            const data = hash.read();
+            if (data) {
+              console.log(
+                integrity.slice(0, 6),
+                '\n',
+                integrity.slice(7),
+                '\n',
+                data.toString('base64'),
+                '\n'
+              );
+            }
+          });
+          const input = createReadStream(nmPath);
+          input.pipe(hash);
+        }
+      }
 
       const cdnBasePathReplacement = cdnBasePathReplacements[i];
       const newSrc = src.replace(
