@@ -504,6 +504,7 @@ async function updateCDNURLs (options) {
       const {groups: {
         name, version // , path
       }} = match;
+      // console.log(`Path: ${path}`);
 
       let updatingVersion = false;
       if (version) {
@@ -570,7 +571,6 @@ async function updateCDNURLs (options) {
       }
       const nodeModulesReplacement = nodeModulesReplacements[i];
       const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
-      // console.log(`Path: ${path}`);
       console.log(
         'nodeModulesReplacements',
         nmPath
