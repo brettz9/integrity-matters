@@ -12,7 +12,7 @@ npm i -D update-cdn-urls
 ## To-dos
 
 1. Check if that version (1.4.0) is the latest in npm and ask to update npm
-    if not. If npm is more up-to-date, ask to update the URL. If no version is
+    if not. If npm is more up-to-date, update the URL. If no version is
     present, then find the version and have it replaced.
 2. When the version for the CDN is decided, and the npm package is pointing to
     the same version, check the file's SHA integrity as loaded locally in npm
