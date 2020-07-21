@@ -418,13 +418,12 @@ async function updateCDNURLs (options) {
      * @param {string} version
      * @param {"dependency"|"devDependency"} dependencyType
      * @param {string} lockVersion
-     * @param {string} lockIntegrity
      * @param {boolean} dev
      * @returns {boolean}
      */
     const compareLockToPackage = (
       name, version,
-      dependencyType, lockVersion, lockIntegrity, dev
+      dependencyType, lockVersion, dev
     ) => {
       let updateVersionLock = false;
       if (dev !== undefined) {
@@ -503,21 +502,17 @@ async function updateCDNURLs (options) {
 
         let updateVersionLock;
         if (npmLockDep) {
-          const {
-            version: lockVersion, dev, integrity: lockIntegrity
-          } = npmLockDep;
+          const {version: lockVersion, dev} = npmLockDep;
           updateVersionLock = compareLockToPackage(
-            name, version, dependencyType, lockVersion, lockIntegrity, dev
+            name, version, dependencyType, lockVersion, dev
           );
           checkVersions(name, lockVersion, '`package-lock.json`');
         } else {
           const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
           if (yarnLockDep) {
-            const {
-              version: lockVersion, integrity: lockIntegrity
-            } = npmLockDep;
+            const {version: lockVersion} = npmLockDep;
             updateVersionLock = compareLockToPackage(
-              name, version, dependencyType, lockVersion, lockIntegrity
+              name, version, dependencyType, lockVersion
             );
             checkVersions(name, lockVersion, '`yarn.lock`');
           }
@@ -569,6 +564,8 @@ async function updateCDNURLs (options) {
         cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
       );
       strategy.update(info, newSrc);
+
+      // eslint-disable-next-line no-console -- CLI
       console.log('\n');
 
       break;
