@@ -591,6 +591,8 @@ async function updateCDNURLs (options) {
         /* eslint-disable no-await-in-loop -- This loop should be
           serial */
         const localHashes = await Promise.all(
+          /* eslint-enable no-await-in-loop -- This loop should be
+            serial */
           integrityHashes.map(async (integrityHash, j) => {
             const hashMatch = integrityHash.match(
               /^(?<algorithm>sha\d{3})-(?<base64Hash>.*$)/u
@@ -626,8 +628,6 @@ async function updateCDNURLs (options) {
             return `${algorithm}-${localHash}`;
           })
         );
-        /* eslint-enable no-await-in-loop -- This loop should be
-          serial */
         newIntegrity = localHashes.join(' ');
       }
 
@@ -639,7 +639,11 @@ async function updateCDNURLs (options) {
       );
 
       if (!ignoreURLFetches) {
+        /* eslint-disable no-await-in-loop -- This loop should be
+          serial */
         const resp = await fetch(newSrc, {method: 'HEAD'});
+        /* eslint-enable no-await-in-loop -- This loop should be
+          serial */
         if (resp.status !== 200) {
           // eslint-disable-next-line no-console -- CLI
           console.error(
