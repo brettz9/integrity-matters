@@ -17,6 +17,7 @@ npm i -D update-cdn-urls
     so that preserves preexisting whitespace when re-serialized; possibly
     use workaround at <https://github.com/fb55/htmlparser2/issues/421>?
 3. Implement `JSONStrategy`
+4. Tests/Coverage
 
 ## Potential to-dos
 
