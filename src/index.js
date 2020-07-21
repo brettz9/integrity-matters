@@ -398,41 +398,38 @@ async function updateCDNURLs (options) {
         continue;
       }
       const {groups: {name, version, path}} = match;
-      if (name && path && !version) {
-        // Todo: Get version added with a replace expression
-        // eslint-disable-next-line no-console -- CLI
-        console.error('Not yet implemented');
-        break;
-      }
 
-      const versionCheckInfo = checkVersions(name, version, 'URL');
-      const {dependencyType} = versionCheckInfo;
-      let {updating} = versionCheckInfo;
+      let updating;
+      if (version) {
+        const versionCheckInfo = checkVersions(name, version, 'URL');
+        const {dependencyType} = versionCheckInfo;
+        ({updating} = versionCheckInfo);
 
-      const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
-      const npmLockDep = npmLockDeps && npmLockDeps[name];
-      if (npmLockDep) {
-        const {
-          version: lockVersion, dev, integrity: lockIntegrity
-        } = npmLockDep;
-        if (compareLockToPackage(
-          name, version, dependencyType, lockVersion, lockIntegrity, dev
-        )) {
-          updating = true;
-        }
-        checkVersions(name, lockVersion, '`package-lock.json`');
-      } else {
-        const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
-        if (yarnLockDep) {
+        const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
+        const npmLockDep = npmLockDeps && npmLockDeps[name];
+        if (npmLockDep) {
           const {
-            version: lockVersion, integrity: lockIntegrity
+            version: lockVersion, dev, integrity: lockIntegrity
           } = npmLockDep;
           if (compareLockToPackage(
-            name, version, dependencyType, lockVersion, lockIntegrity
+            name, version, dependencyType, lockVersion, lockIntegrity, dev
           )) {
             updating = true;
           }
-          checkVersions(name, lockVersion, '`yarn.lock`');
+          checkVersions(name, lockVersion, '`package-lock.json`');
+        } else {
+          const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
+          if (yarnLockDep) {
+            const {
+              version: lockVersion, integrity: lockIntegrity
+            } = npmLockDep;
+            if (compareLockToPackage(
+              name, version, dependencyType, lockVersion, lockIntegrity
+            )) {
+              updating = true;
+            }
+            checkVersions(name, lockVersion, '`yarn.lock`');
+          }
         }
       }
 
@@ -457,6 +454,7 @@ async function updateCDNURLs (options) {
           // console.log(`Path: ${path}`);
           console.log(
             'nodeModulesReplacements',
+            path,
             nmPath
           );
           console.log('existsSync', existsSync(nmPath));
