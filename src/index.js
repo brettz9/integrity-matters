@@ -568,6 +568,8 @@ async function updateCDNURLs (options) {
             const data = hash.read();
             if (data) {
               console.log(
+                nmPath,
+                '\n',
                 integrity.slice(0, 6),
                 '\n',
                 integrity.slice(7),
