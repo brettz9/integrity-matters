@@ -167,7 +167,9 @@ You may wish to use a hook, or probably more easily, use
 [@hkdobrev/run-if-changed](https://github.com/hkdobrev/run-if-changed) to
 indicate that `integrity-matters` should be run whenever `package.json`
 (or `package-lock.json`/`yarn.lock`) changes, ensuring that your local
-updates are automatically reflected in your CDN URL versions.
+updates are automatically reflected in your CDN URL versions. (You may
+wish to have it run a local install first as well to ensure that updates
+made by others contributing to your project are reflected locally.)
 
 ## To-dos
 
