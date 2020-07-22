@@ -75,15 +75,27 @@ class JSONStrategy {
 
     const scripts = Object.entries(this.doc.script).map(([pkg, info]) => {
       const {
-        integrity, local, remote // , noLocalIntegrity, glbl
+        integrity, local, remote, algorithms // , noLocalIntegrity, glbl
       } = info;
-      return {type: 'script', src: remote || local, integrity, elem: info};
+      return {
+        type: 'script',
+        algorithms,
+        src: remote || local,
+        integrity,
+        elem: info
+      };
     });
     const links = Object.entries(this.doc.link).map(([pkg, info]) => {
       const {
-        integrity, local, remote // , noLocalIntegrity, glbl
+        integrity, local, remote, algorithms // , noLocalIntegrity, glbl
       } = info;
-      return {type: 'link', src: remote || local, integrity, elem: info};
+      return {
+        type: 'link',
+        algorithms,
+        src: remote || local,
+        integrity,
+        elem: info
+      };
     });
 
     return [...scripts, ...links];
@@ -259,6 +271,7 @@ async function integrityMatters (options) {
     forceIntegrityChecks,
     addCrossorigin,
     ignoreURLFetches,
+    algorithm: userAlgorithms,
     dryRun,
     cli,
     cwd = process.cwd()
@@ -514,8 +527,8 @@ async function integrityMatters (options) {
    */
   async function updateResources (info, strategy) {
     // Todo: Use `noLocalIntegrity`, `glbl`; allow for `crossorigin`,
-    //   `fallback`, `algorithms`
-    const {src, integrity} = info;
+    //   `fallback`
+    const {src, integrity, algorithms} = info;
     /**
      * @param {string} name
      * @param {string} version
@@ -666,6 +679,20 @@ async function integrityMatters (options) {
       let nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
       if (existsSync(nmPath)) {
         const integrityHashes = integrity.split(/\s+/u);
+        if (algorithms) {
+          // Only add missing algorithms
+          integrityHashes.push(...algorithms.map((algorithm) => {
+            const alreadyHasHash = integrityHashes.find((integrityHash) => {
+              return integrityHash.startsWith(`${algorithm}-`);
+            });
+            if (alreadyHasHash) {
+              return null;
+            }
+            return `${algorithm}-`;
+          }).filter((algorithm) => {
+            return algorithm;
+          }));
+        }
 
         /* eslint-disable no-await-in-loop -- This loop should be
           serial */
@@ -687,6 +714,17 @@ async function integrityMatters (options) {
                   `from integrity value, "${integrityHash}")`
               );
             }
+            if (
+              (algorithms && !algorithms.includes(algorithm)) ||
+              (userAlgorithms && !userAlgorithms.includes(algorithm))
+            ) {
+              // eslint-disable-next-line no-console -- CLI
+              console.warn(
+                `WARNING: Algorithm whitelist did not specify ` +
+                `detected "${algorithm}", so dropping.`
+              );
+              return null;
+            }
             const localHash = await getHash(algorithm, nmPath);
             if (localHash !== base64Hash) {
               // eslint-disable-next-line no-console -- CLI
@@ -705,6 +743,9 @@ async function integrityMatters (options) {
               );
             }
             return `${algorithm}-${localHash}`;
+          }).filter((localHash) => {
+            // Remove dropped items
+            return localHash;
           })
         );
         newIntegrity = localHashes.join(' ');

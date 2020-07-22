@@ -53,6 +53,14 @@ const optionDefinitions = [
     typeLabel: '{underline path replacement expression}'
   },
   {
+    name: 'algorithm', type: String,
+    multiple: true,
+    description: 'Algorithms to enforce on all CDNs, whether previously ' +
+      'existing or not. Defaults to not enforcing any besides updating the ' +
+      'type(s) present on the `integrity` attribute.',
+    typeLabel: '{underline "sha256"|"sha384"|"sha512"}'
+  },
+  {
     name: 'local', type: Boolean,
     description: 'Uses this for avoiding CDN base paths and writing ' +
       '`node_modules` paths for output. Defaults to `false`.'
