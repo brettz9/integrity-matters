@@ -69,35 +69,6 @@ const defaultCdnBasePathReplacements = [
 * @property {SrcIntegrityObject[]} objects
 */
 
-/**
- * @param {string} contents
- * @returns {Promise<ObjectInfo>}
- */
-async function getObjects (contents) {
-  const doc = await handleDOM(contents);
-  const $ = cheerio.load(doc);
-
-  const scripts = $('script[src]').toArray().map((elem) => {
-    const {
-      attribs: {src, integrity}
-    } = elem;
-    return {src, integrity, type: 'script', elem: $(elem)};
-  });
-
-  const links = $('link[rel=stylesheet][href]').toArray().map((elem) => {
-    const {
-      attribs: {href: src, integrity}
-    } = elem;
-    return {src, integrity, type: 'link', elem: $(elem)};
-  });
-
-  return {
-    // $,
-    doc,
-    objects: [...scripts, ...links]
-  };
-}
-
 /* eslint-disable class-methods-use-this -- Debugging */
 /**
  * For updating JSON files.
@@ -122,6 +93,35 @@ class JSONStrategy {
  * For updating HTML files.
  */
 class HTMLStrategy {
+  /**
+   * @param {string} contents
+   * @returns {Promise<ObjectInfo>}
+   */
+  async getObjects (contents) {
+    const doc = await handleDOM(contents);
+    const $ = cheerio.load(doc);
+
+    const scripts = $('script[src]').toArray().map((elem) => {
+      const {
+        attribs: {src, integrity}
+      } = elem;
+      return {src, integrity, type: 'script', elem: $(elem)};
+    });
+
+    const links = $('link[rel=stylesheet][href]').toArray().map((elem) => {
+      const {
+        attribs: {href: src, integrity}
+      } = elem;
+      return {src, integrity, type: 'link', elem: $(elem)};
+    });
+
+    return {
+      // $,
+      doc,
+      objects: [...scripts, ...links]
+    };
+  }
+
   /**
   * @type {UpdateStrategy#update}
   */
@@ -707,17 +707,12 @@ async function integrityMatters (options) {
   }
 
   if (fileContentsArr.length) {
-    const fileContentObjectsArr = await Promise.all(
-      fileContentsArr.map(async ({file, contents, extension}) => {
-        const {objects, doc} = await getObjects(contents);
-        return {file, objects, doc, extension};
-      })
-    );
-
-    await Promise.all(fileContentObjectsArr.map(async (
-      {objects, doc, file, extension}, i
+    await Promise.all(fileContentsArr.map(async (
+      {file, contents, extension}, i
     ) => {
       const strategy = getStrategyForExtension(extension);
+
+      const {objects, doc} = await strategy.getObjects(contents);
       await Promise.all(objects.map((object) => {
         return updateResources(object, strategy);
       }));
