@@ -53,6 +53,11 @@ const optionDefinitions = [
     typeLabel: '{underline path replacement expression}'
   },
   {
+    name: 'local', type: Boolean,
+    description: 'Uses this for avoiding CDN base paths and writing ' +
+      '`node_modules` paths for output. Default is `false`.'
+  },
+  {
     name: 'nodeModulesReplacements', type: String,
     multiple: true,
     description: 'Regular expression replacement expression with named ' +

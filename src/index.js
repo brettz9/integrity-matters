@@ -199,6 +199,7 @@ async function updateCDNURLs (options) {
     file: fileArray,
     cdnBasePath: cdnBasePaths = defaultCdnBasePaths,
     cdnBasePathReplacements = defaultCdnBasePathReplacements,
+    local,
     nodeModulesReplacements = defaultNodeModulesReplacements,
     noGlobs,
     forceIntegrityChecks,
@@ -577,12 +578,9 @@ async function updateCDNURLs (options) {
           break;
         }
       }
+
       const nodeModulesReplacement = nodeModulesReplacements[i];
       const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
-      console.log(
-        'nodeModulesReplacements',
-        nmPath
-      );
 
       let newIntegrity;
       if (existsSync(nmPath)) {
@@ -633,12 +631,14 @@ async function updateCDNURLs (options) {
       }
 
       const cdnBasePathReplacement = cdnBasePathReplacements[i];
-      const newSrc = src.replace(
-        cdnBasePath,
-        cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
-      );
+      const newSrc = local
+        ? nmPath
+        : src.replace(
+          cdnBasePath,
+          cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
+        );
 
-      if (!ignoreURLFetches) {
+      if (!local && !ignoreURLFetches) {
         /* eslint-disable no-await-in-loop -- This loop should be
           serial */
         const resp = await fetch(newSrc, {method: 'HEAD'});
@@ -657,7 +657,7 @@ async function updateCDNURLs (options) {
         );
       }
 
-      strategy.update(info, newSrc, newIntegrity, addCrossorigin);
+      strategy.update(info, newSrc, newIntegrity, !local && addCrossorigin);
 
       // eslint-disable-next-line no-console -- CLI
       console.log('\n');
