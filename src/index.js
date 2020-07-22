@@ -75,17 +75,45 @@ const defaultCdnBasePathReplacements = [
  */
 class JSONStrategy {
   /**
+   * @type {UpdateStrategy#getObjects}
+   */
+  getObjects (contents) {
+    const doc = JSON.parse(contents);
+
+    const scripts = Object.entries(doc.script).map(([pkg, info]) => {
+      const {
+        integrity, local, remote // , noLocalIntegrity, glbl
+      } = info;
+      return {type: 'script', src: remote || local, integrity, elem: info};
+    });
+    const links = Object.entries(doc.link).map(([pkg, info]) => {
+      const {
+        integrity, local, remote // , noLocalIntegrity, glbl
+      } = info;
+      return {type: 'link', src: remote || local, integrity, elem: info};
+    });
+
+    return {
+      doc,
+      objects: [...scripts, ...links]
+    };
+  }
+
+  /**
   * @type {UpdateStrategy#update}
   */
-  update (info, newSrc) {
+  update ({type, elem}, {
+    newSrc, newIntegrity, addCrossorigin, localPath, globalCheck
+  }) {
     // Todo:
   }
 
   /**
    * @type {UpdateStrategy#save}
    */
-  save () {
-    // Todo:
+  async save (doc, file) {
+    const serialized = JSON.stringify(doc, null, 2);
+    await writeFile(file, serialized);
   }
 }
 
@@ -94,8 +122,7 @@ class JSONStrategy {
  */
 class HTMLStrategy {
   /**
-   * @param {string} contents
-   * @returns {Promise<ObjectInfo>}
+   * @type {UpdateStrategy#getObjects}
    */
   async getObjects (contents) {
     const doc = await handleDOM(contents);
@@ -161,7 +188,6 @@ class HTMLStrategy {
    */
   async save (doc, file) {
     const serialized = cheerio.html(doc);
-    // console.log('info.elem', serialized);
     await writeFile(file, serialized);
   }
 }
@@ -445,6 +471,11 @@ async function integrityMatters (options) {
    * @param {CheerioElement} doc
    * @param {string} file Path
    * @returns {Promise<void>}
+   */
+  /**
+   * @function UpdateStrategy#getObjects
+   * @param {string} contents
+   * @returns {Promise<ObjectInfo>}
    */
 
   /**
