@@ -8,13 +8,35 @@
     "integrity-matters": "./bin/index.js"
   },
   "scripts": {
+    "prepare": "npm run license-badges",
+    "license-badge": "license-badger --corrections --uncategorizedLicenseTemplate \"\\${license} (\\${name} (\\${version}))\" --filteredTypes=nonempty --textTemplate \"License types\n(project, deps, and bundled devDeps)\" --packageJson --production badges/licenses-badge.svg",
+    "license-badge-dev": "license-badger --corrections --filteredTypes=nonempty --textTemplate \"License types\n(all devDeps)\" --allDevelopment badges/licenses-badge-dev.svg",
+    "license-badges": "npm run license-badge && npm run license-badge-dev",
+    "build-cli-svg": "clp --format=svg --config=src/optionDefinitions.js badges/cli.svg",
+    "build-cli": "npm run build-cli-svg",
     "cli": "./bin/index.js",
     "example": "./bin/index.js --file \"test/fixtures/sample.html\"",
     "example-basepath": "./bin/index.js --file \"test/fixtures/sample.html\" --cdnBasePath=\"https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^'\\\"]*)\"",
+    "coverage": "open-cli coverage/lcov-report/index.html",
+    "coverage-badge": "coveradge badges/coverage-badge.svg",
+    "eslint-badge": "eslint-formatter-badger --outputPath badges/eslint-badge.svg --lintingTypeTemplate \"\\${lintingType}: \\${failing}/\\${typeCount}\" --file .",
     "eslint": "eslint --ext=js,md,html .",
-    "mocha": "mocha --require chai/register-expect",
-    "nyc": "nyc --cache=false npm run mocha",
+    "mocha": "mocha test/*.js",
+    "nyc": "rm -rf node_modules/.cache && nyc --all npm run mocha && npm run coverage-badge",
     "test": "npm run eslint && npm run nyc"
+  },
+  "nyc": {
+    "exclude": [
+      ".idea",
+      ".*.js",
+      "coverage",
+      "test"
+    ],
+    "reporter": [
+      "lcov",
+      "json-summary",
+      "text"
+    ]
   },
   "repository": {
     "type": "git",
@@ -46,9 +68,13 @@
     "@mysticatea/eslint-plugin": "^13.0.0",
     "bootstrap": "^4.5.0",
     "chai": "^4.2.0",
+    "command-line-publish": "^0.7.0",
+    "coveradge": "^0.6.0",
+    "cypress-multi-reporters": "^1.4.0",
     "eslint": "^7.5.0",
     "eslint-config-ash-nazg": "^22.7.0",
     "eslint-config-standard": "^14.1.1",
+    "eslint-formatter-badger": "^0.9.0",
     "eslint-plugin-array-func": "^3.1.7",
     "eslint-plugin-compat": "^3.8.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
@@ -65,8 +91,11 @@
     "eslint-plugin-unicorn": "^21.0.0",
     "jquery": "^3.5.1",
     "leaflet": "^1.6.0",
+    "license-badger": "^0.17.0",
     "mocha": "^8.0.1",
+    "mocha-badge-generator": "^0.8.0",
     "nyc": "^15.1.0",
+    "open-cli": "^6.0.1",
     "popper.js": "^1.16.1",
     "typescript": "^3.9.7"
   }

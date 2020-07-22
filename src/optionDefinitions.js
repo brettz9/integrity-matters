@@ -127,12 +127,14 @@ const optionDefinitions = [
   {
     name: 'dryRun', type: Boolean,
     description: 'If set to `true`. Defaults to `false`.'
-  },
+  }
+  // Todo: Logging
+  /* ,
   {
     name: 'logging', type: String,
     description: 'Logging level; defaults to "off".',
     typeLabel: '{underline "verbose"|"off"}'
-  }
+  } */
 ];
 
 const cliSections = [
