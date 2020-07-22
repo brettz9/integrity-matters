@@ -44,7 +44,9 @@
   },
   "keywords": [
     "cdn",
-    "url"
+    "url",
+    "integrity",
+    "sri"
   ],
   "author": "Brett Zamir <brettz9@yahoo.com> (http://brett-zamir.me/)",
   "contributors": [],
