@@ -7,7 +7,7 @@ const {basePathToRegex} = require('./common.js');
 //  Might see about https://github.com/dsheiko/bycontract/
 /* eslint-disable jsdoc/require-property -- Should get property from schema */
 /**
-* @typedef {PlainObject} UpdateCDNURLsOptions
+* @typedef {PlainObject} IntegrityMattersOptions
 */
 /* eslint-enable jsdoc/require-property -- Should get property from schema */
 
@@ -55,7 +55,22 @@ const optionDefinitions = [
   {
     name: 'local', type: Boolean,
     description: 'Uses this for avoiding CDN base paths and writing ' +
-      '`node_modules` paths for output. Default is `false`.'
+      '`node_modules` paths for output. Defaults to `false`.'
+  },
+  {
+    name: 'globalCheck', type: String,
+    multiple: true,
+    description: 'Equals-sign-delimited key-type-value expression of ' +
+      'package name, element type ("script" or "link"), and JavaScript ' +
+      'string checking for existence of global before attempting to load ' +
+      'local fallback (e.g., `jquery=script=window.jQuery` or ' +
+      '`bootstrap=link=$.fn.modal`). Add one for each `cdnBasePath`. ' +
+      'Has no defaults.',
+    typeLabel: '{underline global check string}'
+  },
+  {
+    name: 'fallback', type: Boolean,
+    description: 'Add a `document.write` fallback. Defaults to `false`.'
   },
   {
     name: 'nodeModulesReplacements', type: String,
@@ -95,7 +110,8 @@ const optionDefinitions = [
     name: 'addCrossorigin', type: String,
     description: 'Whether to add `crossorigin` to all scripts and links ' +
       'with `integrity` and no preexisting `crossorigin`. Note that the ' +
-      'empty string and "anonymous" are equivalent in HTML.',
+      'empty string and "anonymous" are equivalent in HTML. Defaults to ' +
+      '`false`.',
     typeLabel: '{underline ""|"anonymous"|"use-credentials"}'
   },
   {
@@ -123,7 +139,7 @@ const cliSections = [
   {
     // Add italics: `{italic textToItalicize}`
     content: pkg.description +
-      '\n\n{italic update-cdn-urls [--outputPath path] file1.js ' +
+      '\n\n{italic integrity [--outputPath path] file1.js ' +
         'fileGlob*}'
   },
   {

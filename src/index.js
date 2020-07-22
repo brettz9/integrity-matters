@@ -64,16 +64,9 @@ const defaultCdnBasePathReplacements = [
 ];
 
 /**
-* @typedef {PlainObject} TagObject
-* @property {string} src
-* @property {string} integrity
-* @property {Integer} lastIndex
-*/
-
-/**
 * @typedef {PlainObject} ObjectInfo
-* @property {TagObject} doc
-* @property {TagObject[]} objects
+* @property {CheerioElement} doc
+* @property {SrcIntegrityObject[]} objects
 */
 
 /**
@@ -111,16 +104,14 @@ async function getObjects (contents) {
  */
 class JSONStrategy {
   /**
-   * @param {SrcIntegrityObject} info
-   * @param {string} newSrc
-   * @returns {void}
-   */
+  * @type {UpdateStrategy#update}
+  */
   update (info, newSrc) {
     // Todo:
   }
 
   /**
-   * @returns {void}
+   * @type {UpdateStrategy#save}
    */
   save () {
     // Todo:
@@ -134,7 +125,9 @@ class HTMLStrategy {
   /**
   * @type {UpdateStrategy#update}
   */
-  update ({type, elem}, newSrc, newIntegrity, addCrossorigin) {
+  update ({type, elem}, {
+    newSrc, newIntegrity, addCrossorigin, localPath, globalCheck
+  }) {
     if (type === 'link') {
       elem.attr('href', newSrc);
     } else {
@@ -146,13 +139,28 @@ class HTMLStrategy {
     if (addCrossorigin !== undefined && elem.is('[integrity]')) {
       elem.attr('crossorigin', addCrossorigin);
     }
+    if (localPath) {
+      const syncElement = type === 'link'
+        ? `<link href="${localPath}" />`
+        : `<script src="${localPath}">\\u003C/script>`;
+
+      elem.after(
+        '\n',
+        `<script>
+          'use strict';
+          ${globalCheck && globalCheck[type]} || document.write(
+            '${syncElement}'
+          );
+        </script>`
+      );
+    }
   }
 
   /**
    * @type {UpdateStrategy#save}
    */
-  async save (info, file) {
-    const serialized = cheerio.html(info);
+  async save (doc, file) {
+    const serialized = cheerio.html(doc);
     // console.log('info.elem', serialized);
     await writeFile(file, serialized);
   }
@@ -173,11 +181,11 @@ function getStrategyForExtension (extension) {
 }
 
 /**
- * @param {UpdateCDNURLsOptions} options
+ * @param {IntegrityMattersOptions} options
  * @throws {Error}
  * @returns {void}
  */
-async function updateCDNURLs (options) {
+async function integrityMatters (options) {
   const {configPath, packageJsonPath, noConfig} = options;
   const opts = noConfig
     ? options
@@ -191,7 +199,7 @@ async function updateCDNURLs (options) {
             process.cwd(),
             packageJsonPath || './package.json'
           )
-        ).updateCDNURLs,
+        ).integrityMatters,
         ...options
       };
 
@@ -200,6 +208,8 @@ async function updateCDNURLs (options) {
     cdnBasePath: cdnBasePaths = defaultCdnBasePaths,
     cdnBasePathReplacements = defaultCdnBasePathReplacements,
     local,
+    fallback,
+    globalCheck,
     nodeModulesReplacements = defaultNodeModulesReplacements,
     noGlobs,
     forceIntegrityChecks,
@@ -210,6 +220,17 @@ async function updateCDNURLs (options) {
     cwd = process.cwd()
     // , outputPath
   } = opts;
+
+  const globalChecks = Array.isArray(globalCheck)
+    ? globalCheck.reduce((obj, keyValue) => {
+      const [key, type, value] = keyValue.split('=');
+      if (!obj[key]) {
+        obj[key] = {};
+      }
+      obj[key][type] = value;
+      return obj;
+    }, {})
+    : globalCheck;
 
   const files = fileArray
     ? noGlobs
@@ -403,28 +424,39 @@ async function updateCDNURLs (options) {
   }
 
   /**
+  * @typedef {PlainObject} UpdateInfo
+  * @property {string} newSrc
+  * @property {string} [newIntegrity]
+  * @property {string} [addCrossorigin]
+  * @property {string} [localPath]
+  */
+
+  /**
    * @interface UpdateStrategy
   */
   /**
    * @function UpdateStrategy#update
    * @param {SrcIntegrityObject} info
-   * @param {string} newSrc
-   * @param {string} [newIntegrity]
-   * @param {string} [addCrossorigin]
+   * @param {UpdateInfo} updateInfo
    * @returns {void}
    */
   /**
    * @function UpdateStrategy#save
-   * @param {SrcIntegrityObject} info
+   * @param {CheerioElement} doc
    * @param {string} file Path
    * @returns {Promise<void>}
    */
 
   /**
+   * @external CheerioElement
+   * @see https://www.npmjs.com/package/cheerio
+   */
+  /**
   * @typedef {PlainObject} SrcIntegrityObject
   * @property {string} src
   * @property {string} integrity
   * @property {"script"|"link"} type
+  * @property {CheerioElement} elem
   */
 
   /**
@@ -657,7 +689,15 @@ async function updateCDNURLs (options) {
         );
       }
 
-      strategy.update(info, newSrc, newIntegrity, !local && addCrossorigin);
+      strategy.update(
+        info, {
+          newSrc,
+          newIntegrity,
+          localPath: fallback && nmPath,
+          globalCheck: globalChecks[name],
+          addCrossorigin: !local && addCrossorigin
+        }
+      );
 
       // eslint-disable-next-line no-console -- CLI
       console.log('\n');
@@ -690,4 +730,4 @@ async function updateCDNURLs (options) {
   }
 }
 
-exports.updateCDNURLs = updateCDNURLs;
+module.exports = integrityMatters;

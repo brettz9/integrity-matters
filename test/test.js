@@ -1,5 +1,5 @@
 'use strict';
-describe('update-cdn-urls', function () {
+describe('integrity-matters', function () {
   it('', function () {
     //
   });

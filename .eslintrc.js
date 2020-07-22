@@ -34,7 +34,7 @@ module.exports = {
     },
     rules: {
       'node/no-missing-require': ['error', {
-        allowModules: ['update-cdn-urls']
+        allowModules: ['integrity-matters']
       }],
       'no-unused-vars': ['error', {
         // varsIgnorePattern: 'value'

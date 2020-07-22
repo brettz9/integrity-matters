@@ -1,11 +1,11 @@
 {
-  "name": "update-cdn-urls",
+  "name": "integrity-matters",
   "version": "0.1.0",
   "description": "Confirm the integrity of CDN URLs based on installed npm packages and update their integrity attribute (HTML) and paths (JS or HTML).",
   "main": "src/index.js",
   "bin": {
-    "update-cdn-urls": "./bin/index.js",
-    "ucu": "./bin/index.js"
+    "integrity": "./bin/index.js",
+    "integrity-matters": "./bin/index.js"
   },
   "scripts": {
     "cli": "./bin/index.js",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/brettz9/update-cdn-urls.git"
+    "url": "git+https://github.com/brettz9/integrity-matters.git"
   },
   "keywords": [
     "cdn",
@@ -27,8 +27,8 @@
   "author": "Brett Zamir <brettz9@yahoo.com> (http://brett-zamir.me/)",
   "contributors": [],
   "license": "MIT",
-  "bugs": "https://github.com/brettz9/update-cdn-urls/issues",
-  "homepage": "https://github.com/brettz9/update-cdn-urls#readme",
+  "bugs": "https://github.com/brettz9/integrity-matters/issues",
+  "homepage": "https://github.com/brettz9/integrity-matters#readme",
   "engines": {
     "node": ">=10.0.0"
   },

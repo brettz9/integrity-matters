@@ -4,7 +4,7 @@
 const {join} = require('path');
 
 const {cliBasics} = require('command-line-basics');
-const {updateCDNURLs} = require('../src/index.js');
+const integrityMatters = require('../src/index.js');
 
 const optionDefinitions = cliBasics(
   join(__dirname, '../src/optionDefinitions.js')
@@ -16,7 +16,7 @@ if (!optionDefinitions) { // cliBasics handled
 
 (async () => {
 try {
-  await updateCDNURLs({
+  await integrityMatters({
     ...optionDefinitions,
     cli: true
   });
