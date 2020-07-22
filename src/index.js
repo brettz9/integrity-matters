@@ -142,8 +142,9 @@ class HTMLStrategy {
   /* eslint-disable class-methods-use-this -- Might use `this` later
     for config */
   /**
-  * @type {UpdateStrategy#update}
-  */
+   * For `elem`, see {@link CheerioElement}.
+   * @type {UpdateStrategy#update}
+   */
   update ({type, elem}, {
     /* eslint-enable class-methods-use-this -- Might use `this` later
       for config */
@@ -475,12 +476,12 @@ async function integrityMatters (options) {
    * @see https://www.npmjs.com/package/cheerio
    */
   /**
-  * @typedef {PlainObject} SrcIntegrityObject
-  * @property {string} src
-  * @property {string} integrity
-  * @property {"script"|"link"} type
-  * @property {CheerioElement} elem
-  */
+   * May hold other strategy-specific meta-data properties as well.
+   * @typedef {PlainObject} SrcIntegrityObject
+   * @property {string} src
+   * @property {string} integrity
+   * @property {"script"|"link"} type
+   */
 
   /**
    * @param {SrcIntegrityObject} info
