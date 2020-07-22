@@ -11,7 +11,7 @@ npm i -D integrity-matters
 
 ## To-dos
 
-1. Tests/Coverage
+1. Tests/Coverage (with badges, CLI SVG docs, Travis, etc.)
 2. Implement `JSONStrategy`
 3. See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized?
