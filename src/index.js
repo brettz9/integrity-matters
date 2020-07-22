@@ -535,11 +535,11 @@ async function integrityMatters (options) {
    * @returns {Promise<void>}
    */
   async function updateResources (info, strategy) {
-    // Todo: Use `glbl`
     const {
       src, integrity,
       crossorigin: strategyCrossorigin,
-      fallback: strategyFallback
+      fallback: strategyFallback,
+      glbl
     } = info;
     /**
      * @param {string} name
@@ -797,7 +797,7 @@ async function integrityMatters (options) {
           fallback: fallback || strategyFallback,
           local,
           localPath: nmPath,
-          globalCheck: globalChecks[name],
+          globalCheck: globalChecks[name] || glbl,
           addCrossorigin: !local && (addCrossorigin || strategyCrossorigin)
         }
       );
