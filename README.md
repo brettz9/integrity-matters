@@ -161,7 +161,6 @@ overridden for all cases using `--addCrossorigin`.
 
 ## To-dos
 
-1. Implement `JSONStrategy`
 1. Tests/Coverage (and uncomment badges in README)
 2. See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized?
