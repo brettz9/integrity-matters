@@ -16,7 +16,8 @@ const optionDefinitions = [
     name: 'file', type: String, multiple: true,
     defaultOption: true,
     description: 'Repeat for each file or file glob you wish to be updated. ' +
-      'Required.',
+      'Required. If ends in `.json`, the JSON strategy will be used in ' +
+      'place of the HTML strategy.',
     typeLabel: '{underline file path}'
   },
   {
@@ -62,8 +63,13 @@ const optionDefinitions = [
   },
   {
     name: 'local', type: Boolean,
-    description: 'Uses this for avoiding CDN base paths and writing ' +
+    description: 'Use this for avoiding CDN base paths and writing ' +
       '`node_modules` paths for output. Defaults to `false`.'
+  },
+  {
+    name: 'noLocalIntegrity', type: Boolean,
+    description: 'Use this for avoiding adding `integrity` when the path ' +
+      'is local. Defaults to `false`.'
   },
   {
     name: 'globalCheck', type: String,

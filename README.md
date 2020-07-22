@@ -73,6 +73,92 @@ npm i -D integrity-matters
 
 ![badges/cli.svg](./badges/cli.svg)
 
+## Forcing new or changed hashing algorithms
+
+If you simply change the `integrity` attribute (or, for JSON, the JSON
+property) to have space-separated, algorithms followed by a dash, these
+will be replaced on the next run, e.g., `integrity="sha256- sha512-"` will
+cause `sha256` and `sha512` hashes to be generated on the next run.
+
+You can also force all `integrity` attributes to possess certain hashes at a
+minimum using one or more `--algorithm` flags.
+
+## Notes on strategies
+
+There are currently two strategies which determine how to process certain file
+types passed via the `file` option. If a `.json` extension is found, the JSON
+strategy will be used in place of the HTML strategy.
+
+### JSON strategy
+
+JSON can be useful for Server-Side Rendering (SSR) in that you can read the
+JSON file at runtime and insert its contents into a rendered template
+programmatically rather than using static HTML. `integrity-matters` allows you
+to auto-update such files as well (also based on checksums (hashes) of your
+local npm package files).
+
+The JSON strategy file format expects the following (some of these can be
+auto-generated or updated in the output instead of being present in source):
+
+```json
+{
+  "link": {
+    "bootstrap": {
+      "crossorigin": "anonymous",
+      "local": "/node_modules/bootstrap/dist/css/bootstrap.min.css",
+      "integrity": "sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I",
+      "remote": "https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+    }
+  },
+  "script": {
+    "jquery": {
+      "global": "jQuery",
+      "fallback": true,
+      "local": "/node_modules/jquery/dist/jquery.min.js",
+      "integrity": "sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=",
+      "remote": "https://code.jquery.com/jquery-3.5.1.min.js"
+    }
+  }
+}
+```
+
+Note that in JSON, `remote` (equivalent to `script src` or `link href`) and
+`local` are stored separately. `integrity` can be auto-updated, but to do so,
+you should at least have empty algorithms or use `--algorithm` (see
+"Forcing new or changed hashing algorithms").
+
+In the JSON strategy, the following additional properties can be added, some
+of which do not have exact equivalents in the HTML (See "HTML Strategy").
+
+- `fallback` - Ensures server-side renderers can dynamically determine
+    whether to add fallback code. Can be forced by `--fallback` CLI.
+- `global` - Ensures server-side renderers can dynamically add a global check
+    to determine whether to fallback.
+- `local` - Ensures server-side renderers can dynamically point to a local
+    file for fallback.
+- `noLocalIntegrity` - Ensures server-side renderers can dyanmically avoid
+    adding `integrity` for indicated files when they are served locally. This
+    is a recommended property and is not set by `integrity-matters`. (The CLI
+    command of the same name is to get the HTML strategy to avoid inserting
+    the attribute.)
+- `crossorigin` - This property allows SSR to dynamically add a particular
+    `crossorigin`. Overwritten if `addCrossorigin` is used.
+
+### HTML strategy
+
+In HTML, we currently only allow fallbacks to be added in a new auto-generated
+file; you should not attempt to set `--fallback` with HTML files if your
+source already has fallback code, as we do not auto-detect whether you already
+have such fallback code in place. You can, however, use `fallback` with
+`--outputPath` and `--globalCheck` and allow the output file to be written
+anew each time, adding the fallback code during this process.
+
+In the HTML strategy, the local fallback file path is either the `src`/`href`
+used in source or it is derived from the CDN by `--nodeModulesReplacements`.
+
+A preexisting HTML `crossorigin` attribute will be respected but can be
+overridden for all cases using `--addCrossorigin`.
+
 ## To-dos
 
 1. Implement `JSONStrategy`

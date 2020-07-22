@@ -75,15 +75,15 @@ class JSONStrategy {
 
     const scripts = Object.entries(this.doc.script).map(([pkg, info]) => {
       const {
-        integrity, local, remote, algorithms, crossorigin,
-        fallback
-        // , noLocalIntegrity, glbl
+        integrity, local, remote, crossorigin,
+        fallback,
+        global: glbl
       } = info;
       return {
         type: 'script',
-        algorithms,
         crossorigin,
         fallback,
+        glbl,
         src: remote || local,
         integrity,
         elem: info
@@ -91,14 +91,14 @@ class JSONStrategy {
     });
     const links = Object.entries(this.doc.link).map(([pkg, info]) => {
       const {
-        integrity, local, remote, algorithms, crossorigin, fallback
-        // , noLocalIntegrity, glbl
+        integrity, local, remote, crossorigin, fallback,
+        global: glbl
       } = info;
       return {
         type: 'link',
-        algorithms,
         crossorigin,
         fallback,
+        glbl,
         src: remote || local,
         integrity,
         elem: info
@@ -116,7 +116,7 @@ class JSONStrategy {
   update ({type, elem}, {
     /* eslint-enable class-methods-use-this -- Might use `this` later
       for config */
-    newSrc, newIntegrity, addCrossorigin, fallback, local,
+    newSrc, newIntegrity, addCrossorigin, noLocalIntegrity, fallback, local,
     localPath, globalCheck
   }) {
     // Unlike HTML, we don't depend on `fallback` to set this value
@@ -190,14 +190,15 @@ class HTMLStrategy {
   update ({type, elem}, {
     /* eslint-enable class-methods-use-this -- Might use `this` later
       for config */
-    newSrc, newIntegrity, addCrossorigin, fallback, localPath, globalCheck
+    newSrc, newIntegrity, addCrossorigin, noLocalIntegrity,
+    fallback, localPath, local, globalCheck
   }) {
     if (type === 'link') {
       elem.attr('href', newSrc);
     } else {
       elem.attr('src', newSrc);
     }
-    if (newIntegrity) {
+    if ((!local || !noLocalIntegrity) && newIntegrity) {
       elem.attr('integrity', newIntegrity);
     }
     if (addCrossorigin !== undefined && elem.is('[integrity]')) {
@@ -277,6 +278,7 @@ async function integrityMatters (options) {
     noGlobs,
     forceIntegrityChecks,
     addCrossorigin,
+    noLocalIntegrity,
     ignoreURLFetches,
     algorithm: userAlgorithms,
     dryRun,
@@ -533,10 +535,9 @@ async function integrityMatters (options) {
    * @returns {Promise<void>}
    */
   async function updateResources (info, strategy) {
-    // Todo: Use `noLocalIntegrity`, `glbl`
+    // Todo: Use `glbl`
     const {
       src, integrity,
-      algorithms: strategyAlgorithms,
       crossorigin: strategyCrossorigin,
       fallback: strategyFallback
     } = info;
@@ -690,9 +691,9 @@ async function integrityMatters (options) {
       let nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
       if (existsSync(nmPath)) {
         const integrityHashes = integrity.split(/\s+/u);
-        if (strategyAlgorithms) {
+        if (userAlgorithms) {
           // Only add missing algorithms
-          integrityHashes.push(...strategyAlgorithms.map((algorithm) => {
+          integrityHashes.push(...userAlgorithms.map((algorithm) => {
             const alreadyHasHash = integrityHashes.find((integrityHash) => {
               return integrityHash.startsWith(`${algorithm}-`);
             });
@@ -725,11 +726,7 @@ async function integrityMatters (options) {
                   `from integrity value, "${integrityHash}")`
               );
             }
-            if (
-              (strategyAlgorithms &&
-                !strategyAlgorithms.includes(algorithm)) ||
-              (userAlgorithms && !userAlgorithms.includes(algorithm))
-            ) {
+            if (userAlgorithms && !userAlgorithms.includes(algorithm)) {
               // eslint-disable-next-line no-console -- CLI
               console.warn(
                 `WARNING: Algorithm whitelist did not specify ` +
@@ -795,6 +792,7 @@ async function integrityMatters (options) {
       strategy.update(
         info, {
           newSrc,
+          noLocalIntegrity,
           newIntegrity,
           fallback: fallback || strategyFallback,
           local,
