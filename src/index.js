@@ -16,7 +16,7 @@ const semver = require('semver');
 const globby = require('globby');
 const fetch = require('node-fetch');
 
-const {basePathToRegex} = require('./common.js');
+const {basePathToRegex, hasOwn} = require('./common.js');
 const handleDOM = require('./handleDOM.js');
 const getHash = require('./getHash.js');
 
@@ -97,9 +97,32 @@ class JSONStrategy {
   update ({type, elem}, {
     /* eslint-enable class-methods-use-this -- Might use `this` later
       for config */
-    newSrc, newIntegrity, addCrossorigin, localPath, globalCheck
+    newSrc, newIntegrity, addCrossorigin, fallback, local,
+    localPath, globalCheck
   }) {
-    // Todo:
+    // Unlike HTML, we don't depend on `fallback` to set this value
+    if (localPath) {
+      elem.local = localPath;
+    }
+    // As both forms are available in JSON, we aren't allowing for
+    //  overwriting `remote` with the local path (when `local` is in use);
+    //  users of the JSON can simply opt to use the `local` property value
+    //  if they want local
+    if (newSrc && !local) {
+      elem.remote = newSrc;
+    }
+    if (fallback) {
+      elem.fallback = fallback;
+    }
+    if (newIntegrity) {
+      elem.integrity = newIntegrity;
+    }
+    if (addCrossorigin !== undefined && hasOwn(elem, 'integrity')) {
+      elem.crossorigin = addCrossorigin;
+    }
+    if (globalCheck && globalCheck[type]) {
+      elem.global = globalCheck[type];
+    }
   }
 
   /**
@@ -148,7 +171,7 @@ class HTMLStrategy {
   update ({type, elem}, {
     /* eslint-enable class-methods-use-this -- Might use `this` later
       for config */
-    newSrc, newIntegrity, addCrossorigin, localPath, globalCheck
+    newSrc, newIntegrity, addCrossorigin, fallback, localPath, globalCheck
   }) {
     if (type === 'link') {
       elem.attr('href', newSrc);
@@ -161,7 +184,7 @@ class HTMLStrategy {
     if (addCrossorigin !== undefined && elem.is('[integrity]')) {
       elem.attr('crossorigin', addCrossorigin);
     }
-    if (localPath) {
+    if (fallback && localPath) {
       const syncElement = type === 'link'
         ? `<link href="${localPath}" />`
         : `<script src="${localPath}">\\u003C/script>`;
@@ -490,6 +513,8 @@ async function integrityMatters (options) {
    * @returns {Promise<void>}
    */
   async function updateResources (info, strategy) {
+    // Todo: Use `noLocalIntegrity`, `glbl`; allow for `crossorigin`,
+    //   `fallback`, `algorithms`
     const {src, integrity} = info;
     /**
      * @param {string} name
@@ -636,11 +661,10 @@ async function integrityMatters (options) {
       }
 
       const nodeModulesReplacement = nodeModulesReplacements[i];
-      const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
 
       let newIntegrity;
+      let nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
       if (existsSync(nmPath)) {
-        // Todo: Allow user to force integrity
         const integrityHashes = integrity.split(/\s+/u);
 
         /* eslint-disable no-await-in-loop -- This loop should be
@@ -684,6 +708,8 @@ async function integrityMatters (options) {
           })
         );
         newIntegrity = localHashes.join(' ');
+      } else {
+        nmPath = null;
       }
 
       const cdnBasePathReplacement = cdnBasePathReplacements[i];
@@ -717,7 +743,9 @@ async function integrityMatters (options) {
         info, {
           newSrc,
           newIntegrity,
-          localPath: fallback && nmPath,
+          fallback,
+          local,
+          localPath: nmPath,
           globalCheck: globalChecks[name],
           addCrossorigin: !local && addCrossorigin
         }
