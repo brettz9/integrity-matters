@@ -161,6 +161,14 @@ used in source or it is derived from the CDN by `--nodeModulesReplacements`.
 A preexisting HTML `crossorigin` attribute will be respected but can be
 overridden for all cases using `--addCrossorigin`.
 
+## Tips
+
+You may wish to use a hook, or probably more easily, use
+[@hkdobrev/run-if-changed](https://github.com/hkdobrev/run-if-changed) to
+indicate that `integrity-matters` should be run whenever `package.json`
+(or `package-lock.json`/`yarn.lock`) changes, ensuring that your local
+updates are automatically reflected in your CDN URL versions.
+
 ## To-dos
 
 1. Tests/Coverage (and uncomment badges in README)
