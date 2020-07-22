@@ -175,7 +175,7 @@ function getStrategyForExtension (extension) {
   switch (extension) {
   case '.json':
     return new JSONStrategy();
-  case '.html': default:
+  case '.htm': case '.html': default:
     return new HTMLStrategy();
   }
 }
