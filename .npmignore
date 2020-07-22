@@ -2,3 +2,8 @@ test
 .nyc_output
 coverage
 .idea
+.travis.yml
+.mocharc.js
+mocha-multi-reporters.json
+lgtm.yml
+badges
