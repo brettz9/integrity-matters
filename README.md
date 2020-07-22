@@ -11,10 +11,9 @@ npm i -D integrity-matters
 
 ## To-dos
 
-1. Have mode for separate output file
-2. Tests/Coverage
-3. Implement `JSONStrategy`
-4. See about getting HTML parser to preserve whitespace between attributes
+1. Tests/Coverage
+2. Implement `JSONStrategy`
+3. See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized?
     Seems `cheerio` is using
     [dom-serializer](https://github.com/cheeriojs/dom-serializer/blob/master/src/index.ts)

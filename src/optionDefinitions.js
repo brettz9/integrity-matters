@@ -29,7 +29,7 @@ const optionDefinitions = [
     name: 'outputPath', type: String, alias: 'o',
     multiple: true,
     description: 'Path(s) to which to save the file if different from ' +
-      'input; globs are ignored. Defaults to `file`.',
+      'input; only usable with `noGlobs`. Defaults to `file`.',
     typeLabel: '{underline outputPath}'
   },
   {

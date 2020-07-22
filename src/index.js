@@ -205,6 +205,7 @@ async function integrityMatters (options) {
 
   const {
     file: fileArray,
+    outputPath: outputPaths,
     cdnBasePath: cdnBasePaths = defaultCdnBasePaths,
     cdnBasePathReplacements = defaultCdnBasePathReplacements,
     local,
@@ -218,7 +219,6 @@ async function integrityMatters (options) {
     dryRun,
     cli,
     cwd = process.cwd()
-    // , outputPath
   } = opts;
 
   const globalChecks = Array.isArray(globalCheck)
@@ -230,7 +230,7 @@ async function integrityMatters (options) {
       obj[key][type] = value;
       return obj;
     }, {})
-    : globalCheck;
+    : globalCheck || {};
 
   const files = fileArray
     ? noGlobs
@@ -715,14 +715,14 @@ async function integrityMatters (options) {
     );
 
     await Promise.all(fileContentObjectsArr.map(async (
-      {objects, doc, file, extension}
+      {objects, doc, file, extension}, i
     ) => {
       const strategy = getStrategyForExtension(extension);
       await Promise.all(objects.map((object) => {
         return updateResources(object, strategy);
       }));
       if (!dryRun) {
-        strategy.save(doc, file);
+        strategy.save(doc, (noGlobs && outputPaths && outputPaths[i]) || file);
       }
     }));
     // // eslint-disable-next-line no-console -- CLI
