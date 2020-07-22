@@ -75,13 +75,15 @@ class JSONStrategy {
 
     const scripts = Object.entries(this.doc.script).map(([pkg, info]) => {
       const {
-        integrity, local, remote, strategyAlgorithms, strategyCrossorigin
+        integrity, local, remote, algorithms, crossorigin,
+        fallback
         // , noLocalIntegrity, glbl
       } = info;
       return {
         type: 'script',
-        strategyAlgorithms,
-        strategyCrossorigin,
+        algorithms,
+        crossorigin,
+        fallback,
         src: remote || local,
         integrity,
         elem: info
@@ -89,13 +91,14 @@ class JSONStrategy {
     });
     const links = Object.entries(this.doc.link).map(([pkg, info]) => {
       const {
-        integrity, local, remote, strategyAlgorithms, strategyCrossorigin
+        integrity, local, remote, algorithms, crossorigin, fallback
         // , noLocalIntegrity, glbl
       } = info;
       return {
         type: 'link',
-        strategyAlgorithms,
-        strategyCrossorigin,
+        algorithms,
+        crossorigin,
+        fallback,
         src: remote || local,
         integrity,
         elem: info
@@ -530,8 +533,13 @@ async function integrityMatters (options) {
    * @returns {Promise<void>}
    */
   async function updateResources (info, strategy) {
-    // Todo: Use `noLocalIntegrity`, `glbl`; allow for `fallback`
-    const {src, integrity, strategyAlgorithms, strategyCrossorigin} = info;
+    // Todo: Use `noLocalIntegrity`, `glbl`
+    const {
+      src, integrity,
+      algorithms: strategyAlgorithms,
+      crossorigin: strategyCrossorigin,
+      fallback: strategyFallback
+    } = info;
     /**
      * @param {string} name
      * @param {string} version
@@ -788,7 +796,7 @@ async function integrityMatters (options) {
         info, {
           newSrc,
           newIntegrity,
-          fallback,
+          fallback: fallback || strategyFallback,
           local,
           localPath: nmPath,
           globalCheck: globalChecks[name],
