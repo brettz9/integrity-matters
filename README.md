@@ -4,9 +4,11 @@
 
 [![eslint badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/eslint-badge.svg?sanitize=true)](badges/eslint-badge.svg)
 
+<!--
 [![Build Status](https://travis-ci.org/brettz9/integrity-matters.svg?branch=master)](https://travis-ci.com/github/brettz9/integrity-matters)
 [![testing badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/tests-badge.svg?sanitize=true)](badges/tests-badge.svg)
 [![coverage badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/coverage-badge.svg?sanitize=true)](badges/coverage-badge.svg)
+-->
 
 [![Known Vulnerabilities](https://snyk.io/test/github/brettz9/integrity-matters/badge.svg)](https://snyk.io/test/github/brettz9/integrity-matters)
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/brettz9/integrity-matters.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/integrity-matters/alerts)
