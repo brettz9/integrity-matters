@@ -25,6 +25,8 @@
 
 Integrity matters! See [Motivation](#motivation).
 
+**NOTE: This project is an early version currently without tests/coverage.**
+
 ## Features
 
 1. **Confirm and update `integrity` and path info** - Confirm the integrity of
