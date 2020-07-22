@@ -64,13 +64,6 @@ const defaultCdnBasePathReplacements = [
 ];
 
 /**
-* @typedef {PlainObject} ObjectInfo
-* @property {CheerioElement} doc
-* @property {SrcIntegrityObject[]} objects
-*/
-
-/* eslint-disable class-methods-use-this -- Debugging */
-/**
  * For updating JSON files.
  */
 class JSONStrategy {
@@ -78,31 +71,32 @@ class JSONStrategy {
    * @type {UpdateStrategy#getObjects}
    */
   getObjects (contents) {
-    const doc = JSON.parse(contents);
+    this.doc = JSON.parse(contents);
 
-    const scripts = Object.entries(doc.script).map(([pkg, info]) => {
+    const scripts = Object.entries(this.doc.script).map(([pkg, info]) => {
       const {
         integrity, local, remote // , noLocalIntegrity, glbl
       } = info;
       return {type: 'script', src: remote || local, integrity, elem: info};
     });
-    const links = Object.entries(doc.link).map(([pkg, info]) => {
+    const links = Object.entries(this.doc.link).map(([pkg, info]) => {
       const {
         integrity, local, remote // , noLocalIntegrity, glbl
       } = info;
       return {type: 'link', src: remote || local, integrity, elem: info};
     });
 
-    return {
-      doc,
-      objects: [...scripts, ...links]
-    };
+    return [...scripts, ...links];
   }
 
+  /* eslint-disable class-methods-use-this -- Might use `this` later
+    for config */
   /**
   * @type {UpdateStrategy#update}
   */
   update ({type, elem}, {
+    /* eslint-enable class-methods-use-this -- Might use `this` later
+      for config */
     newSrc, newIntegrity, addCrossorigin, localPath, globalCheck
   }) {
     // Todo:
@@ -111,8 +105,8 @@ class JSONStrategy {
   /**
    * @type {UpdateStrategy#save}
    */
-  async save (doc, file) {
-    const serialized = JSON.stringify(doc, null, 2);
+  async save (file) {
+    const serialized = JSON.stringify(this.doc, null, 2);
     await writeFile(file, serialized);
   }
 }
@@ -125,8 +119,8 @@ class HTMLStrategy {
    * @type {UpdateStrategy#getObjects}
    */
   async getObjects (contents) {
-    const doc = await handleDOM(contents);
-    const $ = cheerio.load(doc);
+    this.doc = await handleDOM(contents);
+    const $ = cheerio.load(this.doc);
 
     const scripts = $('script[src]').toArray().map((elem) => {
       const {
@@ -142,17 +136,17 @@ class HTMLStrategy {
       return {src, integrity, type: 'link', elem: $(elem)};
     });
 
-    return {
-      // $,
-      doc,
-      objects: [...scripts, ...links]
-    };
+    return [...scripts, ...links];
   }
 
+  /* eslint-disable class-methods-use-this -- Might use `this` later
+    for config */
   /**
   * @type {UpdateStrategy#update}
   */
   update ({type, elem}, {
+    /* eslint-enable class-methods-use-this -- Might use `this` later
+      for config */
     newSrc, newIntegrity, addCrossorigin, localPath, globalCheck
   }) {
     if (type === 'link') {
@@ -186,12 +180,11 @@ class HTMLStrategy {
   /**
    * @type {UpdateStrategy#save}
    */
-  async save (doc, file) {
-    const serialized = cheerio.html(doc);
+  async save (file) {
+    const serialized = cheerio.html(this.doc);
     await writeFile(file, serialized);
   }
 }
-/* eslint-enable class-methods-use-this -- Debugging */
 
 /**
  * @param {string} extension
@@ -468,14 +461,13 @@ async function integrityMatters (options) {
    */
   /**
    * @function UpdateStrategy#save
-   * @param {CheerioElement} doc
    * @param {string} file Path
    * @returns {Promise<void>}
    */
   /**
    * @function UpdateStrategy#getObjects
    * @param {string} contents
-   * @returns {Promise<ObjectInfo>}
+   * @returns {Promise<SrcIntegrityObject[]>}
    */
 
   /**
@@ -743,12 +735,12 @@ async function integrityMatters (options) {
     ) => {
       const strategy = getStrategyForExtension(extension);
 
-      const {objects, doc} = await strategy.getObjects(contents);
+      const objects = await strategy.getObjects(contents);
       await Promise.all(objects.map((object) => {
         return updateResources(object, strategy);
       }));
       if (!dryRun) {
-        strategy.save(doc, (noGlobs && outputPaths && outputPaths[i]) || file);
+        strategy.save((noGlobs && outputPaths && outputPaths[i]) || file);
       }
     }));
     // // eslint-disable-next-line no-console -- CLI
