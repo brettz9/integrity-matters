@@ -13,9 +13,10 @@ npm i -D update-cdn-urls
 
 1. Have a mode to optionally switch the URLs to local npm copies (or to
     auto-add `document.write` to the npm version as a fallback)
-2. Tests/Coverage
-3. Implement `JSONStrategy`
-4. See about getting HTML parser to preserve whitespace between attributes
+2. Have mode for separate output file
+3. Tests/Coverage
+4. Implement `JSONStrategy`
+5. See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized?
     Seems `cheerio` is using
     [dom-serializer](https://github.com/cheeriojs/dom-serializer/blob/master/src/index.ts)
