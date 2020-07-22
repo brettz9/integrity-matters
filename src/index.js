@@ -75,11 +75,13 @@ class JSONStrategy {
 
     const scripts = Object.entries(this.doc.script).map(([pkg, info]) => {
       const {
-        integrity, local, remote, algorithms // , noLocalIntegrity, glbl
+        integrity, local, remote, strategyAlgorithms, strategyCrossorigin
+        // , noLocalIntegrity, glbl
       } = info;
       return {
         type: 'script',
-        algorithms,
+        strategyAlgorithms,
+        strategyCrossorigin,
         src: remote || local,
         integrity,
         elem: info
@@ -87,11 +89,13 @@ class JSONStrategy {
     });
     const links = Object.entries(this.doc.link).map(([pkg, info]) => {
       const {
-        integrity, local, remote, algorithms // , noLocalIntegrity, glbl
+        integrity, local, remote, strategyAlgorithms, strategyCrossorigin
+        // , noLocalIntegrity, glbl
       } = info;
       return {
         type: 'link',
-        algorithms,
+        strategyAlgorithms,
+        strategyCrossorigin,
         src: remote || local,
         integrity,
         elem: info
@@ -526,9 +530,8 @@ async function integrityMatters (options) {
    * @returns {Promise<void>}
    */
   async function updateResources (info, strategy) {
-    // Todo: Use `noLocalIntegrity`, `glbl`; allow for `crossorigin`,
-    //   `fallback`
-    const {src, integrity, algorithms} = info;
+    // Todo: Use `noLocalIntegrity`, `glbl`; allow for `fallback`
+    const {src, integrity, strategyAlgorithms, strategyCrossorigin} = info;
     /**
      * @param {string} name
      * @param {string} version
@@ -679,9 +682,9 @@ async function integrityMatters (options) {
       let nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
       if (existsSync(nmPath)) {
         const integrityHashes = integrity.split(/\s+/u);
-        if (algorithms) {
+        if (strategyAlgorithms) {
           // Only add missing algorithms
-          integrityHashes.push(...algorithms.map((algorithm) => {
+          integrityHashes.push(...strategyAlgorithms.map((algorithm) => {
             const alreadyHasHash = integrityHashes.find((integrityHash) => {
               return integrityHash.startsWith(`${algorithm}-`);
             });
@@ -715,7 +718,8 @@ async function integrityMatters (options) {
               );
             }
             if (
-              (algorithms && !algorithms.includes(algorithm)) ||
+              (strategyAlgorithms &&
+                !strategyAlgorithms.includes(algorithm)) ||
               (userAlgorithms && !userAlgorithms.includes(algorithm))
             ) {
               // eslint-disable-next-line no-console -- CLI
@@ -788,7 +792,7 @@ async function integrityMatters (options) {
           local,
           localPath: nmPath,
           globalCheck: globalChecks[name],
-          addCrossorigin: !local && addCrossorigin
+          addCrossorigin: !local && (addCrossorigin || strategyCrossorigin)
         }
       );
 
