@@ -809,23 +809,24 @@ async function integrityMatters (options) {
     }
   }
 
-  if (fileContentsArr.length) {
-    await Promise.all(fileContentsArr.map(async (
-      {file, contents, extension}, i
-    ) => {
-      const strategy = getStrategyForExtension(extension);
-
-      const objects = await strategy.getObjects(contents);
-      await Promise.all(objects.map((object) => {
-        return updateResources(object, strategy);
-      }));
-      if (!dryRun) {
-        strategy.save((noGlobs && outputPaths && outputPaths[i]) || file);
-      }
-    }));
-    // // eslint-disable-next-line no-console -- CLI
-    // console.log('fileContentsArr', fileContentsArr);
+  if (!fileContentsArr.length) {
+    throw new Error('No matching files specified by `--file` were found.');
   }
+  await Promise.all(fileContentsArr.map(async (
+    {file, contents, extension}, i
+  ) => {
+    const strategy = getStrategyForExtension(extension);
+
+    const objects = await strategy.getObjects(contents);
+    await Promise.all(objects.map((object) => {
+      return updateResources(object, strategy);
+    }));
+    if (!dryRun) {
+      strategy.save((noGlobs && outputPaths && outputPaths[i]) || file);
+    }
+  }));
+  // // eslint-disable-next-line no-console -- CLI
+  // console.log('fileContentsArr', fileContentsArr);
 }
 
 module.exports = integrityMatters;
