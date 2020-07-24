@@ -30,7 +30,7 @@ const optionDefinitions = [
     name: 'outputPath', type: String, alias: 'o',
     multiple: true,
     description: 'Path(s) to which to save the file if different from ' +
-      'input; only usable with `noGlobs`. Defaults to `file`.',
+      'input. Defaults to `file`.',
     typeLabel: '{underline outputPath}'
   },
   {
@@ -118,7 +118,8 @@ const optionDefinitions = [
   {
     name: 'noGlobs', type: Boolean,
     description: '`file` files will be treated by default as globs. Set ' +
-      'this to `true` to disable. Defaults to `false`.'
+      'this to `true` to disable. This is automatically implied when ' +
+      '`outputPath` is set. Defaults to `false`.'
   },
   {
     name: 'addCrossorigin', type: String,

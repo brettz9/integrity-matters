@@ -186,7 +186,6 @@ made by others contributing to your project are reflected locally.)
 
 ## Potential to-dos
 
-1. Deterministic logging order
 1. Add some auto-fallbacks, e.g., `window.jQuery` for well-known libraries?
 1. Could make optional to only update URL if that version is lower
     than the `package.json` range

@@ -249,6 +249,21 @@ function getStrategyForExtension (extension) {
  * @returns {void}
  */
 async function integrityMatters (options) {
+  const logs = [];
+
+  /**
+   * @callback Logger
+   * @param {"log"|"info"|"warn"|"error"} method
+   * @param {string} message
+   * @returns {void}
+   */
+
+  /**
+   * @type {Logger}
+   */
+  function addMainLog (method, message) {
+    logs.push({method, message});
+  }
   const {configPath, packageJsonPath, noConfig} = options;
   const opts = noConfig
     ? options
@@ -298,7 +313,7 @@ async function integrityMatters (options) {
     : globalCheck || {};
 
   const files = fileArray
-    ? noGlobs
+    ? noGlobs || outputPaths
       ? fileArray
       : await globby(fileArray, {
         cwd
@@ -337,11 +352,9 @@ async function integrityMatters (options) {
         }
         : {};
     };
-    // eslint-disable-next-line no-console -- CLI
-    console.info('INFO: Found `package.json`');
+    addMainLog('info', 'INFO: Found `package.json`');
   } catch (e) {
-    // eslint-disable-next-line no-console -- CLI
-    console.error('Unable to retrieve `package.json`');
+    addMainLog('error', 'Unable to retrieve `package.json`');
     return;
   }
 
@@ -350,11 +363,9 @@ async function integrityMatters (options) {
     packageLockJSON = getLocalJSON(
       join(cwd, 'package-lock.json')
     );
-    // eslint-disable-next-line no-console -- CLI
-    console.info('INFO: Found `package-lock.json`');
+    addMainLog('info', 'INFO: Found `package-lock.json`');
   } catch (err) {
-    // eslint-disable-next-line no-console -- CLI
-    console.info('INFO: No valid `package-lock.json` found.');
+    addMainLog('info', 'INFO: No valid `package-lock.json` found.');
   }
 
   const yarnLockDeps = {};
@@ -373,15 +384,12 @@ async function integrityMatters (options) {
         integrity
       };
     }
-    // eslint-disable-next-line no-console -- CLI
-    console.info('INFO: Found `yarn.lock`');
+    addMainLog('info', 'INFO: Found `yarn.lock`');
   } catch (err) {
-    // eslint-disable-next-line no-console -- CLI
-    console.info('INFO: No valid `yarn.lock` found.');
+    addMainLog('info', 'INFO: No valid `yarn.lock` found.');
   }
 
-  // eslint-disable-next-line no-console -- CLI
-  console.log('\n');
+  addMainLog('log', '\n');
 
   /**
   * @typedef {PlainObject} VersionInfo
@@ -395,10 +403,11 @@ async function integrityMatters (options) {
    * @param {string} version
    * @param {"URL"|"`package-lock.json`"|"`yarn.lock`"|
    * "`node_modules` `package.json`"} versionSourceType
+   * @param {Logger} addLog
    * @throws {Error}
    * @returns {VersionInfo}
    */
-  function checkVersions (name, version, versionSourceType) {
+  function checkVersions (name, version, versionSourceType, addLog) {
     let updatingVersion = false;
     const {
       dependencyType,
@@ -423,8 +432,8 @@ async function integrityMatters (options) {
     }
 
     if (satisfied) {
-      // eslint-disable-next-line no-console -- CLI
-      console.log(
+      addLog(
+        'info',
         `INFO: The ${versionSourceType}'s version (${version}) is satisfied ` +
         `by the ${dependencyType} "${name}"'s current '\`package.json\` ` +
         `range, "${range}". Continuing...`
@@ -448,8 +457,8 @@ async function integrityMatters (options) {
       //   in the range ourselves (or update the range to the max
       //   available on npm); see `.idea/notes.js`
       // + ' Please point the URL to at least a minimum supported version.';
-      // eslint-disable-next-line no-console -- CLI
-      console.warn(
+      addLog(
+        'warn',
         `WARNING: ${info} Checking \`node_modules\` for a valid installed ` +
         `version to update the URL...`
       );
@@ -531,10 +540,11 @@ async function integrityMatters (options) {
   /**
    * @param {SrcIntegrityObject} info
    * @param {UpdateStrategy} strategy
+   * @param {Logger} addLog
    * @throws {Error}
    * @returns {Promise<void>}
    */
-  async function updateResources (info, strategy) {
+  async function updateResources (info, strategy, addLog) {
     const {
       src, integrity,
       crossorigin: strategyCrossorigin,
@@ -570,16 +580,16 @@ async function integrityMatters (options) {
       }
 
       if (lockVersion === version) {
-        // eslint-disable-next-line no-console -- CLI
-        console.log(
+        addLog(
+          'info',
           `INFO: Dependency ${name} in your lock file already ` +
           `matches URL version (${version}).`
         );
       } else {
         const gt = semver.gt(lockVersion, version);
         if (gt) {
-          // eslint-disable-next-line no-console -- CLI
-          console.warn(
+          addLog(
+            'warn',
             `WARNING: The lock file version ${lockVersion} ` +
             `is greater for package "${name}" than the URL version ` +
             `${version}. Checking \`node_modules\` for a valid installed ` +
@@ -625,7 +635,7 @@ async function integrityMatters (options) {
       if (version) {
         const {
           dependencyType, updatingVersion: updVers
-        } = checkVersions(name, version, 'URL');
+        } = checkVersions(name, version, 'URL', addLog);
         updatingVersion = updVers;
 
         const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
@@ -637,7 +647,7 @@ async function integrityMatters (options) {
           updateVersionLock = compareLockToPackage(
             name, version, dependencyType, lockVersion, dev
           );
-          checkVersions(name, lockVersion, '`package-lock.json`');
+          checkVersions(name, lockVersion, '`package-lock.json`', addLog);
         } else {
           const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
           if (yarnLockDep) {
@@ -645,7 +655,7 @@ async function integrityMatters (options) {
             updateVersionLock = compareLockToPackage(
               name, version, dependencyType, lockVersion
             );
-            checkVersions(name, lockVersion, '`yarn.lock`');
+            checkVersions(name, lockVersion, '`yarn.lock`', addLog);
           }
         }
 
@@ -657,17 +667,16 @@ async function integrityMatters (options) {
         ({version: nmVersion} = getLocalJSON(
           join(cwd, 'node_modules', name, 'package.json')
         ));
-        // eslint-disable-next-line no-console -- CLI
-        console.info(`INFO: Found valid \`package.json\` for "${name}".`);
+        addLog('info', `INFO: Found valid \`package.json\` for "${name}".`);
       } catch (err) {
-        // eslint-disable-next-line no-console -- CLI
-        console.warn(
+        addLog(
+          'warn',
           `WARNING: No valid \`package.json\` found for "${name}".`
         );
       }
 
       if (nmVersion) {
-        checkVersions(name, nmVersion, '`node_modules` `package.json`');
+        checkVersions(name, nmVersion, '`node_modules` `package.json`', addLog);
 
         // Can be `true` if should update URL based on URL being lower than
         //  `package.json` range; but we don't currently allow overriding the
@@ -678,8 +687,7 @@ async function integrityMatters (options) {
       }
 
       if (typeof updatingVersion !== 'string') {
-        // eslint-disable-next-line no-console -- CLI
-        console.log('\n');
+        addLog('log', '\n');
         if (!forceIntegrityChecks) {
           break;
         }
@@ -706,6 +714,17 @@ async function integrityMatters (options) {
           }));
         }
 
+        const localHashLogs = [];
+        /**
+         * @param {Integer} idx
+         * @param {"log"|"info"|"warn"|"error"} method
+         * @param {string} message
+         * @returns {void}
+         */
+        const addHashLog = (idx, method, message) => {
+          localHashLogs[idx] = {method, message};
+        };
+
         /* eslint-disable no-await-in-loop -- This loop should be
           serial */
         const localHashes = await Promise.all(
@@ -727,8 +746,9 @@ async function integrityMatters (options) {
               );
             }
             if (userAlgorithms && !userAlgorithms.includes(algorithm)) {
-              // eslint-disable-next-line no-console -- CLI
-              console.warn(
+              addHashLog(
+                j,
+                'warn',
                 `WARNING: Algorithm whitelist did not specify ` +
                 `detected "${algorithm}", so dropping.`
               );
@@ -736,16 +756,18 @@ async function integrityMatters (options) {
             }
             const localHash = await getHash(algorithm, nmPath);
             if (localHash !== base64Hash) {
-              // eslint-disable-next-line no-console -- CLI
-              console.warn(
+              addHashLog(
+                j,
+                'warn',
                 `WARNING: Local hash ${localHash} does not match ` +
                   `corresponding hash (index ${j}) within the integrity ` +
                   `attribute (${base64Hash}); algorithm: ${algorithm}; ` +
                   `file ${nmPath}`
               );
             } else {
-              // eslint-disable-next-line no-console -- CLI
-              console.log(
+              addHashLog(
+                j,
+                'log',
                 `INFO: Local hash matches corresponding hash (index ${j}) ` +
                 `within the integrity attribute; algorithm: ${algorithm}; ` +
                 `file ${nmPath}.`
@@ -757,6 +779,9 @@ async function integrityMatters (options) {
             return localHash;
           })
         );
+        localHashLogs.forEach(({method, message}) => {
+          addLog(method, message);
+        });
         newIntegrity = localHashes.join(' ');
       } else {
         nmPath = null;
@@ -777,14 +802,14 @@ async function integrityMatters (options) {
         /* eslint-enable no-await-in-loop -- This loop should be
           serial */
         if (resp.status !== 200) {
-          // eslint-disable-next-line no-console -- CLI
-          console.error(
+          addLog(
+            'error',
             `ERROR: Received status code ${resp.status} response for ${newSrc}.`
           );
           break;
         }
-        // eslint-disable-next-line no-console -- CLI
-        console.log(
+        addLog(
+          'info',
           `INFO: Received status code ${resp.status} response for ${newSrc}.`
         );
       }
@@ -802,8 +827,7 @@ async function integrityMatters (options) {
         }
       );
 
-      // eslint-disable-next-line no-console -- CLI
-      console.log('\n');
+      addLog('log', '\n');
 
       break;
     }
@@ -812,19 +836,38 @@ async function integrityMatters (options) {
   if (!fileContentsArr.length) {
     throw new Error('No matching files specified by `--file` were found.');
   }
+
+  const fileLogs = [];
   await Promise.all(fileContentsArr.map(async (
-    {file, contents, extension}, i
+    {file, contents, extension}, fileIdx
   ) => {
     const strategy = getStrategyForExtension(extension);
 
     const objects = await strategy.getObjects(contents);
-    await Promise.all(objects.map((object) => {
-      return updateResources(object, strategy);
+
+    const objectLogs = [];
+    await Promise.all(objects.map((object, objIdx) => {
+      objectLogs[objIdx] = [];
+      return updateResources(object, strategy, (method, message) => {
+        objectLogs[objIdx].push({method, message});
+      });
     }));
+    fileLogs[fileIdx] = objectLogs.flat();
+
     if (!dryRun) {
-      strategy.save((noGlobs && outputPaths && outputPaths[i]) || file);
+      const outputFile = (outputPaths && outputPaths[fileIdx]) || file;
+      await strategy.save(outputFile);
+      fileLogs[fileIdx].push({
+        method: 'info', message: `INFO: Finished writing to ${outputFile}`
+      });
     }
   }));
+  logs.push(...fileLogs.flat());
+
+  logs.forEach(({method, message}) => {
+    // eslint-disable-next-line no-console -- CLI
+    console[method](message);
+  });
   // // eslint-disable-next-line no-console -- CLI
   // console.log('fileContentsArr', fileContentsArr);
 }
