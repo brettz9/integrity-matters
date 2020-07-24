@@ -1,3 +1,4 @@
 node_modules
 coverage
-test/results
+test/results/*
+!test/results/README.md
