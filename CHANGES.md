@@ -1,5 +1,10 @@
 # CHANGES for integrity-matters
 
+## 0.2.1
+
+- Fix: Add `flat` polyfill
+- CI: Ensure folder exists
+
 ## 0.2.0
 
 - Fix: Avoid using globs when `outputPath` is set and need for `noGlobs`

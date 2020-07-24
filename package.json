@@ -1,6 +1,6 @@
 {
   "name": "integrity-matters",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Confirm the integrity of CDN URLs based on installed npm packages and update their integrity attribute (HTML) and paths (JS or HTML).",
   "main": "src/index.js",
   "bin": {
@@ -57,6 +57,7 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
+    "array.prototype.flat": "^1.2.3",
     "cheerio": "^1.0.0-rc.3",
     "command-line-basics": "^0.8.0",
     "domhandler": "^3.0.0",
