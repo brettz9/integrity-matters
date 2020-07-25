@@ -1,6 +1,6 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.3.0
 
 - Fix: Add `flat` polyfill
 - Fix: Throw if local `node_modules` path not found for matching CDN
