@@ -444,4 +444,35 @@ describe('Binary', function () {
       expect(stdout).to.not.contain('Finished writing to');
     }
   );
+
+  it(
+    'should err with unrecognized algorithm',
+    async function () {
+      const {stdout, stderr} = await execFile(
+        binFile,
+        [
+          '--file',
+          'test/fixtures/bad-algorithm.html',
+          '--outputPath', outputPath
+        ],
+        {
+          timeout: 15000
+        }
+      );
+      // console.log('stderr', stderr);
+      // console.log('stdout', stdout);
+
+      expect(stderr).to.match(new RegExp(
+        escStringRegex(
+          `Unrecognized algorithm: "shaBadAlgorithm" (obtained ` +
+            `from integrity value, "shaBadAlgorithm-xwE/` +
+              'Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCA' +
+              'Wi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==")'
+        ),
+        'u'
+      ));
+
+      expect(stdout).to.not.contain('Finished writing to');
+    }
+  );
 });

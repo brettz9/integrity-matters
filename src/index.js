@@ -740,7 +740,7 @@ async function integrityMatters (options) {
           serial */
         integrityHashes.map(async (integrityHash, j) => {
           const hashMatch = integrityHash.match(
-            /^(?<algorithm>sha\d{3})-(?<base64Hash>.*$)/u
+            /^(?<algorithm>[^-]*)-(?<base64Hash>.*$)/u
           );
           if (!hashMatch) {
             return integrityHash;

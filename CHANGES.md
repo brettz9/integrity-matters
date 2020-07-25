@@ -8,6 +8,8 @@
 - Fix: Do proper filtering of hashes when any are removed
 - Enhancement: Have `cdnBasePathReplacements` and `nodeModulesReplacements`
     default to first item in array if not present
+- Enhancement: Throw instead of silently ignoring some bad integrity matches
+- Testing: Improve coverage
 - Testing: Delete outputPath before and after tests
 - CI: Ensure folder exists
 
