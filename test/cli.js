@@ -39,6 +39,10 @@ const getResultsPath = (path) => {
 const outputPath = getResultsPath('cli-results.html');
 const updatedHTML = getFixturePath('cli-results.html');
 
+const badVersionMatchingPath = getFixturePath(
+  'result-bad-version-but-matching-hash.html'
+);
+
 describe('Binary', function () {
   this.timeout(20000);
   it('should log help', async function () {
@@ -246,6 +250,49 @@ describe('Binary', function () {
       const expected = await readFile(updatedHTML, 'utf8');
       expect(contents).to.equal(expected);
     });
+
+    it(
+      'should report if version update already has matching hash',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--file',
+            'test/fixtures/bad-version-but-matching-hash.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
+
+        expect(stdout).to.contain(
+          'Local hash matches corresponding hash (index 0) ' +
+          'within the integrity attribute'
+        );
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
+              `valid installed version to update the URL...\n` +
+            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `greater for package "leaflet" than the URL version 1.4.0. ` +
+              `Checking \`node_modules\` for a valid installed version to ` +
+              `update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(badVersionMatchingPath, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
 
     it(
       'should err with `cdnBasePathReplacements` and bad status code',
