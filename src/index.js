@@ -698,7 +698,8 @@ async function integrityMatters (options) {
         }
       }
 
-      const nodeModulesReplacement = nodeModulesReplacements[i];
+      const nodeModulesReplacement = nodeModulesReplacements[i] ||
+        nodeModulesReplacements[0];
 
       let newIntegrity;
       let nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
@@ -792,7 +793,8 @@ async function integrityMatters (options) {
         nmPath = null;
       }
 
-      const cdnBasePathReplacement = cdnBasePathReplacements[i];
+      const cdnBasePathReplacement = cdnBasePathReplacements[i] ||
+        cdnBasePathReplacements[0];
       const newSrc = local
         ? nmPath
         : src.replace(
@@ -807,11 +809,9 @@ async function integrityMatters (options) {
         /* eslint-enable no-await-in-loop -- This loop should be
           serial */
         if (resp.status !== 200) {
-          addLog(
-            'error',
-            `ERROR: Received status code ${resp.status} response for ${newSrc}.`
+          throw new Error(
+            `Received status code ${resp.status} response for ${newSrc}.`
           );
-          break;
         }
         addLog(
           'info',

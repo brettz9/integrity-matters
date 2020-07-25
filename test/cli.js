@@ -246,5 +246,43 @@ describe('Binary', function () {
       const expected = await readFile(updatedHTML, 'utf8');
       expect(contents).to.equal(expected);
     });
+
+    it('should execute main CLI', async function () {
+      const {stdout, stderr} = await execFile(
+        binFile,
+        [
+          '--cdnBasePathReplacements',
+          'https://example.com/$<name>@$<version>$<path>',
+          '--file',
+          'test/fixtures/sample.html',
+          '--outputPath', outputPath
+        ],
+        {
+          timeout: 15000
+        }
+      );
+      // console.log('stderr', stderr);
+      // console.log('stdout', stdout);
+
+      expect(stderr).to.match(new RegExp(
+        `Received status code 404 response for (?:` +
+          escStringRegex(
+            `https://example.com/leaflet@${leafletVersion}` +
+            `/dist/leaflet.js.`
+          ) + '|' +
+          escStringRegex(
+            `https://example.com/popper.js@${popperJsVersion}` +
+            `/dist/umd/popper.min.js.`
+          ) + '|' +
+          escStringRegex(
+            `https://example.com/leaflet@${leafletVersion}` +
+            `/dist/leaflet.css.`
+          ) +
+        ')',
+        'u'
+      ));
+
+      expect(stdout).to.not.contain('Finished writing to');
+    });
   });
 });
