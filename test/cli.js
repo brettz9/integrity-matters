@@ -247,12 +247,57 @@ describe('Binary', function () {
       expect(contents).to.equal(expected);
     });
 
-    it('should execute main CLI', async function () {
+    it(
+      'should err with `cdnBasePathReplacements` and bad status code',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--cdnBasePathReplacements',
+            'https://example.com/$<name>@$<version>$<path>',
+            '--file',
+            'test/fixtures/sample.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+        // console.log('stderr', stderr);
+        // console.log('stdout', stdout);
+
+        expect(stderr).to.match(new RegExp(
+          `Received status code 404 response for (?:` +
+            escStringRegex(
+              `https://example.com/leaflet@${leafletVersion}` +
+              `/dist/leaflet.js`
+            ) + '|' +
+            escStringRegex(
+              `https://example.com/popper.js@${popperJsVersion}` +
+              `/dist/umd/popper.min.js`
+            ) + '|' +
+            escStringRegex(
+              `https://example.com/leaflet@${leafletVersion}` +
+              `/dist/leaflet.css`
+            ) +
+          ')\\.',
+          'u'
+        ));
+
+        expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
+  });
+
+  it(
+    'should err with `nodeModulesReplacements` and `local`',
+    async function () {
       const {stdout, stderr} = await execFile(
         binFile,
         [
-          '--cdnBasePathReplacements',
-          'https://example.com/$<name>@$<version>$<path>',
+          '--nodeModulesReplacements',
+          'node_modules/bad-path/$<name>$<path>',
+          '--local',
           '--file',
           'test/fixtures/sample.html',
           '--outputPath', outputPath
@@ -265,24 +310,21 @@ describe('Binary', function () {
       // console.log('stdout', stdout);
 
       expect(stderr).to.match(new RegExp(
-        `Received status code 404 response for (?:` +
-          escStringRegex(
-            `https://example.com/leaflet@${leafletVersion}` +
-            `/dist/leaflet.js.`
-          ) + '|' +
-          escStringRegex(
-            `https://example.com/popper.js@${popperJsVersion}` +
-            `/dist/umd/popper.min.js.`
-          ) + '|' +
-          escStringRegex(
-            `https://example.com/leaflet@${leafletVersion}` +
-            `/dist/leaflet.css.`
-          ) +
-        ')',
+        escStringRegex(
+          `The local path node_modules/bad-path/`
+        ) +
+        '(?:' +
+          escStringRegex('leaflet/dist/leaflet.js') +
+          '|' +
+          escStringRegex(`popper.js/dist/umd/popper.min.js`) +
+          '|' +
+          escStringRegex(`leaflet/dist/leaflet.css`) +
+        ')' +
+        ` could not be found`,
         'u'
       ));
 
       expect(stdout).to.not.contain('Finished writing to');
-    });
-  });
+    }
+  );
 });

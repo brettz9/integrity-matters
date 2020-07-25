@@ -790,6 +790,11 @@ async function integrityMatters (options) {
         });
         newIntegrity = localHashes.join(' ');
       } else {
+        if (local) {
+          throw new Error(
+            `The local path ${nmPath} could not be found.`
+          );
+        }
         nmPath = null;
       }
 

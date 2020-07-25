@@ -1,5 +1,15 @@
 # CHANGES for integrity-matters
 
+## ?
+
+- Fix: Add `flat` polyfill
+- Fix: Throw if `--local` set and local `node_modules` path not found
+- Fix: Throw for bad CDN status code
+- Enhancement: Have `cdnBasePathReplacements` and `nodeModulesReplacements`
+    default to first item in array if not present
+- Testing: Delete outputPath before and after tests
+- CI: Ensure folder exists
+
 ## 0.2.1
 
 - Fix: Add `flat` polyfill
