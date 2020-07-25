@@ -42,6 +42,9 @@ const updatedHTML = getFixturePath('cli-results.html');
 const badVersionMatchingPath = getFixturePath(
   'result-bad-version-but-matching-hash.html'
 );
+const sha384AlgorithmsOnlyPath = getFixturePath(
+  'sha384-algorithms-only.html'
+);
 
 describe('Binary', function () {
   this.timeout(20000);
@@ -290,6 +293,44 @@ describe('Binary', function () {
 
         const contents = await readFile(outputPath, 'utf8');
         const expected = await readFile(badVersionMatchingPath, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+
+    it(
+      'should drop unspecified algorithms and add designated if missing',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--algorithm',
+            'sha384',
+            '--file',
+            'test/fixtures/sample.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
+
+        expect(stdout).to.contain(
+          `INFO: Finished writing to ${outputPath}\n`
+        );
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: Algorithm whitelist did not specify ` +
+            `detected "sha512", so dropping.`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(sha384AlgorithmsOnlyPath, 'utf8');
         expect(contents).to.equal(expected);
       }
     );

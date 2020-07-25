@@ -5,6 +5,7 @@
 - Fix: Add `flat` polyfill
 - Fix: Throw if local `node_modules` path not found for matching CDN
 - Fix: Throw for bad CDN status code
+- Fix: Do proper filtering of hashes when any are removed
 - Enhancement: Have `cdnBasePathReplacements` and `nodeModulesReplacements`
     default to first item in array if not present
 - Testing: Delete outputPath before and after tests

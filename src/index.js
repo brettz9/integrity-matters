@@ -663,7 +663,6 @@ async function integrityMatters (options) {
             checkVersions(name, lockVersion, '`yarn.lock`', addLog);
           }
         }
-
         updatingVersion = updateVersionLock || updatingVersion;
       }
 
@@ -736,7 +735,7 @@ async function integrityMatters (options) {
 
       /* eslint-disable no-await-in-loop -- This loop should be
         serial */
-      const localHashes = await Promise.all(
+      const localHashes = (await Promise.all(
         /* eslint-enable no-await-in-loop -- This loop should be
           serial */
         integrityHashes.map(async (integrityHash, j) => {
@@ -783,11 +782,12 @@ async function integrityMatters (options) {
             );
           }
           return `${algorithm}-${localHash}`;
-        }).filter((localHash) => {
-          // Remove dropped items
-          return localHash;
         })
-      );
+      )).filter((localHash) => {
+        // Remove dropped items
+        return localHash;
+      });
+
       localHashLogs.forEach(({method, message}) => {
         addLog(method, message);
       });
