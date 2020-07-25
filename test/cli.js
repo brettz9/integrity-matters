@@ -475,4 +475,32 @@ describe('Binary', function () {
       expect(stdout).to.not.contain('Finished writing to');
     }
   );
+
+  it(
+    'should err with bad `integrity` attribute value',
+    async function () {
+      const {stdout, stderr} = await execFile(
+        binFile,
+        [
+          '--file',
+          'test/fixtures/bad-integrity.html',
+          '--outputPath', outputPath
+        ],
+        {
+          timeout: 15000
+        }
+      );
+      // console.log('stderr', stderr);
+      // console.log('stdout', stdout);
+
+      expect(stderr).to.match(new RegExp(
+        escStringRegex(
+          `Bad integrity value, "badIntegrity"`
+        ),
+        'u'
+      ));
+
+      expect(stdout).to.not.contain('Finished writing to');
+    }
+  );
 });

@@ -733,17 +733,19 @@ async function integrityMatters (options) {
         localHashLogs[idx] = {method, message};
       };
 
-      /* eslint-disable no-await-in-loop -- This loop should be
-        serial */
+      /* eslint-disable no-await-in-loop -- Within a deliberately
+        serial loop */
       const localHashes = (await Promise.all(
-        /* eslint-enable no-await-in-loop -- This loop should be
-          serial */
+        /* eslint-enable no-await-in-loop -- Within a deliberately
+          serial loop */
         integrityHashes.map(async (integrityHash, j) => {
           const hashMatch = integrityHash.match(
             /^(?<algorithm>[^-]*)-(?<base64Hash>.*$)/u
           );
           if (!hashMatch) {
-            return integrityHash;
+            throw new Error(
+              `Bad integrity value, "${integrityHash}"`
+            );
           }
           const {groups: {algorithm, base64Hash}} = hashMatch;
 
