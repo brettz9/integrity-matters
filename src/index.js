@@ -701,102 +701,97 @@ async function integrityMatters (options) {
       const nodeModulesReplacement = nodeModulesReplacements[i] ||
         nodeModulesReplacements[0];
 
-      let newIntegrity;
-      let nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
-      if (existsSync(nmPath)) {
-        const integrityHashes = integrity.split(/\s+/u);
-        if (userAlgorithms) {
-          // Only add missing algorithms
-          integrityHashes.push(...userAlgorithms.map((algorithm) => {
-            const alreadyHasHash = integrityHashes.find((integrityHash) => {
-              return integrityHash.startsWith(`${algorithm}-`);
-            });
-            if (alreadyHasHash) {
-              return null;
-            }
-            return `${algorithm}-`;
-          }).filter((algorithm) => {
-            return algorithm;
-          }));
-        }
-
-        const localHashLogs = [];
-        /**
-         * @param {Integer} idx
-         * @param {"log"|"info"|"warn"|"error"} method
-         * @param {string} message
-         * @returns {void}
-         */
-        const addHashLog = (idx, method, message) => {
-          localHashLogs[idx] = {method, message};
-        };
-
-        /* eslint-disable no-await-in-loop -- This loop should be
-          serial */
-        const localHashes = await Promise.all(
-          /* eslint-enable no-await-in-loop -- This loop should be
-            serial */
-          integrityHashes.map(async (integrityHash, j) => {
-            const hashMatch = integrityHash.match(
-              /^(?<algorithm>sha\d{3})-(?<base64Hash>.*$)/u
-            );
-            if (!hashMatch) {
-              return integrityHash;
-            }
-            const {groups: {algorithm, base64Hash}} = hashMatch;
-
-            if (!htmlPermittedAlgorithms.has(algorithm)) {
-              throw new Error(
-                `Unrecognized algorithm: "${algorithm}" (obtained ` +
-                  `from integrity value, "${integrityHash}")`
-              );
-            }
-            if (userAlgorithms && !userAlgorithms.includes(algorithm)) {
-              addHashLog(
-                j,
-                'warn',
-                `WARNING: Algorithm whitelist did not specify ` +
-                `detected "${algorithm}", so dropping.`
-              );
-              return null;
-            }
-            const localHash = await getHash(algorithm, nmPath);
-            if (localHash !== base64Hash) {
-              addHashLog(
-                j,
-                'warn',
-                `WARNING: Local hash ${localHash} does not match ` +
-                  `corresponding hash (index ${j}) within the integrity ` +
-                  `attribute (${base64Hash}); algorithm: ${algorithm}; ` +
-                  `file ${nmPath}`
-              );
-            } else {
-              addHashLog(
-                j,
-                'log',
-                `INFO: Local hash matches corresponding hash (index ${j}) ` +
-                `within the integrity attribute; algorithm: ${algorithm}; ` +
-                `file ${nmPath}.`
-              );
-            }
-            return `${algorithm}-${localHash}`;
-          }).filter((localHash) => {
-            // Remove dropped items
-            return localHash;
-          })
+      const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
+      if (!existsSync(nmPath)) {
+        throw new Error(
+          `The local path ${nmPath} could not be found.`
         );
-        localHashLogs.forEach(({method, message}) => {
-          addLog(method, message);
-        });
-        newIntegrity = localHashes.join(' ');
-      } else {
-        if (local) {
-          throw new Error(
-            `The local path ${nmPath} could not be found.`
-          );
-        }
-        nmPath = null;
       }
+      const integrityHashes = integrity.split(/\s+/u);
+      if (userAlgorithms) {
+        // Only add missing algorithms
+        integrityHashes.push(...userAlgorithms.map((algorithm) => {
+          const alreadyHasHash = integrityHashes.find((integrityHash) => {
+            return integrityHash.startsWith(`${algorithm}-`);
+          });
+          if (alreadyHasHash) {
+            return null;
+          }
+          return `${algorithm}-`;
+        }).filter((algorithm) => {
+          return algorithm;
+        }));
+      }
+
+      const localHashLogs = [];
+      /**
+       * @param {Integer} idx
+       * @param {"log"|"info"|"warn"|"error"} method
+       * @param {string} message
+       * @returns {void}
+       */
+      const addHashLog = (idx, method, message) => {
+        localHashLogs[idx] = {method, message};
+      };
+
+      /* eslint-disable no-await-in-loop -- This loop should be
+        serial */
+      const localHashes = await Promise.all(
+        /* eslint-enable no-await-in-loop -- This loop should be
+          serial */
+        integrityHashes.map(async (integrityHash, j) => {
+          const hashMatch = integrityHash.match(
+            /^(?<algorithm>sha\d{3})-(?<base64Hash>.*$)/u
+          );
+          if (!hashMatch) {
+            return integrityHash;
+          }
+          const {groups: {algorithm, base64Hash}} = hashMatch;
+
+          if (!htmlPermittedAlgorithms.has(algorithm)) {
+            throw new Error(
+              `Unrecognized algorithm: "${algorithm}" (obtained ` +
+                `from integrity value, "${integrityHash}")`
+            );
+          }
+          if (userAlgorithms && !userAlgorithms.includes(algorithm)) {
+            addHashLog(
+              j,
+              'warn',
+              `WARNING: Algorithm whitelist did not specify ` +
+              `detected "${algorithm}", so dropping.`
+            );
+            return null;
+          }
+          const localHash = await getHash(algorithm, nmPath);
+          if (localHash !== base64Hash) {
+            addHashLog(
+              j,
+              'warn',
+              `WARNING: Local hash ${localHash} does not match ` +
+                `corresponding hash (index ${j}) within the integrity ` +
+                `attribute (${base64Hash}); algorithm: ${algorithm}; ` +
+                `file ${nmPath}`
+            );
+          } else {
+            addHashLog(
+              j,
+              'log',
+              `INFO: Local hash matches corresponding hash (index ${j}) ` +
+              `within the integrity attribute; algorithm: ${algorithm}; ` +
+              `file ${nmPath}.`
+            );
+          }
+          return `${algorithm}-${localHash}`;
+        }).filter((localHash) => {
+          // Remove dropped items
+          return localHash;
+        })
+      );
+      localHashLogs.forEach(({method, message}) => {
+        addLog(method, message);
+      });
+      const newIntegrity = localHashes.join(' ');
 
       const cdnBasePathReplacement = cdnBasePathReplacements[i] ||
         cdnBasePathReplacements[0];

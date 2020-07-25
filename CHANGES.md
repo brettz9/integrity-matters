@@ -3,7 +3,7 @@
 ## ?
 
 - Fix: Add `flat` polyfill
-- Fix: Throw if `--local` set and local `node_modules` path not found
+- Fix: Throw if local `node_modules` path not found for matching CDN
 - Fix: Throw for bad CDN status code
 - Enhancement: Have `cdnBasePathReplacements` and `nodeModulesReplacements`
     default to first item in array if not present
