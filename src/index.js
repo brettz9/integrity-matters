@@ -207,7 +207,11 @@ class HTMLStrategy {
       elem.attr('integrity', newIntegrity);
     }
     if (addCrossorigin !== undefined && elem.is('[integrity]')) {
-      elem.attr('crossorigin', addCrossorigin);
+      if (addCrossorigin) {
+        elem.attr('crossorigin', addCrossorigin);
+      } else {
+        elem.removeAttr('crossorigin');
+      }
     }
     if (fallback && localPath) {
       const syncElement = type === 'link'

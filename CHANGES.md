@@ -1,5 +1,10 @@
 # CHANGES for integrity-matters
 
+## ?
+
+- Fix: Ensure `false` `crossorigin` removes the attribute
+- Testing: Improve coverage
+
 ## 0.3.0
 
 - Fix: Add `flat` polyfill
