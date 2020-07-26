@@ -1,6 +1,9 @@
 'use strict';
 
-const {readFile: rf, unlink: ul} = require('fs');
+const {
+  readFile: rf, unlink: ul,
+  copyFile: copyFileCallback
+} = require('fs');
 const {promisify} = require('util');
 const {join} = require('path');
 const {execFile: ef} = require('child_process');
@@ -23,6 +26,7 @@ const {
 const readFile = promisify(rf);
 const execFile = promisify(ef);
 const unlink = promisify(ul);
+const copyFile = promisify(copyFileCallback);
 
 // const unlink = promisify(ul);
 
@@ -38,6 +42,7 @@ const getResultsPath = (path) => {
 
 const outputPath = getResultsPath('cli-results.html');
 const updatedHTML = getFixturePath('cli-results.html');
+const sampleFilePath = getFixturePath('sample.html');
 
 const badVersionMatchingPath = getFixturePath(
   'result-bad-version-but-matching-hash.html'
@@ -76,17 +81,25 @@ describe('Binary', function () {
       ['should execute main CLI (dry run)', {dryRun: true}],
       ['should execute main CLI with `ignoreURLFetches`', {
         ignoreURLFetches: true
+      }],
+      ['should execute main CLI in-place on file', {
+        inPlaceFile: true
       }]
-    ].forEach(([testMessage, {dryRun, ignoreURLFetches} = {}]) => {
+    ].forEach(([
+      testMessage, {dryRun, ignoreURLFetches, inPlaceFile} = {}
+    ]) => {
       it(testMessage, async function () {
+        if (inPlaceFile) {
+          await copyFile(sampleFilePath, outputPath);
+        }
         const {stdout, stderr} = await execFile(
           binFile,
           [
             '--file',
             ...(dryRun ? ['--dryRun'] : ''),
             ...(ignoreURLFetches ? ['--ignoreURLFetches'] : ''),
-            'test/fixtures/sample.html',
-            '--outputPath', outputPath
+            inPlaceFile ? outputPath : 'test/fixtures/sample.html',
+            ...(inPlaceFile ? '' : ['--outputPath', outputPath])
           ],
           {
             timeout: 15000
