@@ -54,6 +54,10 @@ const localOnlyPath = getFixturePath(
   'local-only.html'
 );
 
+const badIntegrityGoodVersionResult = getFixturePath(
+  'result-bad-integrity-good-version.html'
+);
+
 describe('Binary', function () {
   this.timeout(20000);
   it('should log help', async function () {
@@ -381,6 +385,48 @@ describe('Binary', function () {
 
         const contents = await readFile(outputPath, 'utf8');
         const expected = await readFile(localOnlyPath, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+
+    it(
+      'should work with `forceIntegrityChecks`',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--forceIntegrityChecks',
+            '--file',
+            'test/fixtures/bad-integrity-good-version.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        console.log('stdout', stdout);
+        console.log('stderr', stderr);
+
+        expect(stdout).to.contain(
+          `INFO: Finished writing to ${outputPath}\n`
+        );
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: Local hash `
+          ) +
+          '\\S+' +
+          escStringRegex(
+            ` does not match corresponding hash (index 0) within the ` +
+            `integrity attribute (badIntegrity); algorithm: sha384; ` +
+            `file node_modules/bootstrap/dist/css/bootstrap.min.css\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(badIntegrityGoodVersionResult, 'utf8');
         expect(contents).to.equal(expected);
       }
     );

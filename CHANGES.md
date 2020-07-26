@@ -1,5 +1,10 @@
 # CHANGES for integrity-matters
 
+## ?
+
+- Fix: Avoid bad replacement if `forceIntegrityChecks` forces integrity
+    change with no version change found
+
 ## 0.3.1
 
 - Fix: Ensure `false` `crossorigin` removes the attribute

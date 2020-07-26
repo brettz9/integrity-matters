@@ -694,11 +694,13 @@ async function integrityMatters (options) {
         }
       }
 
+      let avoidVersionSetting = false;
       if (typeof updatingVersion !== 'string') {
         addLog('log', '\n');
         if (!forceIntegrityChecks) {
           break;
         }
+        avoidVersionSetting = true;
       }
 
       const nodeModulesReplacement = nodeModulesReplacements[i] ||
@@ -803,10 +805,12 @@ async function integrityMatters (options) {
         cdnBasePathReplacements[0];
       const newSrc = local
         ? nmPath
-        : src.replace(
-          cdnBasePath,
-          cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
-        );
+        : avoidVersionSetting
+          ? src
+          : src.replace(
+            cdnBasePath,
+            cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
+          );
 
       if (!local && !ignoreURLFetches) {
         /* eslint-disable no-await-in-loop -- This loop should be
