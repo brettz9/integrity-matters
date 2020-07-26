@@ -1,6 +1,6 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.3.1
 
 - Fix: Ensure `false` `crossorigin` removes the attribute
 - Testing: Improve coverage
