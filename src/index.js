@@ -680,18 +680,16 @@ async function integrityMatters (options) {
         );
       }
 
-      if (nmVersion) {
-        checkVersions(name, nmVersion, '`node_modules` `package.json`', addLog);
+      checkVersions(name, nmVersion, '`node_modules` `package.json`', addLog);
 
-        // Can be `true` if should update URL based on URL being lower than
-        //  `package.json` range; but we don't currently allow overriding the
-        //  `package-lock.json` version
-        // Testing this would require a local install which reverted
-        //   the version (without updating the package-lock)
-        // istanbul ignore if
-        if (updatingVersion === true) {
-          updatingVersion = nmVersion;
-        }
+      // Can be `true` if should update URL based on URL being lower than
+      //  `package.json` range; but we don't currently allow overriding the
+      //  `package-lock.json` version
+      // Testing this would require a local install which reverted
+      //   the version (without updating the package-lock)
+      // istanbul ignore if
+      if (updatingVersion === true) {
+        updatingVersion = nmVersion;
       }
 
       let avoidVersionSetting = false;
