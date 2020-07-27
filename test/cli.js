@@ -53,7 +53,6 @@ const sha384AlgorithmsOnlyPath = getFixturePath(
 const localOnlyPath = getFixturePath(
   'local-only.html'
 );
-
 const badIntegrityGoodVersionResult = getFixturePath(
   'result-bad-integrity-good-version.html'
 );
@@ -601,6 +600,34 @@ describe('Binary', function () {
       expect(stderr).to.match(new RegExp(
         escStringRegex(
           `Bad integrity value, "badIntegrity"`
+        ),
+        'u'
+      ));
+
+      expect(stdout).to.not.contain('Finished writing to');
+    }
+  );
+
+  it(
+    'should err with missing `package.json`',
+    async function () {
+      const {stdout, stderr} = await execFile(
+        binFile,
+        [
+          '--file',
+          'test/fixtures/not-in-package-json.html',
+          '--outputPath', outputPath
+        ],
+        {
+          timeout: 15000
+        }
+      );
+      // console.log('stderr', stderr);
+      // console.log('stdout', stdout);
+
+      expect(stderr).to.match(new RegExp(
+        escStringRegex(
+          `Package "react" is not found in \`package.json\`.`
         ),
         'u'
       ));

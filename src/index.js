@@ -306,7 +306,7 @@ async function integrityMatters (options) {
     ignoreURLFetches,
     algorithm: userAlgorithms,
     dryRun,
-    cli,
+    // cli,
     cwd = process.cwd()
   } = opts;
 
@@ -348,18 +348,19 @@ async function integrityMatters (options) {
       const depRange = dependencies && dependencies[name];
       const dependencyType = depRange ? 'dependency' : 'devDependency';
       const range = depRange || (devDependencies && devDependencies[name]);
+      if (!range) {
+        return {};
+      }
       const satisfied = semver.satisfies(versionToCheck, range);
       const gtr = semver.gtr(versionToCheck, range);
       const ltr = semver.ltr(versionToCheck, range);
-      return range
-        ? {
-          dependencyType,
-          range,
-          satisfied,
-          gtr,
-          ltr
-        }
-        : {};
+      return {
+        dependencyType,
+        range,
+        satisfied,
+        gtr,
+        ltr
+      };
     };
     addMainLog('info', 'INFO: Found `package.json`');
   } catch (e) {
@@ -429,15 +430,10 @@ async function integrityMatters (options) {
     if (!dependencyType) {
       const errorMessage =
         `Package "${name}" is not found in \`package.json\`.`;
-      // eslint-disable-next-line max-len -- Over
-      // eslint-disable-next-line sonarjs/no-all-duplicated-branches -- May change later
-      if (cli) {
-        throw new Error(errorMessage);
-        // Todo: Add prompt to optionally install?
-        // await prompts();
-      } else {
-        throw new Error(errorMessage);
-      }
+      // Handle differently later if `cli` is true?
+      // Todo: Add prompt to optionally install?
+      // await prompts();
+      throw new Error(errorMessage);
     }
 
     if (satisfied) {
@@ -676,10 +672,11 @@ async function integrityMatters (options) {
           join(cwd, 'node_modules', name, 'package.json')
         ));
         addLog('info', `INFO: Found valid \`package.json\` for "${name}".`);
+      // istanbul ignore next -- Would need to downgrade to get coverage
       } catch (err) {
-        addLog(
-          'warn',
-          `WARNING: No valid \`package.json\` found for "${name}".`
+        // istanbul ignore next -- Would need to downgrade to get coverage
+        throw new Error(
+          `No valid \`package.json\` found for "${name}".`
         );
       }
 
@@ -689,6 +686,9 @@ async function integrityMatters (options) {
         // Can be `true` if should update URL based on URL being lower than
         //  `package.json` range; but we don't currently allow overriding the
         //  `package-lock.json` version
+        // Testing this would require a local install which reverted
+        //   the version (without updating the package-lock)
+        // istanbul ignore if
         if (updatingVersion === true) {
           updatingVersion = nmVersion;
         }

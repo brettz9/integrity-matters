@@ -1,9 +1,14 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.3.2
 
 - Fix: Avoid bad replacement if `forceIntegrityChecks` forces integrity
     change with no version change found
+- Fix: Properly handle case where targeted package missing in
+    `package.json` dependencies
+- Fix: Throw instead of warning when package not present in `node_modules`
+    (with `package.json`)
+- Testing: Improve coverage
 
 ## 0.3.1
 
