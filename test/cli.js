@@ -309,7 +309,7 @@ describe('Binary', function () {
           binFile,
           [
             '--file',
-            'test/fixtures/bad-version-but-matching-hash.html',
+            'test/fixtures/bad-version-but-matching-hash.htm',
             '--outputPath', outputPath
           ],
           {
