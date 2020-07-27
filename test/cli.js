@@ -56,6 +56,9 @@ const localOnlyPath = getFixturePath(
 const badIntegrityGoodVersionResult = getFixturePath(
   'result-bad-integrity-good-version.html'
 );
+const fallbackResult = getFixturePath(
+  'fallback-result.html'
+);
 
 describe('Binary', function () {
   this.timeout(20000);
@@ -389,6 +392,53 @@ describe('Binary', function () {
     );
 
     it(
+      'should work with `fallback` and `globalCheck`',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--fallback',
+            '--globalCheck',
+            'leaflet=script=window.Leaflet',
+            '--globalCheck',
+            'leaflet=link=window.SomeLeafletCSSCheck',
+            '--file',
+            'test/fixtures/fallback.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
+
+        expect(stdout).to.contain(
+          `INFO: Finished writing to ${outputPath}\n`
+        );
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
+              `valid installed version to update the URL...\n` +
+            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `greater for package "leaflet" than the URL version 1.4.0. ` +
+              `Checking \`node_modules\` for a valid installed version to ` +
+              `update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(fallbackResult, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+
+    it(
       'should work with `forceIntegrityChecks`',
       async function () {
         const {stdout, stderr} = await execFile(
@@ -404,8 +454,8 @@ describe('Binary', function () {
           }
         );
 
-        console.log('stdout', stdout);
-        console.log('stderr', stderr);
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
 
         expect(stdout).to.contain(
           `INFO: Finished writing to ${outputPath}\n`
