@@ -21,7 +21,7 @@
     "coverage-badge": "coveradge badges/coverage-badge.svg",
     "eslint-badge": "eslint-formatter-badger --outputPath badges/eslint-badge.svg --lintingTypeTemplate \"\\${lintingType}: \\${failing}/\\${typeCount}\" --file .",
     "eslint": "eslint --ext=js,md,html .",
-    "mocha": "mocha test/*.js",
+    "mocha": "mocha --jobs 1 test/*.js",
     "nyc": "rm -rf node_modules/.cache && nyc --all npm run mocha && npm run coverage-badge",
     "test": "npm run eslint && npm run nyc"
   },

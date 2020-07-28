@@ -7,6 +7,7 @@
     don't give extra info on yarn if package-lock found and no `yarn.lock`
     found (as is expected)
 - Testing: Fix expected (ternary precedence issue)
+- Testing: Improve coverage
 
 ## 0.3.2
 

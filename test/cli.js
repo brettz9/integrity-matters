@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-  readFile: rf, unlink: ul,
+  readFile: rf, unlink: ul, writeFile: wf,
   copyFile: copyFileCallback
 } = require('fs');
 const {promisify} = require('util');
@@ -23,10 +23,13 @@ const {
   version: bootstrapVersion
 } = require('../node_modules/bootstrap/package.json');
 
+const packageLockPath = join(__dirname, '../package-lock.json');
+
 const readFile = promisify(rf);
 const execFile = promisify(ef);
 const unlink = promisify(ul);
 const copyFile = promisify(copyFileCallback);
+const writeFile = promisify(wf);
 
 // const unlink = promisify(ul);
 
@@ -64,7 +67,7 @@ const addCrossoriginPath = getFixturePath(
 );
 
 describe('Binary', function () {
-  this.timeout(20000);
+  this.timeout(30000);
   it('should log help', async function () {
     const {stdout} = await execFile(binFile, ['-h']);
     expect(stdout).to.contain(
@@ -316,6 +319,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--file',
             'test/fixtures/bad-version-but-matching-hash.htm',
             '--outputPath', outputPath
@@ -402,6 +406,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--addCrossorigin',
             'use-credentials',
             '--file',
@@ -446,6 +451,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--fallback',
             '--globalCheck',
             'leaflet=script=window.Leaflet',
@@ -493,6 +499,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--forceIntegrityChecks',
             '--file',
             'test/fixtures/bad-integrity-good-version.html',
@@ -535,6 +542,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--algorithm',
             'sha384',
             '--file',
@@ -605,6 +613,66 @@ describe('Binary', function () {
         ));
 
         expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
+  });
+
+  describe('`yarn.lock`', function () {
+    before(async function () {
+      this.packageLockContents = await readFile(packageLockPath, 'utf8');
+      await unlink(packageLockPath);
+    });
+    after(async function () {
+      await writeFile(packageLockPath, this.packageLockContents);
+    });
+    it(
+      'should check `yarn.lock` if `package-lock.json` not present',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--ignoreURLFetches',
+            '--file',
+            'test/fixtures/sample.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
+
+        expect(stdout).to.contain('INFO: Found `yarn.lock`');
+
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: The \`yarn.lock\`'s version ` +
+              `(${lockDeps.jquery.version}) is satisfied by the ` +
+              `devDependency "jquery"'s current '\`package.json\` range, ` +
+              `"${devDependencies.jquery}". Continuing...\n`
+          ),
+          'u'
+        ));
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
+              `valid installed version to update the URL...\n` +
+            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `greater for package "leaflet" than the URL version 1.4.0. ` +
+              `Checking \`node_modules\` for a valid installed version to ` +
+              `update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(updatedHTML, 'utf8');
+        expect(contents).to.equal(expected);
       }
     );
   });
