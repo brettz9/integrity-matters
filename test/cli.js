@@ -122,6 +122,8 @@ describe('Binary', function () {
 
         expect(stderr).to.match(new RegExp(
           escStringRegex(
+            `WARNING: Found \`yarn.lock\`; ignoring due to detected ` +
+              '`package-lock.json`\n' +
             `WARNING: The URL's version (1.4.0) is less than the ` +
               `devDependency "leaflet"'s current '\`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
@@ -193,8 +195,8 @@ describe('Binary', function () {
         expect(stdout).to.match(new RegExp(
           escStringRegex(
             `INFO: Found \`package.json\`\n` +
-            `INFO: Found \`package-lock.json\`\n` +
-            `INFO: No valid \`yarn.lock\` found.\n\n\n` +
+            `INFO: Found \`package-lock.json\`\n\n\n` +
+            // `INFO: No valid \`yarn.lock\` found.\n\n\n` +
 
             `INFO: The \`package-lock.json\`'s version (` +
               `${lockDeps.leaflet.version}) is satisfied by the ` +

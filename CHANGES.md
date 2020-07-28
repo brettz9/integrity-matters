@@ -1,5 +1,12 @@
 # CHANGES for integrity-matters
 
+## ?
+
+- Fix: Give warning if `yarn.lock` and `package-lock.json` both installed;
+    don't give extra info on yarn if package-lock found and no `yarn.lock`
+    found (as is expected)
+- Testing: Fix expected (ternary precedence issue)
+
 ## 0.3.2
 
 - Fix: Avoid bad replacement if `forceIntegrityChecks` forces integrity

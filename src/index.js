@@ -378,25 +378,36 @@ async function integrityMatters (options) {
     addMainLog('info', 'INFO: No valid `package-lock.json` found.');
   }
 
-  const yarnLockDeps = {};
+  let yarnLockDeps;
   try {
     // Todo: Should use a proper parser, but
     // https://www.npmjs.com/package/parse-yarn-lock
     //  seems to be for older verions only.
     const yarnContents = readFileSync(join(cwd, 'yarn.lock'), 'utf8');
-    // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
-    const yarnPattern = /^"?(?<dep>@?[^"@\n\d]*).*?:\n {2}version "(?<version>[^"\n]*)"(?:\n {2}resolved (?<resolved>[^\n]*))?\n {2}integrity (?<integrity>[^\n]*)\n/gum;
-    let match;
-    while ((match = yarnPattern.exec(yarnContents)) !== null) {
-      const {groups: {dep, version, integrity}} = match;
-      yarnLockDeps[dep] = {
-        version,
-        integrity
-      };
+    if (packageLockJSON) { // yarn.lock exists due to no errors
+      addMainLog(
+        'warn',
+        'WARNING: Found `yarn.lock`; ignoring due to detected ' +
+          '`package-lock.json`'
+      );
+    } else {
+      yarnLockDeps = {};
+      // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
+      const yarnPattern = /^"?(?<dep>@?[^"@\n\d]*).*?:\n {2}version "(?<version>[^"\n]*)"(?:\n {2}resolved (?<resolved>[^\n]*))?\n {2}integrity (?<integrity>[^\n]*)\n/gum;
+      let match;
+      while ((match = yarnPattern.exec(yarnContents)) !== null) {
+        const {groups: {dep, version, integrity}} = match;
+        yarnLockDeps[dep] = {
+          version,
+          integrity
+        };
+      }
+      addMainLog('info', 'INFO: Found `yarn.lock`');
     }
-    addMainLog('info', 'INFO: Found `yarn.lock`');
   } catch (err) {
-    addMainLog('info', 'INFO: No valid `yarn.lock` found.');
+    if (!packageLockJSON) {
+      addMainLog('info', 'INFO: No valid `yarn.lock` found.');
+    }
   }
 
   addMainLog('log', '\n');
@@ -653,8 +664,8 @@ async function integrityMatters (options) {
             name, version, dependencyType, lockVersion, dev
           );
           checkVersions(name, lockVersion, '`package-lock.json`', addLog);
-        } else {
-          const yarnLockDep = yarnLockDeps && yarnLockDeps[name];
+        } else if (yarnLockDeps) {
+          const yarnLockDep = yarnLockDeps[name];
           if (yarnLockDep) {
             const {version: lockVersion} = npmLockDep;
             updateVersionLock = compareLockToPackage(
