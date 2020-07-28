@@ -203,15 +203,17 @@ class HTMLStrategy {
     } else {
       elem.attr('src', newSrc);
     }
-    if ((!local || !noLocalIntegrity) && newIntegrity) {
-      elem.attr('integrity', newIntegrity);
-    }
     if (addCrossorigin !== undefined && elem.is('[integrity]')) {
       if (addCrossorigin) {
         elem.attr('crossorigin', addCrossorigin);
       } else {
         elem.removeAttr('crossorigin');
       }
+    }
+    if (!local || !noLocalIntegrity) {
+      elem.attr('integrity', newIntegrity);
+    } else {
+      elem.removeAttr('integrity');
     }
     if (fallback && localPath) {
       const syncElement = type === 'link'

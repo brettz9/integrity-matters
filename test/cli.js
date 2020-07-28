@@ -56,6 +56,9 @@ const sha384AlgorithmsOnlyPath = getFixturePath(
 const localOnlyPath = getFixturePath(
   'local-only.html'
 );
+const localOnlyNoIntegrityPath = getFixturePath(
+  'local-only-no-integrity.html'
+);
 const badIntegrityGoodVersionResult = getFixturePath(
   'result-bad-integrity-good-version.html'
 );
@@ -307,9 +310,11 @@ describe('Binary', function () {
           );
         }
 
-        const contents = await readFile(outputPath, 'utf8');
-        const expected = await readFile(updatedHTML, 'utf8');
-        expect(contents).to.equal(expected);
+        if (!dryRun) {
+          const contents = await readFile(outputPath, 'utf8');
+          const expected = await readFile(updatedHTML, 'utf8');
+          expect(contents).to.equal(expected);
+        }
       });
     });
 
@@ -396,6 +401,51 @@ describe('Binary', function () {
 
         const contents = await readFile(outputPath, 'utf8');
         const expected = await readFile(localOnlyPath, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+
+    it(
+      'should allow `local`-only write with `noLocalIntegrity`, ' +
+        'dropping crossorigin',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--noLocalIntegrity',
+            '--local',
+            '--file',
+            'test/fixtures/sample.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
+
+        expect(stdout).to.contain(
+          `INFO: Finished writing to ${outputPath}\n`
+        );
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
+              `valid installed version to update the URL...\n` +
+            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `greater for package "leaflet" than the URL version 1.4.0. ` +
+              `Checking \`node_modules\` for a valid installed version to ` +
+              `update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(localOnlyNoIntegrityPath, 'utf8');
         expect(contents).to.equal(expected);
       }
     );

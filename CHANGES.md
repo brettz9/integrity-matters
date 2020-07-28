@@ -6,6 +6,8 @@
 - Fix: Give warning if `yarn.lock` and `package-lock.json` both installed;
     don't give extra info on yarn if package-lock found and no `yarn.lock`
     found (as is expected)
+- Fix: Avoid removing `integrity` before `elem.is([integrity])` check
+    (may need to alter `crossorigin`)
 - Testing: Fix expected (ternary precedence issue)
 - Testing: Improve coverage
 
