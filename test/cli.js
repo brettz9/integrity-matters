@@ -206,7 +206,7 @@ describe('Binary', function () {
               `"leaflet"'s current '\`package.json\` range, ` +
               `"${devDependencies.leaflet}". Continuing...\n` +
             (ignoreURLFetches
-              ? '\n\n\n'
+              ? '\n\n'
               : `INFO: Received status code 200 response for https://unpkg.com/` +
               `leaflet@${leafletVersion}/dist/leaflet.js.\n\n\n`) +
 
@@ -235,7 +235,7 @@ describe('Binary', function () {
               `"popper.js"'s current '\`package.json\` range, ` +
               `"${devDependencies['popper.js']}". Continuing...\n` +
             (ignoreURLFetches
-              ? '\n\n\n'
+              ? '\n\n'
               : `INFO: Received status code 200 response for https://cdn.` +
               `jsdelivr.net/npm/popper.js@${popperJsVersion}/dist/umd/` +
               `popper.min.js.\n\n\n`) +
@@ -280,13 +280,13 @@ describe('Binary', function () {
               `"leaflet"'s current '\`package.json\` range, ` +
               `"${devDependencies.leaflet}". Continuing...\n` +
             (ignoreURLFetches
-              ? '\n\n\n'
+              ? '\n\n'
               : `INFO: Received status code 200 response for https://unpkg.com/` +
                 `leaflet@${leafletVersion}/dist/leaflet.css.\n\n\n`) +
 
-            dryRun
+            (dryRun
               ? ''
-              : `INFO: Finished writing to ${outputPath}\n`
+              : `INFO: Finished writing to ${outputPath}\n`)
           ),
           'u'
         ));
