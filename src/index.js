@@ -667,7 +667,7 @@ async function integrityMatters (options) {
         } else if (yarnLockDeps) {
           const yarnLockDep = yarnLockDeps[name];
           if (yarnLockDep) {
-            const {version: lockVersion} = npmLockDep;
+            const {version: lockVersion} = yarnLockDep;
             updateVersionLock = compareLockToPackage(
               name, version, dependencyType, lockVersion
             );

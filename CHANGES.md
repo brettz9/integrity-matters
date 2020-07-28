@@ -2,6 +2,7 @@
 
 ## ?
 
+- Fix: Check yarn lock dependency info properly
 - Fix: Give warning if `yarn.lock` and `package-lock.json` both installed;
     don't give extra info on yarn if package-lock found and no `yarn.lock`
     found (as is expected)
