@@ -24,6 +24,7 @@ const {
 } = require('../node_modules/bootstrap/package.json');
 
 const packageLockPath = join(__dirname, '../package-lock.json');
+const yarnLockPath = join(__dirname, '../yarn.lock');
 
 const readFile = promisify(rf);
 const execFile = promisify(ef);
@@ -789,6 +790,81 @@ describe('Binary', function () {
               `devDependency "leaflet"'s current '\`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
+            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `greater for package "leaflet" than the URL version 1.4.0. ` +
+              `Checking \`node_modules\` for a valid installed version to ` +
+              `update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(updatedHTML, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+  });
+
+  describe('No locks', function () {
+    before(async function () {
+      const [packageLockContents, yarnLockContents] = await Promise.all([
+        readFile(packageLockPath, 'utf8'),
+        readFile(yarnLockPath, 'utf8')
+      ]);
+      this.packageLockContents = packageLockContents;
+      this.yarnLockContents = yarnLockContents;
+      return Promise.all([
+        unlink(packageLockPath),
+        unlink(yarnLockPath)
+      ]);
+    });
+    after(function () {
+      return Promise.all([
+        writeFile(packageLockPath, this.packageLockContents),
+        writeFile(yarnLockPath, this.yarnLockContents)
+      ]);
+    });
+    it(
+      'should report neither `yarn.lock` nor `package-lock.json` when ' +
+      'not present',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--ignoreURLFetches',
+            '--file',
+            'test/fixtures/sample.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
+
+        expect(stdout).to.not.contain('INFO: Found `yarn.lock`');
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: No valid \`package-lock.json\` found.\n` +
+            `INFO: No valid \`yarn.lock\` found.\n`
+          ),
+          'u'
+        ));
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
+              `a valid installed version to update the URL...\n`
+          ),
+          'u'
+        ));
+
+        expect(stderr).to.not.match(new RegExp(
+          escStringRegex(
             `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
               `greater for package "leaflet" than the URL version 1.4.0. ` +
               `Checking \`node_modules\` for a valid installed version to ` +
