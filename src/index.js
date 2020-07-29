@@ -466,6 +466,10 @@ async function integrityMatters (options) {
         `The ${versionSourceType}'s version (${version}) is less ` +
         `than the ${dependencyType} "${name}"'s current '\`package.json\` ` +
         `range, "${range}".`;
+
+      // `compareLockToPackage` will throw earlier for the lock files, so
+      //   this is only here as an extra guard
+      // istanbul ignore if
       if (![
         'URL',
         '`node_modules` `package.json`'
