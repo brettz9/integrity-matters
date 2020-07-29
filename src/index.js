@@ -54,7 +54,7 @@ const defaultCdnBasePaths = [
 
 const defaultNodeModulesReplacements = [
   'node_modules/$<name>$<path>',
-  'node_modules/$<name>$<path>',
+  'node_modules/$<name>/$<path>',
   'node_modules/$<name>/dist/jquery$<path>',
   'node_modules/$<name>$<path>',
   'node_modules/$<name>/dist$<path>'
@@ -62,7 +62,7 @@ const defaultNodeModulesReplacements = [
 
 const defaultCdnBasePathReplacements = [
   'https://unpkg.com/$<name>@$<version>$<path>',
-  'https://unpkg.com/$<name>@$<version>$<path>',
+  'https://unpkg.com/$<name>@$<version>/$<path>',
   'https://code.jquery.com/$<name>-$<version>$<path>',
   'https://cdn.jsdelivr.net/npm/$<name>@$<version>$<path>',
   'https://stackpath.bootstrapcdn.com/$<name>/$<version>$<path>'
@@ -680,6 +680,8 @@ async function integrityMatters (options) {
           }
         }
         updatingVersion = updateVersionLock || updatingVersion;
+      } else {
+        updatingVersion = true;
       }
 
       let nmVersion;

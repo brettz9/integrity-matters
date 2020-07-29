@@ -53,6 +53,9 @@ const badVersionMatchingPath = getFixturePath(
 const sha384AlgorithmsOnlyPath = getFixturePath(
   'sha384-algorithms-only.html'
 );
+const nodeModulesResult = getFixturePath(
+  'result-node-modules.html'
+);
 const localOnlyPath = getFixturePath(
   'local-only.html'
 );
@@ -358,6 +361,47 @@ describe('Binary', function () {
 
         const contents = await readFile(outputPath, 'utf8');
         const expected = await readFile(badVersionMatchingPath, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+
+    it(
+      'should allow `node_modules` write',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--file',
+            'test/fixtures/node-modules.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
+
+        expect(stdout).to.contain(
+          `INFO: Finished writing to ${outputPath}\n`
+        );
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: Local hash `
+          ) +
+          '\\S+' +
+          escStringRegex(
+            ` does not match corresponding hash (index 0) within the ` +
+            `integrity attribute (simulatingOldIntegrity); algorithm: ` +
+            `sha512; file node_modules/leaflet/dist/leaflet.css\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(nodeModulesResult, 'utf8');
         expect(contents).to.equal(expected);
       }
     );
