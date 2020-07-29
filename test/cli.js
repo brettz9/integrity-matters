@@ -26,6 +26,8 @@ const {
   version: mochaVersion
 } = require('../node_modules/mocha/package.json');
 
+const debug = false;
+
 const packageLockPath = join(__dirname, '../package-lock.json');
 const yarnLockPath = join(__dirname, '../yarn.lock');
 
@@ -34,8 +36,6 @@ const execFile = promisify(ef);
 const unlink = promisify(ul);
 const copyFile = promisify(copyFileCallback);
 const writeFile = promisify(wf);
-
-// const unlink = promisify(ul);
 
 const binFile = join(__dirname, '../bin/index.js');
 
@@ -149,8 +149,11 @@ describe('Binary', function () {
             timeout: 15000
           }
         );
-        // console.log('stderr', stderr);
-        // console.log('stdout', stdout);
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
 
         expect(stderr).to.match(new RegExp(
           escStringRegex(
@@ -373,8 +376,10 @@ describe('Binary', function () {
             }
           );
 
-          // console.log('stdout', stdout);
-          // console.log('stderr', stderr);
+          if (debug) {
+            console.log('stdout', stdout);
+            console.log('stderr', stderr);
+          }
 
           expect(stdout).to.contain(
             'Local hash matches corresponding hash (index 0) ' +
@@ -417,8 +422,10 @@ describe('Binary', function () {
           }
         );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
 
         expect(stdout).to.contain(
           `INFO: Finished writing to ${outputPath}\n`
@@ -459,8 +466,10 @@ describe('Binary', function () {
           }
         );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
 
         expect(stdout).to.contain(
           `INFO: Finished writing to ${outputPath}\n`
@@ -504,8 +513,10 @@ describe('Binary', function () {
           }
         );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
 
         expect(stdout).to.contain(
           `INFO: Finished writing to ${outputPath}\n`
@@ -549,8 +560,10 @@ describe('Binary', function () {
           }
         );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
 
         expect(stdout).to.contain(
           `INFO: Finished writing to ${outputPath}\n`
@@ -604,8 +617,10 @@ describe('Binary', function () {
             }
           );
 
-          // console.log('stdout', stdout);
-          // console.log('stderr', stderr);
+          if (debug) {
+            console.log('stdout', stdout);
+            console.log('stderr', stderr);
+          }
 
           expect(stdout).to.contain(
             `INFO: Finished writing to ${outputPath}\n`
@@ -654,8 +669,10 @@ describe('Binary', function () {
           }
         );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
 
         expect(stdout).to.contain(
           `INFO: Finished writing to ${outputPath}\n`
@@ -698,8 +715,10 @@ describe('Binary', function () {
           }
         );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
 
         expect(stdout).to.contain(
           `INFO: Finished writing to ${outputPath}\n`
@@ -735,8 +754,11 @@ describe('Binary', function () {
             timeout: 15000
           }
         );
-        // console.log('stderr', stderr);
-        // console.log('stdout', stdout);
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
 
         expect(stderr).to.match(new RegExp(
           `Received status code 404 response for (?:` +
@@ -774,8 +796,11 @@ describe('Binary', function () {
             timeout: 15000
           }
         );
-        // console.log('stderr', stderr);
-        // console.log('stdout', stdout);
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
 
         expect(stderr).to.match(new RegExp(
           escStringRegex(
@@ -818,8 +843,10 @@ describe('Binary', function () {
           }
         );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
 
         expect(stdout).to.contain('INFO: Found `yarn.lock`.');
 
@@ -866,8 +893,11 @@ describe('Binary', function () {
             timeout: 15000
           }
         );
-        // console.log('stderr', stderr);
-        // console.log('stdout', stdout);
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
 
         expect(stderr).to.not.match(new RegExp(
           escStringRegex(
@@ -913,8 +943,11 @@ describe('Binary', function () {
             timeout: 15000
           }
         );
-        // console.log('stderr', stderr);
-        // console.log('stdout', stdout);
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
 
         expect(stderr).to.match(new RegExp(
           escStringRegex(
@@ -955,8 +988,10 @@ describe('Binary', function () {
           }
         );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
 
         expect(stdout).to.not.contain('INFO: Found `yarn.lock`.');
         expect(stdout).to.not.contain('INFO: No valid `yarn.lock` found.');
@@ -1028,8 +1063,10 @@ describe('Binary', function () {
           }
         );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
 
         expect(stdout).to.not.contain('INFO: Found `yarn.lock`.');
         expect(stdout).to.match(new RegExp(
@@ -1092,8 +1129,11 @@ describe('Binary', function () {
             timeout: 15000
           }
         );
-        // console.log('stderr', stderr);
-        // console.log('stdout', stdout);
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
 
         expect(stderr).to.match(new RegExp(
           escStringRegex(
@@ -1128,8 +1168,11 @@ describe('Binary', function () {
             timeout: 15000
           }
         );
-        // console.log('stderr', stderr);
-        // console.log('stdout', stdout);
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
 
         expect(stderr).to.match(new RegExp(
           escStringRegex(
@@ -1159,8 +1202,11 @@ describe('Binary', function () {
             timeout: 15000
           }
         );
-        // console.log('stderr', stderr);
-        // console.log('stdout', stdout);
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
 
         expect(stderr).to.match(new RegExp(
           escStringRegex(
@@ -1187,8 +1233,11 @@ describe('Binary', function () {
             timeout: 15000
           }
         );
-        // console.log('stderr', stderr);
-        // console.log('stdout', stdout);
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
 
         expect(stderr).to.match(new RegExp(
           escStringRegex(
