@@ -109,9 +109,10 @@ describe('Binary', function () {
       }],
       ['should execute main CLI in-place on file', {
         inPlaceFile: true
-      }]
+      }],
+      ['should work with `noConfig`', {noConfig: true}]
     ].forEach(([
-      testMessage, {dryRun, ignoreURLFetches, inPlaceFile} = {}
+      testMessage, {dryRun, ignoreURLFetches, inPlaceFile, noConfig} = {}
     ]) => {
       it(testMessage, async function () {
         if (inPlaceFile) {
@@ -121,6 +122,7 @@ describe('Binary', function () {
           binFile,
           [
             '--file',
+            ...(noConfig ? ['--noConfig'] : ''),
             ...(dryRun ? ['--dryRun'] : ''),
             ...(ignoreURLFetches ? ['--ignoreURLFetches'] : ''),
             inPlaceFile ? outputPath : 'test/fixtures/sample.html',
