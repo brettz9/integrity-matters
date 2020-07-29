@@ -365,9 +365,13 @@ async function integrityMatters (options) {
       };
     };
     addMainLog('info', 'INFO: Found `package.json`');
+  // If we remove `package.json` to test, will either occur before
+  //  script and cause error due to binary depending on it, or will
+  //  be a race condition to delete it before code reaches it
+  // istanbul ignore next
   } catch (e) {
-    addMainLog('error', 'Unable to retrieve `package.json`');
-    return;
+    // istanbul ignore next
+    throw new Error('Unable to retrieve `package.json`');
   }
 
   let packageLockJSON;

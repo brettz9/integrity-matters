@@ -2,6 +2,7 @@
 
 ## ?
 
+- Fix: Throw if `package.json` cannot be reached
 - Testing: Improve coverage
 
 ## 0.3.3
