@@ -135,8 +135,13 @@ const optionDefinitions = [
       'does not need to be changed. Defaults to `false`.'
   },
   {
+    name: 'urlIntegrityCheck', type: Boolean,
+    description: 'Set if you wish to confirm the CDN URL\'s ' +
+      'contents currently match the expected hash. Defaults to `false`.'
+  },
+  {
     name: 'ignoreURLFetches', type: Boolean,
-    description: 'Avoids sending HEAD requests to confirm that the new ' +
+    description: 'Avoids sending requests to confirm that the new ' +
       'URL can be successfully resolved. Defaults to `false`.'
   },
   {

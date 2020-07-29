@@ -1,6 +1,6 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.4.0
 
 - Change (JSON): Add newline to JSON
 - Change: Drop dep. vs. devDep. checking (not a critical issue for our
@@ -12,6 +12,7 @@
 - Fix (JSON): Avoid setting crossorigin to `false`
 - Fix (JSON): Reorder to set `crossorigin` with its integrity check before
     changing integrity
+- Enhancement: Add `urlIntegrityCheck`
 - Testing: Improve coverage
 - Testing: Ensure deleting output path before each run
 

@@ -7,6 +7,7 @@ const {
   existsSync
 } = require('fs');
 
+const crypto = require('crypto');
 const {resolve: pathResolve, join} = require('path');
 const {promisify} = require('util');
 
@@ -313,6 +314,7 @@ async function integrityMatters (options) {
     addCrossorigin,
     noLocalIntegrity,
     ignoreURLFetches,
+    urlIntegrityCheck,
     algorithm: userAlgorithms,
     dryRun,
     // cli,
@@ -757,6 +759,7 @@ async function integrityMatters (options) {
         localHashLogs[idx] = {method, message};
       };
 
+      const algos = new Map();
       /* eslint-disable no-await-in-loop -- Within a deliberately
         serial loop */
       const localHashes = (await Promise.all(
@@ -807,6 +810,7 @@ async function integrityMatters (options) {
               `file ${nmPath}.`
             );
           }
+          algos.set(algorithm, localHash);
           return `${algorithm}-${localHash}`;
         })
       )).filter((localHash) => {
@@ -833,7 +837,9 @@ async function integrityMatters (options) {
       if (!local && !ignoreURLFetches) {
         /* eslint-disable no-await-in-loop -- This loop should be
           serial */
-        const resp = await fetch(newSrc, {method: 'HEAD'});
+        const resp = await fetch(newSrc, {
+          method: urlIntegrityCheck ? 'GET' : 'HEAD'
+        });
         /* eslint-enable no-await-in-loop -- This loop should be
           serial */
         if (resp.status !== 200) {
@@ -845,6 +851,31 @@ async function integrityMatters (options) {
           'info',
           `INFO: Received status code ${resp.status} response for ${newSrc}.`
         );
+        if (urlIntegrityCheck) {
+          /* eslint-disable no-await-in-loop -- Within a deliberately
+            serial loop */
+          const content = await resp.text();
+          /* eslint-enable no-await-in-loop -- Within a deliberately
+            serial loop */
+          [...algos.entries()].forEach(([algo, hash]) => {
+            const urlHash = crypto.createHash(
+              algo
+            ).update(content).digest('base64');
+            // CDN should generally match our local version!
+            // istanbul ignore if
+            if (urlHash !== hash) {
+              throw new Error(
+                `Local hash of algoritm ${algo} does not match hash for ` +
+                `content from URL "${newSrc}".`
+              );
+            }
+            addLog(
+              'info',
+              `INFO: Hash of algorithm ${algo} matches content ` +
+                `from URL ${newSrc}.`
+            );
+          });
+        }
       }
 
       strategy.update(

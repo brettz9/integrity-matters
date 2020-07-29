@@ -176,8 +176,7 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 
 ## To-dos
 
-1. Add option to do full GET request to cross-check current URL contents.
-2. See about getting HTML parser to preserve whitespace between attributes
+1. See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized?
     Seems `cheerio` is using
     [dom-serializer](https://github.com/cheeriojs/dom-serializer/blob/master/src/index.ts)

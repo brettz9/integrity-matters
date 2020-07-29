@@ -113,7 +113,7 @@ describe('Binary', function () {
   before(unlinker);
   after(unlinker);
 
-  this.timeout(30000);
+  this.timeout(40000);
 
   describe('Help', function () {
     it('should log help', async function () {
@@ -131,6 +131,9 @@ describe('Binary', function () {
       ['should execute main CLI with `ignoreURLFetches`', {
         ignoreURLFetches: true
       }],
+      ['should execute main CLI with `urlIntegrityCheck`', {
+        urlIntegrityCheck: true
+      }],
       ['should execute main CLI in-place on file', {
         inPlaceFile: true
       }],
@@ -138,7 +141,8 @@ describe('Binary', function () {
       ['should execute main CLI (JSON)', {json: true}]
     ].forEach(([
       testMessage, {
-        dryRun, ignoreURLFetches, inPlaceFile, json, noConfig
+        dryRun, ignoreURLFetches, urlIntegrityCheck,
+        inPlaceFile, json, noConfig
       } = {}
     ]) => {
       it(testMessage, async function () {
@@ -159,6 +163,7 @@ describe('Binary', function () {
             ),
             ...(dryRun ? ['--dryRun'] : ''),
             ...(ignoreURLFetches ? ['--ignoreURLFetches'] : ''),
+            ...(urlIntegrityCheck ? ['--urlIntegrityCheck'] : ''),
             (inPlaceFile
               ? outputPath
               : (json
@@ -167,7 +172,7 @@ describe('Binary', function () {
             ...(inPlaceFile ? '' : ['--outputPath', outputPath])
           ],
           {
-            timeout: 15000
+            timeout: 25000
           }
         );
 
@@ -265,9 +270,15 @@ describe('Binary', function () {
               `"${devDependencies.leaflet}". Continuing...\n` +
             (ignoreURLFetches
               ? '\n\n'
-              : `INFO: Received status code 200 response for https://unpkg.com/` +
-              `leaflet@${leafletVersion}/dist/leaflet.js.\n\n\n`) +
-
+              : `INFO: Received status code 200 response for ` +
+              `https://unpkg.com/leaflet@${leafletVersion}/` +
+              `dist/leaflet.js.\n` +
+              (urlIntegrityCheck
+                ? 'INFO: Hash of algorithm sha512 matches content from URL ' +
+                  `https://unpkg.com/leaflet@${leafletVersion}/dist/` +
+                  'leaflet.js.\n\n\n'
+                : '\n\n')
+            ) +
             `INFO: The URL's version (3.5.1) is satisfied by the ` +
               `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n` +
@@ -296,8 +307,13 @@ describe('Binary', function () {
               ? '\n\n'
               : `INFO: Received status code 200 response for https://cdn.` +
               `jsdelivr.net/npm/popper.js@${popperJsVersion}/dist/umd/` +
-              `popper.min.js.\n\n\n`) +
-
+              `popper.min.js.\n` +
+              (urlIntegrityCheck
+                ? 'INFO: Hash of algorithm sha384 matches content from URL ' +
+                  `https://cdn.jsdelivr.net/npm/popper.js@` +
+                    `${popperJsVersion}/dist/umd/popper.min.js.\n\n\n`
+                : '\n\n')
+            ) +
             `INFO: The URL's version (4.5.0) is satisfied by the ` +
               `devDependency "bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n` +
@@ -340,8 +356,13 @@ describe('Binary', function () {
             (ignoreURLFetches
               ? '\n\n'
               : `INFO: Received status code 200 response for https://unpkg.com/` +
-                `leaflet@${leafletVersion}/dist/leaflet.css.\n\n\n`) +
-
+                `leaflet@${leafletVersion}/dist/leaflet.css.\n` +
+                (urlIntegrityCheck
+                  ? 'INFO: Hash of algorithm sha512 matches content from URL ' +
+                    `https://unpkg.com/leaflet@${leafletVersion}/` +
+                    `dist/leaflet.css.\n\n\n`
+                  : '\n\n')
+            ) +
             (dryRun
               ? ''
               : `INFO: Finished writing to ${outputPath}\n`)
@@ -379,6 +400,7 @@ describe('Binary', function () {
         '--outputPath', outputPath
       ],
       [
+        '--ignoreURLFetches',
         '--configPath',
         'test/fixtures/config.json'
       ]
@@ -434,6 +456,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--file',
             'test/fixtures/node-modules.html',
             '--outputPath', outputPath
@@ -483,6 +506,7 @@ describe('Binary', function () {
           const {stdout, stderr} = await execFile(
             binFile,
             [
+              '--ignoreURLFetches',
               '--local',
               '--file',
               (json
@@ -535,6 +559,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--noLocalIntegrity',
             '--local',
             '--file',
@@ -740,6 +765,7 @@ describe('Binary', function () {
           const {stdout, stderr} = await execFile(
             binFile,
             [
+              '--ignoreURLFetches',
               '--local',
               '--file',
               (json
@@ -795,6 +821,7 @@ describe('Binary', function () {
           const {stdout, stderr} = await execFile(
             binFile,
             [
+              '--ignoreURLFetches',
               '--local',
               '--file',
               (json
@@ -846,6 +873,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--local',
             '--file',
             'test/fixtures/no-remote.json',
@@ -971,6 +999,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--file',
             'test/fixtures/greater-than-range.html',
             '--outputPath', outputPath
@@ -1068,6 +1097,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--file',
             'test/fixtures/not-in-yarn-lock.html',
             '--outputPath', outputPath
@@ -1118,6 +1148,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--file',
             'test/fixtures/lower-in-yarn-lock.html',
             '--outputPath', outputPath
@@ -1301,6 +1332,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--nodeModulesReplacements',
             'node_modules/bad-path/$<name>$<path>',
             '--local',
@@ -1343,6 +1375,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--file',
             'test/fixtures/bad-algorithm.html',
             '--outputPath', outputPath
@@ -1377,6 +1410,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--file',
             'test/fixtures/bad-integrity.html',
             '--outputPath', outputPath
@@ -1408,6 +1442,7 @@ describe('Binary', function () {
         const {stdout, stderr} = await execFile(
           binFile,
           [
+            '--ignoreURLFetches',
             '--file',
             'test/fixtures/not-in-package-json.html',
             '--outputPath', outputPath
