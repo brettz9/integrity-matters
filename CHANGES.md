@@ -1,6 +1,6 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.3.3
 
 - Fix: `node_modules` -> CDN paths
 - Fix: Check yarn lock dependency info properly
