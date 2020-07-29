@@ -49,6 +49,8 @@ const getResultsPath = (path) => {
 
 const outputPath = getResultsPath('cli-results.html');
 const updatedHTML = getFixturePath('cli-results.html');
+const updatedJSON = getFixturePath('cli-results.json');
+
 const sampleFilePath = getFixturePath('sample.html');
 
 const badVersionMatchingPath = getFixturePath(
@@ -88,17 +90,14 @@ describe('Binary', function () {
   after(unlinker);
 
   this.timeout(30000);
-  it('should log help', async function () {
-    const {stdout} = await execFile(binFile, ['-h']);
-    expect(stdout).to.contain(
-      'integrity [--outputPath path]'
-    );
-  });
-  it('should err without `file` (or help/version) flag', async function () {
-    const {stderr} = await execFile(binFile, []);
-    expect(stderr).to.contain(
-      'No matching files specified by `--file` were found.'
-    );
+
+  describe('Help', function () {
+    it('should log help', async function () {
+      const {stdout} = await execFile(binFile, ['-h']);
+      expect(stdout).to.contain(
+        'integrity [--outputPath path]'
+      );
+    });
   });
 
   describe('Executing', function () {
@@ -111,9 +110,12 @@ describe('Binary', function () {
       ['should execute main CLI in-place on file', {
         inPlaceFile: true
       }],
-      ['should work with `noConfig`', {noConfig: true}]
+      ['should work with `noConfig`', {noConfig: true}],
+      ['should execute main CLI (JSON)', {json: true}]
     ].forEach(([
-      testMessage, {dryRun, ignoreURLFetches, inPlaceFile, noConfig} = {}
+      testMessage, {
+        dryRun, ignoreURLFetches, inPlaceFile, json, noConfig
+      } = {}
     ]) => {
       it(testMessage, async function () {
         if (inPlaceFile) {
@@ -133,7 +135,11 @@ describe('Binary', function () {
             ),
             ...(dryRun ? ['--dryRun'] : ''),
             ...(ignoreURLFetches ? ['--ignoreURLFetches'] : ''),
-            inPlaceFile ? outputPath : 'test/fixtures/sample.html',
+            (inPlaceFile
+              ? outputPath
+              : (json
+                ? 'test/fixtures/sample.json'
+                : 'test/fixtures/sample.html')),
             ...(inPlaceFile ? '' : ['--outputPath', outputPath])
           ],
           {
@@ -329,7 +335,10 @@ describe('Binary', function () {
 
         if (!dryRun) {
           const contents = await readFile(outputPath, 'utf8');
-          const expected = await readFile(updatedHTML, 'utf8');
+          const expected = await readFile(
+            (json ? updatedJSON : updatedHTML),
+            'utf8'
+          );
           expect(contents).to.equal(expected);
         }
       });
@@ -1042,129 +1051,138 @@ describe('Binary', function () {
     );
   });
 
-  it(
-    'should err with bad `nodeModulesReplacements` and `local`',
-    async function () {
-      const {stdout, stderr} = await execFile(
-        binFile,
-        [
-          '--nodeModulesReplacements',
-          'node_modules/bad-path/$<name>$<path>',
-          '--local',
-          '--file',
-          'test/fixtures/sample.html',
-          '--outputPath', outputPath
-        ],
-        {
-          timeout: 15000
-        }
+  describe('Errors', function () {
+    it('should err without `file` (or help/version) flag', async function () {
+      const {stderr} = await execFile(binFile, []);
+      expect(stderr).to.contain(
+        'No matching files specified by `--file` were found.'
       );
-      // console.log('stderr', stderr);
-      // console.log('stdout', stdout);
+    });
 
-      expect(stderr).to.match(new RegExp(
-        escStringRegex(
-          `The local path node_modules/bad-path/`
-        ) +
-        '(?:' +
-          escStringRegex('leaflet/dist/leaflet.js') +
-          '|' +
-          escStringRegex(`popper.js/dist/umd/popper.min.js`) +
-          '|' +
-          escStringRegex(`leaflet/dist/leaflet.css`) +
-        ')' +
-        ` could not be found`,
-        'u'
-      ));
+    it(
+      'should err with bad `nodeModulesReplacements` and `local`',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--nodeModulesReplacements',
+            'node_modules/bad-path/$<name>$<path>',
+            '--local',
+            '--file',
+            'test/fixtures/sample.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+        // console.log('stderr', stderr);
+        // console.log('stdout', stdout);
 
-      expect(stdout).to.not.contain('Finished writing to');
-    }
-  );
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `The local path node_modules/bad-path/`
+          ) +
+          '(?:' +
+            escStringRegex('leaflet/dist/leaflet.js') +
+            '|' +
+            escStringRegex(`popper.js/dist/umd/popper.min.js`) +
+            '|' +
+            escStringRegex(`leaflet/dist/leaflet.css`) +
+          ')' +
+          ` could not be found`,
+          'u'
+        ));
 
-  it(
-    'should err with unrecognized algorithm',
-    async function () {
-      const {stdout, stderr} = await execFile(
-        binFile,
-        [
-          '--file',
-          'test/fixtures/bad-algorithm.html',
-          '--outputPath', outputPath
-        ],
-        {
-          timeout: 15000
-        }
-      );
-      // console.log('stderr', stderr);
-      // console.log('stdout', stdout);
+        expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
 
-      expect(stderr).to.match(new RegExp(
-        escStringRegex(
-          `Unrecognized algorithm: "shaBadAlgorithm" (obtained ` +
-            `from integrity value, "shaBadAlgorithm-xwE/` +
-              'Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCA' +
-              'Wi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==")'
-        ),
-        'u'
-      ));
+    it(
+      'should err with unrecognized algorithm',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--file',
+            'test/fixtures/bad-algorithm.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+        // console.log('stderr', stderr);
+        // console.log('stdout', stdout);
 
-      expect(stdout).to.not.contain('Finished writing to');
-    }
-  );
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `Unrecognized algorithm: "shaBadAlgorithm" (obtained ` +
+              `from integrity value, "shaBadAlgorithm-xwE/` +
+                'Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCA' +
+                'Wi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==")'
+          ),
+          'u'
+        ));
 
-  it(
-    'should err with bad `integrity` attribute value',
-    async function () {
-      const {stdout, stderr} = await execFile(
-        binFile,
-        [
-          '--file',
-          'test/fixtures/bad-integrity.html',
-          '--outputPath', outputPath
-        ],
-        {
-          timeout: 15000
-        }
-      );
-      // console.log('stderr', stderr);
-      // console.log('stdout', stdout);
+        expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
 
-      expect(stderr).to.match(new RegExp(
-        escStringRegex(
-          `Bad integrity value, "badIntegrity"`
-        ),
-        'u'
-      ));
+    it(
+      'should err with bad `integrity` attribute value',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--file',
+            'test/fixtures/bad-integrity.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+        // console.log('stderr', stderr);
+        // console.log('stdout', stdout);
 
-      expect(stdout).to.not.contain('Finished writing to');
-    }
-  );
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `Bad integrity value, "badIntegrity"`
+          ),
+          'u'
+        ));
 
-  it(
-    'should err with missing `package.json`',
-    async function () {
-      const {stdout, stderr} = await execFile(
-        binFile,
-        [
-          '--file',
-          'test/fixtures/not-in-package-json.html',
-          '--outputPath', outputPath
-        ],
-        {
-          timeout: 15000
-        }
-      );
-      // console.log('stderr', stderr);
-      // console.log('stdout', stdout);
+        expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
 
-      expect(stderr).to.match(new RegExp(
-        escStringRegex(
-          `Package "react" is not found in \`package.json\`.`
-        ),
-        'u'
-      ));
+    it(
+      'should err with missing `package.json`',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--file',
+            'test/fixtures/not-in-package-json.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+        // console.log('stderr', stderr);
+        // console.log('stdout', stdout);
 
-      expect(stdout).to.not.contain('Finished writing to');
-    }
-  );
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `Package "react" is not found in \`package.json\`.`
+          ),
+          'u'
+        ));
+
+        expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
+  });
 });

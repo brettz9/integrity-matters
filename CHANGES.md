@@ -2,9 +2,10 @@
 
 ## ?
 
-- Fix: Throw if `package.json` cannot be reached
-- Fix: Drop dep. vs. devDep. checking (not a critical issue for our
+- Change: Add newline to JSON
+- Change: Drop dep. vs. devDep. checking (not a critical issue for our
     scope of concern)
+- Fix: Throw if `package.json` cannot be reached
 - Testing: Improve coverage
 - Testing: Ensure deleting output path before each run
 

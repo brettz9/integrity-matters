@@ -154,7 +154,7 @@ class JSONStrategy {
    */
   async save (file) {
     const serialized = JSON.stringify(this.doc, null, 2);
-    await writeFile(file, serialized);
+    await writeFile(file, serialized + '\n');
   }
 }
 
