@@ -3,6 +3,8 @@
 ## ?
 
 - Fix: Throw if `package.json` cannot be reached
+- Fix: Drop dep. vs. devDep. checking (not a critical issue for our
+    scope of concern)
 - Testing: Improve coverage
 
 ## 0.3.3

@@ -585,28 +585,13 @@ async function integrityMatters (options) {
      * @param {string} version
      * @param {"dependency"|"devDependency"} dependencyType
      * @param {string} lockVersion
-     * @param {boolean} dev
      * @returns {boolean}
      */
     const compareLockToPackage = (
       name, version,
-      dependencyType, lockVersion, dev
+      dependencyType, lockVersion
     ) => {
       let updateVersionLock = false;
-      if (dev !== undefined) {
-        if (dev && dependencyType !== 'devDependency') {
-          throw new Error(
-            `Your lock file treats "${name}" as a ` +
-            `devDependency while your \`package.json\` treats it otherwise.`
-          );
-        } else if (!dev && dependencyType !== 'dependency') {
-          throw new Error(
-            `Your lock file treats "${name}" as a ` +
-            `(non-dev) dependency while your \`package.json\` treats it ` +
-            `as a dev dependency.`
-          );
-        }
-      }
 
       if (lockVersion === version) {
         addLog(
@@ -674,9 +659,9 @@ async function integrityMatters (options) {
 
         let updateVersionLock;
         if (npmLockDep) {
-          const {version: lockVersion, dev} = npmLockDep;
+          const {version: lockVersion} = npmLockDep;
           updateVersionLock = compareLockToPackage(
-            name, version, dependencyType, lockVersion, dev
+            name, version, dependencyType, lockVersion
           );
           checkVersions(name, lockVersion, '`package-lock.json`', addLog);
         } else if (yarnLockDeps) {
