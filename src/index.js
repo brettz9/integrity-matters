@@ -78,7 +78,9 @@ class JSONStrategy {
   getObjects (contents) {
     this.doc = JSON.parse(contents);
 
-    const scripts = Object.entries(this.doc.script).map(([pkg, info]) => {
+    const scripts = Object.entries(
+      this.doc.script || {}
+    ).map(([pkg, info]) => {
       const {
         integrity, local, remote, crossorigin,
         fallback,
@@ -94,7 +96,9 @@ class JSONStrategy {
         elem: info
       };
     });
-    const links = Object.entries(this.doc.link).map(([pkg, info]) => {
+    const links = Object.entries(
+      this.doc.link || {}
+    ).map(([pkg, info]) => {
       const {
         integrity, local, remote, crossorigin, fallback,
         global: glbl
@@ -125,9 +129,8 @@ class JSONStrategy {
     localPath, globalCheck
   }) {
     // Unlike HTML, we don't depend on `fallback` to set this value
-    if (localPath) {
-      elem.local = localPath;
-    }
+    elem.local = localPath;
+
     // As both forms are available in JSON, we aren't allowing for
     //  overwriting `remote` with the local path (when `local` is in use);
     //  users of the JSON can simply opt to use the `local` property value
@@ -140,9 +143,11 @@ class JSONStrategy {
         elem.crossorigin = addCrossorigin;
       }
     }
+
     if (newIntegrity) {
       elem.integrity = newIntegrity;
     }
+
     if (fallback) {
       elem.fallback = fallback;
     }
@@ -212,7 +217,7 @@ class HTMLStrategy {
         elem.removeAttr('crossorigin');
       }
     }
-    if (!local || !noLocalIntegrity) {
+    if (newIntegrity && (!local || !noLocalIntegrity)) {
       elem.attr('integrity', newIntegrity);
     } else {
       elem.removeAttr('integrity');
@@ -725,7 +730,7 @@ async function integrityMatters (options) {
           `The local path ${nmPath} could not be found.`
         );
       }
-      const integrityHashes = integrity.split(/\s+/u);
+      const integrityHashes = integrity ? integrity.split(/\s+/u) : [];
       if (userAlgorithms) {
         // Only add missing algorithms
         integrityHashes.push(...userAlgorithms.map((algorithm) => {
@@ -812,7 +817,7 @@ async function integrityMatters (options) {
       localHashLogs.forEach(({method, message}) => {
         addLog(method, message);
       });
-      const newIntegrity = localHashes.join(' ');
+      const newIntegrity = integrity ? localHashes.join(' ') : null;
 
       const cdnBasePathReplacement = cdnBasePathReplacements[i] ||
         cdnBasePathReplacements[0];

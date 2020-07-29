@@ -84,6 +84,12 @@ const fallbackResultJSON = getFixturePath(
 const addCrossoriginPath = getFixturePath(
   'result-addCrossorigin.html'
 );
+const noIntegrity = getFixturePath(
+  'result-no-integrity.html'
+);
+const noIntegrityJSON = getFixturePath(
+  'result-no-integrity.json'
+);
 
 const unlinker = async () => {
   try {
@@ -712,6 +718,61 @@ describe('Binary', function () {
         expect(contents).to.equal(expected);
       }
     );
+
+    [
+      false,
+      true
+    ].forEach((json) => {
+      it(
+        'should work without `integrity`',
+        async function () {
+          const {stdout, stderr} = await execFile(
+            binFile,
+            [
+              '--local',
+              '--file',
+              (json
+                ? 'test/fixtures/no-integrity.json'
+                : 'test/fixtures/no-integrity.html'),
+              '--outputPath', outputPath
+            ],
+            {
+              timeout: 15000
+            }
+          );
+
+          if (debug) {
+            console.log('stdout', stdout);
+            console.log('stderr', stderr);
+          }
+
+          expect(stdout).to.contain(
+            `INFO: Finished writing to ${outputPath}\n`
+          );
+
+          expect(stderr).to.match(new RegExp(
+            escStringRegex(
+              `WARNING: The URL's version (1.4.0) is less than the ` +
+                `devDependency "leaflet"'s current '\`package.json\` range, ` +
+                `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
+                `for a valid installed version to update the URL...\n` +
+              `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+                `greater for package "leaflet" than the URL version 1.4.0. ` +
+                `Checking \`node_modules\` for a valid installed version to ` +
+                `update the URL...\n`
+            ),
+            'u'
+          ));
+
+          const contents = await readFile(outputPath, 'utf8');
+          const expected = await readFile(
+            json ? noIntegrityJSON : noIntegrity,
+            'utf8'
+          );
+          expect(contents).to.equal(expected);
+        }
+      );
+    });
 
     it(
       'should drop unspecified algorithms and add designated if missing',
