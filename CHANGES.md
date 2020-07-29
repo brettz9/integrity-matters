@@ -6,6 +6,7 @@
 - Change: Drop dep. vs. devDep. checking (not a critical issue for our
     scope of concern)
 - Fix: Throw if `package.json` cannot be reached
+- Fix (JSON): Avoid setting crossorigin to `false`
 - Fix (JSON): Reorder to set `crossorigin` with its integrity check before
     changing integrity
 - Testing: Improve coverage

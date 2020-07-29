@@ -136,7 +136,9 @@ class JSONStrategy {
       elem.remote = newSrc;
     }
     if (addCrossorigin !== undefined && hasOwn(elem, 'integrity')) {
-      elem.crossorigin = addCrossorigin;
+      if (addCrossorigin) {
+        elem.crossorigin = addCrossorigin;
+      }
     }
     if (newIntegrity) {
       elem.integrity = newIntegrity;

@@ -65,6 +65,10 @@ const nodeModulesResult = getFixturePath(
 const localOnlyPath = getFixturePath(
   'local-only.html'
 );
+const localOnlyPathJSON = getFixturePath(
+  'local-only.json'
+);
+
 const localOnlyNoIntegrityPath = getFixturePath(
   'local-only-no-integrity.html'
 );
@@ -450,50 +454,62 @@ describe('Binary', function () {
       }
     );
 
-    it(
-      'should allow `local`-only write, dropping crossorigin',
-      async function () {
-        const {stdout, stderr} = await execFile(
-          binFile,
-          [
-            '--local',
-            '--file',
-            'test/fixtures/sample.html',
-            '--outputPath', outputPath
-          ],
-          {
-            timeout: 15000
+    [
+      false,
+      true
+    ].forEach((json) => {
+      it(
+        'should allow `local`-only write' + (json
+          ? ' (JSON)'
+          : ', dropping crossorigin'),
+        async function () {
+          const {stdout, stderr} = await execFile(
+            binFile,
+            [
+              '--local',
+              '--file',
+              (json
+                ? 'test/fixtures/sample.json'
+                : 'test/fixtures/sample.html'),
+              '--outputPath', outputPath
+            ],
+            {
+              timeout: 15000
+            }
+          );
+
+          if (debug) {
+            console.log('stdout', stdout);
+            console.log('stderr', stderr);
           }
-        );
 
-        if (debug) {
-          console.log('stdout', stdout);
-          console.log('stderr', stderr);
+          expect(stdout).to.contain(
+            `INFO: Finished writing to ${outputPath}\n`
+          );
+
+          expect(stderr).to.match(new RegExp(
+            escStringRegex(
+              `WARNING: The URL's version (1.4.0) is less than the ` +
+                `devDependency "leaflet"'s current '\`package.json\` range, ` +
+                `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
+                `for a valid installed version to update the URL...\n` +
+              `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+                `greater for package "leaflet" than the URL version 1.4.0. ` +
+                `Checking \`node_modules\` for a valid installed version to ` +
+                `update the URL...\n`
+            ),
+            'u'
+          ));
+
+          const contents = await readFile(outputPath, 'utf8');
+          const expected = await readFile(
+            json ? localOnlyPathJSON : localOnlyPath,
+            'utf8'
+          );
+          expect(contents).to.equal(expected);
         }
-
-        expect(stdout).to.contain(
-          `INFO: Finished writing to ${outputPath}\n`
-        );
-
-        expect(stderr).to.match(new RegExp(
-          escStringRegex(
-            `WARNING: The URL's version (1.4.0) is less than the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
-              `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
-              `valid installed version to update the URL...\n` +
-            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
-              `greater for package "leaflet" than the URL version 1.4.0. ` +
-              `Checking \`node_modules\` for a valid installed version to ` +
-              `update the URL...\n`
-          ),
-          'u'
-        ));
-
-        const contents = await readFile(outputPath, 'utf8');
-        const expected = await readFile(localOnlyPath, 'utf8');
-        expect(contents).to.equal(expected);
-      }
-    );
+      );
+    });
 
     it(
       'should allow `local`-only write with `noLocalIntegrity`, ' +
@@ -590,8 +606,8 @@ describe('Binary', function () {
     );
 
     [
-      true,
-      false
+      false,
+      true
     ].forEach((json) => {
       it(
         'should work with `fallback` and `globalCheck`' +

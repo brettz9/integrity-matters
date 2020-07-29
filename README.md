@@ -4,11 +4,9 @@
 
 [![eslint badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/eslint-badge.svg?sanitize=true)](badges/eslint-badge.svg)
 
-<!--
 [![Build Status](https://travis-ci.org/brettz9/integrity-matters.svg?branch=master)](https://travis-ci.com/github/brettz9/integrity-matters)
 [![testing badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/tests-badge.svg?sanitize=true)](badges/tests-badge.svg)
 [![coverage badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/coverage-badge.svg?sanitize=true)](badges/coverage-badge.svg)
--->
 
 [![Known Vulnerabilities](https://snyk.io/test/github/brettz9/integrity-matters/badge.svg)](https://snyk.io/test/github/brettz9/integrity-matters)
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/brettz9/integrity-matters.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/integrity-matters/alerts)
@@ -24,8 +22,6 @@
 # integrity-matters
 
 Integrity matters! See [Motivation](#motivation).
-
-**NOTE: This project is an early version currently without tests/coverage.**
 
 ## Features
 
@@ -180,9 +176,8 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 
 ## To-dos
 
-1. Tests/Coverage (and uncomment badges in README)
-2. Add option to do full GET request to cross-check current URL contents.
-3. See about getting HTML parser to preserve whitespace between attributes
+1. Add option to do full GET request to cross-check current URL contents.
+2. See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized?
     Seems `cheerio` is using
     [dom-serializer](https://github.com/cheeriojs/dom-serializer/blob/master/src/index.ts)
