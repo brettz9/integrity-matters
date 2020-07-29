@@ -174,8 +174,9 @@ made by others contributing to your project are reflected locally.)
 ## Developing
 
 Be sure to use `npm` to install rather than `yarn` as our local copy
-(which only impacts dev. installations) is deliberately missing an item for
-testing purposes.
+(which only impacts dev. installations) is deliberately missing an item
+(`chai`) and using a version older than that in `package.json` (`mocha`)
+for testing purposes. The `yarn.lock` should therefore not be updated.
 
 ## To-dos
 
