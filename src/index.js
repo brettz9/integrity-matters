@@ -481,7 +481,7 @@ async function integrityMatters (options) {
         `version to update the URL...`
       );
       updatingVersion = true;
-    } else if (gtr) {
+    } else { // gtr
       // // eslint-disable-next-line no-await-in-loop -- Prompt should be
       //     blocking
       /*
@@ -492,6 +492,15 @@ async function integrityMatters (options) {
       });
       */
 
+      // istanbul ignore if -- `semver` will hopefully never get here
+      if (!gtr) {
+        throw new Error(
+          'Unexpected error: Not greater or less than range, nor satisfied. ' +
+          `Comparing package ${name} in \`package.json\` to the version ` +
+          `(${version}) found in the ${versionSourceType}.`
+        );
+      }
+
       const errorMessage =
         `The ${versionSourceType}'s version (${version}) is greater than ` +
         `the ${dependencyType} "${name}"'s current '\`package.json\` ` +
@@ -501,12 +510,6 @@ async function integrityMatters (options) {
         `in the ${versionSourceType}).`;
       throw new Error(
         errorMessage
-      );
-    } else {
-      throw new Error(
-        'Unexpected error: Not greater or less than range, nor satisfied. ' +
-        `Comparing package ${name} in \`package.json\` to the version ` +
-        `(${version}) found in the ${versionSourceType}.`
       );
     }
     return {

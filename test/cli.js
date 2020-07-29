@@ -8,7 +8,7 @@ const {promisify} = require('util');
 const {join} = require('path');
 const {execFile: ef} = require('child_process');
 const escStringRegex = require('escape-string-regexp');
-const {devDependencies} = require('../package.json');
+const {dependencies: deps, devDependencies} = require('../package.json');
 const {dependencies: lockDeps} = require('../package-lock.json');
 const {
   version: leafletVersion
@@ -659,6 +659,39 @@ describe('Binary', function () {
               `/dist/leaflet.css`
             ) +
           ')\\.',
+          'u'
+        ));
+
+        expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
+
+    it(
+      'should err with URL using version higher than `package.json` range',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--file',
+            'test/fixtures/greater-than-range.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+        // console.log('stderr', stderr);
+        // console.log('stdout', stdout);
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `The URL's version (9999999.0.0) is greater than ` +
+            `the dependency "domhandler"'s current '\`package.json\` ` +
+            `range, "${deps.domhandler}". ` +
+            'Please either update your `package.json` range to support the ' +
+            ` higher URL version (or downgrade your version ` +
+            `in the URL).`
+          ),
           'u'
         ));
 
