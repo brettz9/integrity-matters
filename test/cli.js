@@ -745,7 +745,7 @@ describe('Binary', function () {
     );
   });
 
-  describe('`yarn.lock`', function () {
+  describe('`yarn.lock` only', function () {
     before(async function () {
       this.packageLockContents = await readFile(packageLockPath, 'utf8');
       await unlink(packageLockPath);
@@ -801,6 +801,51 @@ describe('Binary', function () {
         const contents = await readFile(outputPath, 'utf8');
         const expected = await readFile(updatedHTML, 'utf8');
         expect(contents).to.equal(expected);
+      }
+    );
+    it(
+      'should avoid erring with missing `yarn.lock` item',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--file',
+            'test/fixtures/not-in-yarn-lock.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+        // console.log('stderr', stderr);
+        // console.log('stdout', stdout);
+
+        expect(stderr).to.not.match(new RegExp(
+          escStringRegex(
+            `The \`yarn.lock\`'s version`
+          ),
+          'u'
+        ));
+        expect(stdout).to.not.match(new RegExp(
+          escStringRegex(
+            `The \`yarn.lock\`'s version`
+          ),
+          'u'
+        ));
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: Found \`yarn.lock\`.`
+          ),
+          'u'
+        ));
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: Found valid \`package.json\` for "chai".`
+          ),
+          'u'
+        ));
+
+        expect(stdout).to.contain('Finished writing to');
       }
     );
   });

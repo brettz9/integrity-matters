@@ -620,20 +620,21 @@ async function integrityMatters (options) {
           updateVersionLock = lockVersion;
         } else {
           const lt = semver.lt(lockVersion, version);
-          if (lt) {
+          // istanbul ignore if -- semver shouldn't have another state
+          if (!lt) {
             throw new Error(
-              `The lock file version ${lockVersion} is ` +
-              `less for package "${name}" than the URL version ` +
-              `${version}. Please update your lock file (or ` +
-              `downgrade the version in your URL)...`
-              // `(or downgrade the \`package-lock.json\` version).`
+              'Unexpected error: Not greater or less than version, nor ' +
+              `satisfied. Comparing version of package ${name} in ` +
+              `lock file (${lockVersion}) to the version ` +
+              `(${version}) found in the URL.`
             );
           }
           throw new Error(
-            'Unexpected error: Not greater or less than version, nor ' +
-            `satisfied. Comparing version of package ${name} in ` +
-            `lock file (${lockVersion}) to the version ` +
-            `(${version}) found in the URL.`
+            `The lock file version ${lockVersion} is ` +
+            `less for package "${name}" than the URL version ` +
+            `${version}. Please update your lock file (or ` +
+            `downgrade the version in your URL)...`
+            // `(or downgrade the \`package-lock.json\` version).`
           );
         }
       }

@@ -171,6 +171,12 @@ updates are automatically reflected in your CDN URL versions. (You may
 wish to have it run a local install first as well to ensure that updates
 made by others contributing to your project are reflected locally.)
 
+## Developing
+
+Be sure to use `npm` to install rather than `yarn` as our local copy
+(which only impacts dev. installations) is deliberately missing an item for
+testing purposes.
+
 ## To-dos
 
 1. Tests/Coverage (and uncomment badges in README)
