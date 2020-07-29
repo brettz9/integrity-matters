@@ -1,0 +1,5 @@
+{
+  "ignoreURLFetches": true,
+  "file": ["test/fixtures/bad-version-but-matching-hash.htm"],
+  "outputPath": ["test/results/cli-results.html"]
+}

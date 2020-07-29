@@ -122,7 +122,14 @@ describe('Binary', function () {
           binFile,
           [
             '--file',
-            ...(noConfig ? ['--noConfig'] : ''),
+            ...(noConfig
+              ? [
+                '--noConfig',
+                // Ensure `noConfig` avoids use of this
+                '--configPath', 'badFile'
+              ]
+              : ''
+            ),
             ...(dryRun ? ['--dryRun'] : ''),
             ...(ignoreURLFetches ? ['--ignoreURLFetches'] : ''),
             inPlaceFile ? outputPath : 'test/fixtures/sample.html',
@@ -327,49 +334,60 @@ describe('Binary', function () {
       });
     });
 
-    it(
-      'should report if version update already has matching hash',
-      async function () {
-        const {stdout, stderr} = await execFile(
-          binFile,
-          [
-            '--ignoreURLFetches',
-            '--file',
-            'test/fixtures/bad-version-but-matching-hash.htm',
-            '--outputPath', outputPath
-          ],
-          {
-            timeout: 15000
-          }
-        );
+    [
+      [
+        '--ignoreURLFetches',
+        '--file',
+        'test/fixtures/bad-version-but-matching-hash.htm',
+        '--outputPath', outputPath
+      ],
+      [
+        '--configPath',
+        'test/fixtures/config.json'
+      ]
+    ].forEach((args) => {
+      it(
+        args.includes('--configPath')
+          ? 'should report if version update already has matching ' +
+              'hash (`configPath`)'
+          : 'should report if version update already has matching hash',
+        async function () {
+          const {stdout, stderr} = await execFile(
+            binFile,
+            args,
+            {
+              timeout: 15000
+            }
+          );
 
-        // console.log('stdout', stdout);
-        // console.log('stderr', stderr);
+          // console.log('stdout', stdout);
+          // console.log('stderr', stderr);
 
-        expect(stdout).to.contain(
-          'Local hash matches corresponding hash (index 0) ' +
-          'within the integrity attribute'
-        );
+          expect(stdout).to.contain(
+            'Local hash matches corresponding hash (index 0) ' +
+            'within the integrity attribute'
+          );
 
-        expect(stderr).to.match(new RegExp(
-          escStringRegex(
-            `WARNING: The URL's version (1.4.0) is less than the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
-              `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
-              `valid installed version to update the URL...\n` +
-            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
-              `greater for package "leaflet" than the URL version 1.4.0. ` +
-              `Checking \`node_modules\` for a valid installed version to ` +
-              `update the URL...\n`
-          ),
-          'u'
-        ));
+          expect(stderr).to.match(new RegExp(
+            escStringRegex(
+              `WARNING: The URL's version (1.4.0) is less than the ` +
+                `devDependency "leaflet"'s current '\`package.json\` range, ` +
+                `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
+                `for a valid installed version to update the URL...\n` +
+              `WARNING: The lock file version ${lockDeps.leaflet.version} ` +
+                `is greater for package "leaflet" than the URL version ` +
+                `1.4.0. Checking \`node_modules\` for a valid installed ` +
+                `version to update the URL...\n`
+            ),
+            'u'
+          ));
 
-        const contents = await readFile(outputPath, 'utf8');
-        const expected = await readFile(badVersionMatchingPath, 'utf8');
-        expect(contents).to.equal(expected);
-      }
-    );
+          const contents = await readFile(outputPath, 'utf8');
+          const expected = await readFile(badVersionMatchingPath, 'utf8');
+          expect(contents).to.equal(expected);
+        }
+      );
+    });
 
     it(
       'should allow `node_modules` write',
