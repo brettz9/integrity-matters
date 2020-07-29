@@ -6,6 +6,7 @@
 - Fix: Drop dep. vs. devDep. checking (not a critical issue for our
     scope of concern)
 - Testing: Improve coverage
+- Testing: Ensure deleting output path before each run
 
 ## 0.3.3
 

@@ -76,7 +76,17 @@ const addCrossoriginPath = getFixturePath(
   'result-addCrossorigin.html'
 );
 
+const unlinker = async () => {
+  try {
+    return await unlink(outputPath);
+  } catch (err) {}
+  return undefined;
+};
+
 describe('Binary', function () {
+  before(unlinker);
+  after(unlinker);
+
   this.timeout(30000);
   it('should log help', async function () {
     const {stdout} = await execFile(binFile, ['-h']);
@@ -92,15 +102,6 @@ describe('Binary', function () {
   });
 
   describe('Executing', function () {
-    const unlinker = async () => {
-      try {
-        return await unlink(outputPath);
-      } catch (err) {}
-      return undefined;
-    };
-    before(unlinker);
-    after(unlinker);
-
     [
       ['should execute main CLI'],
       ['should execute main CLI (dry run)', {dryRun: true}],
