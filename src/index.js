@@ -464,14 +464,14 @@ async function integrityMatters (options) {
       addLog(
         'info',
         `INFO: The ${versionSourceType}'s version (${version}) is satisfied ` +
-        `by the ${dependencyType} "${name}"'s current '\`package.json\` ` +
+        `by the ${dependencyType} "${name}"'s current \`package.json\` ` +
         `range, "${range}". Continuing...`
       );
     } else if (ltr) {
       // Todo: Give CLI option to update `package-lock.json`
       const info =
         `The ${versionSourceType}'s version (${version}) is less ` +
-        `than the ${dependencyType} "${name}"'s current '\`package.json\` ` +
+        `than the ${dependencyType} "${name}"'s current \`package.json\` ` +
         `range, "${range}".`;
 
       // `compareLockToPackage` will throw earlier for the lock files, so
@@ -518,7 +518,7 @@ async function integrityMatters (options) {
 
       const errorMessage =
         `The ${versionSourceType}'s version (${version}) is greater than ` +
-        `the ${dependencyType} "${name}"'s current '\`package.json\` ` +
+        `the ${dependencyType} "${name}"'s current \`package.json\` ` +
         `range, "${range}". ` +
         'Please either update your `package.json` range to support the ' +
         ` higher ${versionSourceType} version (or downgrade your version ` +

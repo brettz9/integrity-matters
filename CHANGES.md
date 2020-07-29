@@ -7,6 +7,7 @@
     scope of concern)
 - Fix: Throw if `package.json` cannot be reached
 - Fix: Properly handle missing `integrity`
+- Fix: Avoid stray apostrophe in log/error
 - Fix (JSON): Handle JSON missing `script` or `link`
 - Fix (JSON): Avoid setting crossorigin to `false`
 - Fix (JSON): Reorder to set `crossorigin` with its integrity check before

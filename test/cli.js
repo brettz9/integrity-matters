@@ -98,6 +98,10 @@ const noIntegrityScriptJSON = getFixturePath(
   'result-no-integrity-script.json'
 );
 
+const noRemote = getFixturePath(
+  'result-no-remote.json'
+);
+
 const unlinker = async () => {
   try {
     return await unlink(outputPath);
@@ -177,7 +181,7 @@ describe('Binary', function () {
             `WARNING: Found \`yarn.lock\`; ignoring due to detected ` +
               '`package-lock.json`\n' +
             `WARNING: The URL's version (1.4.0) is less than the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
             `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
@@ -199,7 +203,7 @@ describe('Binary', function () {
           ) +
           escStringRegex(
             `WARNING: The URL's version (1.16.0) is less than the ` +
-              `devDependency "popper.js"'s current '\`package.json\` range, ` +
+              `devDependency "popper.js"'s current \`package.json\` range, ` +
               `"${devDependencies['popper.js']}". Checking \`node_modules\` ` +
               `for a valid installed version to update the URL...\n` +
             `WARNING: The lock file version ${lockDeps['popper.js'].version} ` +
@@ -222,7 +226,7 @@ describe('Binary', function () {
           ) +
           escStringRegex(
             `WARNING: The URL's version (1.4.0) is less than the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
             `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
@@ -252,12 +256,12 @@ describe('Binary', function () {
 
             `INFO: The \`package-lock.json\`'s version (` +
               `${lockDeps.leaflet.version}) is satisfied by the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "leaflet".\n` +
             `INFO: The \`node_modules\` \`package.json\`'s version ` +
               `(${leafletVersion}) is satisfied by the devDependency ` +
-              `"leaflet"'s current '\`package.json\` range, ` +
+              `"leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Continuing...\n` +
             (ignoreURLFetches
               ? '\n\n'
@@ -265,28 +269,28 @@ describe('Binary', function () {
               `leaflet@${leafletVersion}/dist/leaflet.js.\n\n\n`) +
 
             `INFO: The URL's version (3.5.1) is satisfied by the ` +
-              `devDependency "jquery"'s current '\`package.json\` range, ` +
+              `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n` +
             `INFO: Dependency jquery in your lock file already matches URL ` +
               `version (3.5.1).\n` +
             `INFO: The \`package-lock.json\`'s version ` +
               `(${lockDeps.jquery.version}) is satisfied by the ` +
-              `devDependency "jquery"'s current '\`package.json\` range, ` +
+              `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "jquery".\n` +
             `INFO: The \`node_modules\` \`package.json\`'s version ` +
               `(${jqueryVersion}) is satisfied by the devDependency ` +
-              `"jquery"'s current '\`package.json\` range, ` +
+              `"jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n\n\n` +
 
             `INFO: The \`package-lock.json\`'s version ` +
               `(${lockDeps['popper.js'].version}) is satisfied by the ` +
-              `devDependency "popper.js"'s current '\`package.json\` range, ` +
+              `devDependency "popper.js"'s current \`package.json\` range, ` +
               `"${devDependencies['popper.js']}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "popper.js".\n` +
             `INFO: The \`node_modules\` \`package.json\`'s version ` +
               `(${popperJsVersion}) is satisfied by the devDependency ` +
-              `"popper.js"'s current '\`package.json\` range, ` +
+              `"popper.js"'s current \`package.json\` range, ` +
               `"${devDependencies['popper.js']}". Continuing...\n` +
             (ignoreURLFetches
               ? '\n\n'
@@ -295,43 +299,43 @@ describe('Binary', function () {
               `popper.min.js.\n\n\n`) +
 
             `INFO: The URL's version (4.5.0) is satisfied by the ` +
-              `devDependency "bootstrap"'s current '\`package.json\` range, ` +
+              `devDependency "bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n` +
             `INFO: Dependency bootstrap in your lock file already matches ` +
               `URL version (4.5.0).\n` +
             `INFO: The \`package-lock.json\`'s version ` +
               `(${lockDeps.bootstrap.version}) is satisfied by the ` +
-              `devDependency "bootstrap"'s current '\`package.json\` range, ` +
+              `devDependency "bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "bootstrap".\n` +
             `INFO: The \`node_modules\` \`package.json\`'s version ` +
               `(${bootstrapVersion}) is satisfied by the devDependency ` +
-              `"bootstrap"'s current '\`package.json\` range, ` +
+              `"bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n\n\n` +
 
             `INFO: The URL's version (4.5.0) is satisfied by the ` +
-              `devDependency "bootstrap"'s current '\`package.json\` range, ` +
+              `devDependency "bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n` +
             `INFO: Dependency bootstrap in your lock file already matches ` +
               `URL version (4.5.0).\n` +
             `INFO: The \`package-lock.json\`'s version ` +
               `(${lockDeps.bootstrap.version}) is satisfied by the ` +
-              `devDependency "bootstrap"'s current '\`package.json\` range, ` +
+              `devDependency "bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "bootstrap".\n` +
             `INFO: The \`node_modules\` \`package.json\`'s version ` +
               `(${bootstrapVersion}) is satisfied by the devDependency ` +
-              `"bootstrap"'s current '\`package.json\` range, ` +
+              `"bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n\n\n` +
 
             `INFO: The \`package-lock.json\`'s version ` +
               `(${lockDeps.leaflet.version}) is satisfied by the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "leaflet".\n` +
             `INFO: The \`node_modules\` \`package.json\`'s version ` +
               `(${leafletVersion}) is satisfied by the devDependency ` +
-              `"leaflet"'s current '\`package.json\` range, ` +
+              `"leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Continuing...\n` +
             (ignoreURLFetches
               ? '\n\n'
@@ -406,7 +410,7 @@ describe('Binary', function () {
           expect(stderr).to.match(new RegExp(
             escStringRegex(
               `WARNING: The URL's version (1.4.0) is less than the ` +
-                `devDependency "leaflet"'s current '\`package.json\` range, ` +
+                `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
               `WARNING: The lock file version ${lockDeps.leaflet.version} ` +
@@ -503,7 +507,7 @@ describe('Binary', function () {
           expect(stderr).to.match(new RegExp(
             escStringRegex(
               `WARNING: The URL's version (1.4.0) is less than the ` +
-                `devDependency "leaflet"'s current '\`package.json\` range, ` +
+                `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
               `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
@@ -554,7 +558,7 @@ describe('Binary', function () {
         expect(stderr).to.match(new RegExp(
           escStringRegex(
             `WARNING: The URL's version (1.4.0) is less than the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
             `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
@@ -601,7 +605,7 @@ describe('Binary', function () {
         expect(stderr).to.match(new RegExp(
           escStringRegex(
             `WARNING: The URL's version (1.4.0) is less than the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
             `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
@@ -658,7 +662,7 @@ describe('Binary', function () {
           expect(stderr).to.match(new RegExp(
             escStringRegex(
               `WARNING: The URL's version (1.4.0) is less than the ` +
-                `devDependency "leaflet"'s current '\`package.json\` range, ` +
+                `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
               `WARNING: The lock file version ${lockDeps.leaflet.version} ` +
@@ -760,7 +764,7 @@ describe('Binary', function () {
           expect(stderr).to.match(new RegExp(
             escStringRegex(
               `WARNING: The URL's version (1.4.0) is less than the ` +
-                `devDependency "leaflet"'s current '\`package.json\` range, ` +
+                `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
               `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
@@ -815,7 +819,7 @@ describe('Binary', function () {
           expect(stderr).to.match(new RegExp(
             escStringRegex(
               `WARNING: The URL's version (1.4.0) is less than the ` +
-                `devDependency "leaflet"'s current '\`package.json\` range, ` +
+                `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
               `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
@@ -835,6 +839,46 @@ describe('Binary', function () {
         }
       );
     });
+
+    it(
+      'should work without `remote` (JSON)',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--local',
+            '--file',
+            'test/fixtures/no-remote.json',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
+
+        expect(stdout).to.contain(
+          `INFO: Finished writing to ${outputPath}\n`
+        );
+
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `The \`node_modules\` \`package.json\`'s version ` +
+            `(${leafletVersion}) is satisfied by the devDependency ` +
+            `"leaflet"'s current \`package.json\` range, "^1.6.0".`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(noRemote, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
 
     it(
       'should drop unspecified algorithms and add designated if missing',
@@ -944,7 +988,7 @@ describe('Binary', function () {
         expect(stderr).to.match(new RegExp(
           escStringRegex(
             `The URL's version (9999999.0.0) is greater than ` +
-            `the dependency "domhandler"'s current '\`package.json\` ` +
+            `the dependency "domhandler"'s current \`package.json\` ` +
             `range, "${deps.domhandler}". ` +
             'Please either update your `package.json` range to support the ' +
             ` higher URL version (or downgrade your version ` +
@@ -993,7 +1037,7 @@ describe('Binary', function () {
           escStringRegex(
             `INFO: The \`yarn.lock\`'s version ` +
               `(${lockDeps.jquery.version}) is satisfied by the ` +
-              `devDependency "jquery"'s current '\`package.json\` range, ` +
+              `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n`
           ),
           'u'
@@ -1002,7 +1046,7 @@ describe('Binary', function () {
         expect(stderr).to.match(new RegExp(
           escStringRegex(
             `WARNING: The URL's version (1.4.0) is less than the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
             `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
@@ -1139,7 +1183,7 @@ describe('Binary', function () {
           escStringRegex(
             `INFO: The \`package-lock.json\`'s version ` +
               `(${lockDeps.jquery.version}) is satisfied by the ` +
-              `devDependency "jquery"'s current '\`package.json\` range, ` +
+              `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n`
           ),
           'u'
@@ -1148,7 +1192,7 @@ describe('Binary', function () {
         expect(stderr).to.match(new RegExp(
           escStringRegex(
             `WARNING: The URL's version (1.4.0) is less than the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
             `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
@@ -1219,7 +1263,7 @@ describe('Binary', function () {
         expect(stderr).to.match(new RegExp(
           escStringRegex(
             `WARNING: The URL's version (1.4.0) is less than the ` +
-              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
               `a valid installed version to update the URL...\n`
           ),
