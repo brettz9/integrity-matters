@@ -135,14 +135,14 @@ class JSONStrategy {
     if (newSrc && !local) {
       elem.remote = newSrc;
     }
-    if (fallback) {
-      elem.fallback = fallback;
+    if (addCrossorigin !== undefined && hasOwn(elem, 'integrity')) {
+      elem.crossorigin = addCrossorigin;
     }
     if (newIntegrity) {
       elem.integrity = newIntegrity;
     }
-    if (addCrossorigin !== undefined && hasOwn(elem, 'integrity')) {
-      elem.crossorigin = addCrossorigin;
+    if (fallback) {
+      elem.fallback = fallback;
     }
     if (globalCheck && globalCheck[type]) {
       elem.global = globalCheck[type];
