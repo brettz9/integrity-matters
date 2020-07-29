@@ -404,7 +404,7 @@ async function integrityMatters (options) {
           integrity
         };
       }
-      addMainLog('info', 'INFO: Found `yarn.lock`');
+      addMainLog('info', 'INFO: Found `yarn.lock`.');
     }
   } catch (err) {
     if (!packageLockJSON) {

@@ -9,6 +9,7 @@
     found (as is expected)
 - Fix: Avoid removing `integrity` before `elem.is([integrity])` check
     (may need to alter `crossorigin`)
+- Refactoring: Add period in error message for consistency
 - Testing: Fix expected (ternary precedence issue)
 - Testing: Improve coverage
 

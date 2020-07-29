@@ -772,11 +772,72 @@ describe('Binary', function () {
         // console.log('stdout', stdout);
         // console.log('stderr', stderr);
 
-        expect(stdout).to.contain('INFO: Found `yarn.lock`');
+        expect(stdout).to.contain('INFO: Found `yarn.lock`.');
 
         expect(stdout).to.match(new RegExp(
           escStringRegex(
             `INFO: The \`yarn.lock\`'s version ` +
+              `(${lockDeps.jquery.version}) is satisfied by the ` +
+              `devDependency "jquery"'s current '\`package.json\` range, ` +
+              `"${devDependencies.jquery}". Continuing...\n`
+          ),
+          'u'
+        ));
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current '\`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
+              `valid installed version to update the URL...\n` +
+            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `greater for package "leaflet" than the URL version 1.4.0. ` +
+              `Checking \`node_modules\` for a valid installed version to ` +
+              `update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(updatedHTML, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+  });
+
+  describe('`package-lock.json` only', function () {
+    before(async function () {
+      this.yarnLockContents = await readFile(yarnLockPath, 'utf8');
+      await unlink(yarnLockPath);
+    });
+    after(async function () {
+      await writeFile(yarnLockPath, this.yarnLockContents);
+    });
+    it(
+      'should not report missing `yarn.lock` if `package-lock.json` found',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--ignoreURLFetches',
+            '--file',
+            'test/fixtures/sample.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
+
+        expect(stdout).to.not.contain('INFO: Found `yarn.lock`.');
+        expect(stdout).to.not.contain('INFO: No valid `yarn.lock` found.');
+
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: The \`package-lock.json\`'s version ` +
               `(${lockDeps.jquery.version}) is satisfied by the ` +
               `devDependency "jquery"'s current '\`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n`
@@ -844,7 +905,7 @@ describe('Binary', function () {
         // console.log('stdout', stdout);
         // console.log('stderr', stderr);
 
-        expect(stdout).to.not.contain('INFO: Found `yarn.lock`');
+        expect(stdout).to.not.contain('INFO: Found `yarn.lock`.');
         expect(stdout).to.match(new RegExp(
           escStringRegex(
             `INFO: No valid \`package-lock.json\` found.\n` +
