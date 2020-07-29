@@ -22,6 +22,9 @@ const {
 const {
   version: bootstrapVersion
 } = require('../node_modules/bootstrap/package.json');
+const {
+  version: mochaVersion
+} = require('../node_modules/mocha/package.json');
 
 const packageLockPath = join(__dirname, '../package-lock.json');
 const yarnLockPath = join(__dirname, '../yarn.lock');
@@ -846,6 +849,38 @@ describe('Binary', function () {
         ));
 
         expect(stdout).to.contain('Finished writing to');
+      }
+    );
+
+    it(
+      'should err with `yarn.lock` having lower version than URL and ' +
+      '`package.json`.',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--file',
+            'test/fixtures/lower-in-yarn-lock.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+        // console.log('stderr', stderr);
+        // console.log('stdout', stdout);
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `The lock file version 7.2.0 is ` +
+            `less for package "mocha" than the URL version ` +
+            `${mochaVersion}. Please update your lock file (or ` +
+            `downgrade the version in your URL)...`
+          ),
+          'u'
+        ));
+
+        expect(stdout).to.not.contain('Finished writing to');
       }
     );
   });

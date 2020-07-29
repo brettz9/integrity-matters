@@ -612,6 +612,7 @@ async function integrityMatters (options) {
         );
       } else {
         const gt = semver.gt(lockVersion, version);
+
         if (gt) {
           addLog(
             'warn',
