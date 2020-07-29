@@ -91,6 +91,13 @@ const noIntegrityJSON = getFixturePath(
   'result-no-integrity.json'
 );
 
+const noIntegrityScript = getFixturePath(
+  'result-no-integrity-script.html'
+);
+const noIntegrityScriptJSON = getFixturePath(
+  'result-no-integrity-script.json'
+);
+
 const unlinker = async () => {
   try {
     return await unlink(outputPath);
@@ -724,7 +731,7 @@ describe('Binary', function () {
       true
     ].forEach((json) => {
       it(
-        'should work without `integrity`',
+        'should work without `integrity` (link)',
         async function () {
           const {stdout, stderr} = await execFile(
             binFile,
@@ -767,6 +774,61 @@ describe('Binary', function () {
           const contents = await readFile(outputPath, 'utf8');
           const expected = await readFile(
             json ? noIntegrityJSON : noIntegrity,
+            'utf8'
+          );
+          expect(contents).to.equal(expected);
+        }
+      );
+    });
+
+    [
+      false,
+      true
+    ].forEach((json) => {
+      it(
+        'should work without `integrity` (script)',
+        async function () {
+          const {stdout, stderr} = await execFile(
+            binFile,
+            [
+              '--local',
+              '--file',
+              (json
+                ? 'test/fixtures/no-integrity-script.json'
+                : 'test/fixtures/no-integrity-script.html'),
+              '--outputPath', outputPath
+            ],
+            {
+              timeout: 15000
+            }
+          );
+
+          if (debug) {
+            console.log('stdout', stdout);
+            console.log('stderr', stderr);
+          }
+
+          expect(stdout).to.contain(
+            `INFO: Finished writing to ${outputPath}\n`
+          );
+
+          expect(stderr).to.match(new RegExp(
+            escStringRegex(
+              `WARNING: The URL's version (1.4.0) is less than the ` +
+                `devDependency "leaflet"'s current '\`package.json\` range, ` +
+                `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
+                `for a valid installed version to update the URL...\n` +
+              `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+                `greater for package "leaflet" than the URL version 1.4.0. ` +
+                `Checking \`node_modules\` for a valid installed version to ` +
+                `update the URL...\n`
+            ),
+            'u'
+          ));
+
+          const contents = await readFile(outputPath, 'utf8');
+          const expected = await readFile(
+            json ? noIntegrityScriptJSON : noIntegrityScript,
             'utf8'
           );
           expect(contents).to.equal(expected);
