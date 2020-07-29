@@ -6,3 +6,12 @@ node_js:
   - 10
   - 12
   - 14
+
+# Avoid Travis checking `yarn --frozen-lockfile` and getting errors;
+#  we deliberately have a bad `yarn.lock` for testing purposes, and
+#  we inform developers they should not use yarn for development
+#  on `integrity-matters`.
+before_install:
+  mv yarn.lock yarn-temp.lock
+before_script:
+  mv yarn-temp.lock yarn.lock
