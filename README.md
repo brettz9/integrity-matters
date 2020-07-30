@@ -176,13 +176,9 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 
 ## To-dos
 
-1. Fix: Allow local file fetches when not `local` but expressed as
-    `node_modules` (or auto-act like `--ignoreURLFetches`)
-1. Enhancement: Force addition of `integrity` even when attribute not present
-1. Enhancement: Allow mapping CDNs by package
 1. Enhancement: Use `data-*` attributes in HTML for in-data config, e.g.,
     choice of CDN in output, globalCheck, fallback, etc.
-1. Enhancement: Allow adding `DomHandler` or `htmlparser2` options
+1. Enhancement: Allow mapping CDNs by package
 1. Enhancement: Given recurring and often accompanying use case of having
     local scripts work as ESM (given that they are useful for avoiding a
     build step), converting them to non-ESM for better network performance,
@@ -190,7 +186,13 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
     1. Convert `type="module"` to `defer=""` scripts
     2. Drop any `nomodule=""` scripts
     3. Attach disclaimer as first comment (e.g., that this is a built file)
-1. See about getting HTML parser to preserve whitespace between attributes
+
+## Medium priority to-dos
+
+1. Fix: Allow local file fetches when not `local` but expressed as
+    `node_modules` (or auto-act like `--ignoreURLFetches`)
+1. Enhancement: Force addition of `integrity` even when attribute not present
+1. Fix: See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized?
     Seems `cheerio` is using
     [dom-serializer](https://github.com/cheeriojs/dom-serializer/blob/master/src/index.ts)
@@ -202,10 +204,13 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 
 ## Potential to-dos
 
-1. Avoid reinserting fallbacks if detected in some way as next item
-1. Add some auto-fallbacks, e.g., `window.jQuery` for well-known libraries?
-1. Could make optional to only update URL if that version is lower
-    than the `package.json` range
-1. Could use `esquery` to find `import` statements (e.g., see usage in
-    `es-file-traverse`) though wouldn't allow updating integrity--only
-    the version (and only Deno currently supports full URLs).
+1. Fix: Avoid reinserting fallbacks if detected in some way as
+    next item
+1. Enhancement: Add some auto-fallbacks, e.g., `window.jQuery` for
+    well-known libraries?
+1. Enhancement: Could make optional to only update URL if that version
+    is lower than the `package.json` range
+1. Enhancement: Could use `esquery` to find `import` statements (e.g.,
+    see usage in `es-file-traverse`) though wouldn't allow updating
+    integrity--only the version (and only Deno currently supports full
+    URLs).

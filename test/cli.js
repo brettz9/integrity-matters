@@ -102,6 +102,19 @@ const noRemote = getFixturePath(
   'result-no-remote.json'
 );
 
+const jsonSpace = getFixturePath(
+  'result-jsonSpace.json'
+);
+const jsonSpaceTabs = getFixturePath(
+  'result-jsonSpace-tabs.json'
+);
+const parserOptions = getFixturePath(
+  'parser-options.html'
+);
+const parserOptionsResult = getFixturePath(
+  'result-parser-options.html'
+);
+
 const unlinker = async () => {
   try {
     return await unlink(outputPath);
@@ -914,6 +927,53 @@ describe('Binary', function () {
       }
     );
 
+    [
+      [4, jsonSpace, '4 spaces'],
+      ['\t', jsonSpaceTabs, 'tabs']
+    ].forEach(([spaceValue, jsonSpaceResultFile, msg]) => {
+      it(
+        `should work with \`jsonSpace\` (JSON with ${msg})`,
+        async function () {
+          const {stdout, stderr} = await execFile(
+            binFile,
+            [
+              '--ignoreURLFetches',
+              '--file',
+              '--jsonSpace',
+              spaceValue,
+              'test/fixtures/sample.json',
+              '--outputPath', outputPath
+            ],
+            {
+              timeout: 15000
+            }
+          );
+
+          if (debug) {
+            console.log('stdout', stdout);
+            console.log('stderr', stderr);
+          }
+
+          expect(stdout).to.contain(
+            `INFO: Finished writing to ${outputPath}\n`
+          );
+
+          expect(stdout).to.match(new RegExp(
+            escStringRegex(
+              `The \`node_modules\` \`package.json\`'s version ` +
+              `(${leafletVersion}) is satisfied by the devDependency ` +
+              `"leaflet"'s current \`package.json\` range, "^1.6.0".`
+            ),
+            'u'
+          ));
+
+          const contents = await readFile(outputPath, 'utf8');
+          const expected = await readFile(jsonSpaceResultFile, 'utf8');
+          expect(contents).to.equal(expected);
+        }
+      );
+    });
+
     it(
       'should drop unspecified algorithms and add designated if missing',
       async function () {
@@ -1033,6 +1093,57 @@ describe('Binary', function () {
         ));
 
         expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
+
+    it(
+      'should allow parser options',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--ignoreURLFetches',
+            '--file',
+            '--htmlparser2Options',
+            '{"lowerCaseTags": true}',
+            '--domHandlerOptions',
+            '{"normalizeWhitespace": true}',
+            parserOptions,
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
+
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: Finished writing to ${outputPath}\n`
+          ),
+          'u'
+        ));
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
+              `a valid installed version to update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(parserOptionsResult, 'utf8');
+        // To allow development IDEs to add ending newline and strip trailing
+        //  spaces, we adjust our expected result file to completely match
+        //  expectations.
+        expect(contents).to.equal(expected.replace(/\n$/u, ' '));
       }
     );
   });

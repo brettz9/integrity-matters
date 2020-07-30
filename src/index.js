@@ -161,8 +161,10 @@ class JSONStrategy {
   /**
    * @type {UpdateStrategy#save}
    */
-  async save (file) {
-    const serialized = JSON.stringify(this.doc, null, 2);
+  async save (file, jsonSpace) {
+    const serialized = JSON.stringify(
+      this.doc, null, jsonSpace === undefined ? 2 : jsonSpace
+    );
     await writeFile(file, serialized + '\n');
   }
 }
@@ -174,8 +176,10 @@ class HTMLStrategy {
   /**
    * @type {UpdateStrategy#getObjects}
    */
-  async getObjects (contents) {
-    this.doc = await handleDOM(contents);
+  async getObjects (contents, domHandlerOptions, htmlparser2Options) {
+    this.doc = await handleDOM(
+      contents, domHandlerOptions, htmlparser2Options
+    );
     const $ = cheerio.load(this.doc);
 
     const scripts = $('script[src]').toArray().map((elem) => {
@@ -301,6 +305,15 @@ async function integrityMatters (options) {
         ...options
       };
 
+  [
+    'domHandlerOptions',
+    'htmlparser2Options'
+  ].forEach((prop) => {
+    if (typeof opts[prop] === 'string') {
+      opts[prop] = JSON.parse(opts[prop]);
+    }
+  });
+
   const {
     file: fileArray,
     outputPath: outputPaths,
@@ -318,6 +331,9 @@ async function integrityMatters (options) {
     urlIntegrityCheck,
     algorithm: userAlgorithms,
     dryRun,
+    domHandlerOptions,
+    htmlparser2Options,
+    jsonSpace,
     // cli,
     cwd = process.cwd()
   } = opts;
@@ -556,11 +572,23 @@ async function integrityMatters (options) {
   /**
    * @function UpdateStrategy#save
    * @param {string} file Path
+   * @param {number|string} [jsonSpace] For JSON only
    * @returns {Promise<void>}
+   */
+
+  /**
+   * @external DomHandlerOptions
+   * @see https://github.com/fb55/DomHandler
+   */
+  /**
+   * @external Htmlparser2Options
+   * @see https://github.com/fb55/htmlparser2/wiki/Parser-options
    */
   /**
    * @function UpdateStrategy#getObjects
    * @param {string} contents
+   * @param {external:DomHandlerOptions} [domHandlerOptions] For HtML only
+   * @param {external:Htmlparser2Options} [htmlparser2Options] For HTML only
    * @returns {Promise<SrcIntegrityObject[]>}
    */
 
@@ -909,7 +937,9 @@ async function integrityMatters (options) {
   ) => {
     const strategy = getStrategyForExtension(extension);
 
-    const objects = await strategy.getObjects(contents);
+    const objects = await strategy.getObjects(
+      contents, domHandlerOptions, htmlparser2Options
+    );
 
     const objectLogs = [];
     await Promise.all(objects.map((object, objIdx) => {
@@ -922,7 +952,7 @@ async function integrityMatters (options) {
 
     if (!dryRun) {
       const outputFile = (outputPaths && outputPaths[fileIdx]) || file;
-      await strategy.save(outputFile);
+      await strategy.save(outputFile, jsonSpace);
       fileLogs[fileIdx].push({
         method: 'info', message: `INFO: Finished writing to ${outputFile}`
       });

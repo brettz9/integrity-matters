@@ -10,9 +10,11 @@ const {Parser} = require('htmlparser2');
 
 /**
  * @param {string} domString
+ * @param {external:DomHandlerOptions} domHandlerOptions
+ * @param {external:Htmlparser2Options} htmlparser2Options
  * @returns {Promise<external:DOMHandlerObject>}
  */
-function handleDOM (domString) {
+function handleDOM (domString, domHandlerOptions, htmlparser2Options) {
   // eslint-disable-next-line promise/avoid-new -- Has no Promise API
   return new Promise((resolve, reject) => {
     const handler = new DomHandler(function (error, dom) {
@@ -27,8 +29,8 @@ function handleDOM (domString) {
         return;
       }
       resolve(dom);
-    });
-    const parser = new Parser(handler);
+    }, domHandlerOptions);
+    const parser = new Parser(handler, htmlparser2Options);
     parser.write(domString);
     parser.end();
   });

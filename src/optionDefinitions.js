@@ -130,6 +130,27 @@ const optionDefinitions = [
     typeLabel: '{underline ""|"anonymous"|"use-credentials"}'
   },
   {
+    name: 'domHandlerOptions', type: String,
+    description: 'Options to pass to DomHandler. Defaults to none.',
+    typeLabel: '{underline JSON object string}'
+  },
+  {
+    name: 'htmlparser2Options', type: String,
+    description: 'Options to pass to htmlparser2. Defaults to none.',
+    typeLabel: '{underline JSON object string}'
+  },
+  {
+    name: 'jsonSpace', type (val) {
+      if (Number.isNaN(Number.parseInt(val))) {
+        return val;
+      }
+      return Number(val);
+    },
+    description: 'Argument to pass for `space` `JSON.stringify`. ' +
+      'If parsing to a number, a number will be used. Defaults to 2.',
+    typeLabel: '{underline JSON object string}'
+  },
+  {
     name: 'forceIntegrityChecks', type: Boolean,
     description: 'Forces `integrity` checks even when the version ' +
       'does not need to be changed. Defaults to `false`.'

@@ -1,5 +1,10 @@
 # CHANGES for integrity-matters
 
+## ?
+
+- Enhancement: `DomHandler` or `htmlparser2` options
+- Enhancement: `jsonSpace` option
+
 ## 0.4.3
 
 - Fix: Ensure `rel="stylesheet"` added to fallback links
