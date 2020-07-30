@@ -202,6 +202,7 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 
 ## Potential to-dos
 
+1. Avoid reinserting fallbacks if detected in some way as next item
 1. Add some auto-fallbacks, e.g., `window.jQuery` for well-known libraries?
 1. Could make optional to only update URL if that version is lower
     than the `package.json` range
