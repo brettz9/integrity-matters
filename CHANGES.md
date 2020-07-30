@@ -1,5 +1,10 @@
 # CHANGES for integrity-matters
 
+## 0.4.2
+
+- Fix: Preserve relative path characters at beginning of `node_modules`
+    paths (for output)
+
 ## 0.4.1
 
 - Fix: Have regexes handle scoped packages

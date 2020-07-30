@@ -760,7 +760,10 @@ describe('Binary', function () {
       true
     ].forEach((json) => {
       it(
-        'should work without `integrity` (link)',
+        'should work without `integrity` (link)' + (json
+          ? ' (JSON)'
+          : ' (HTML)'
+        ),
         async function () {
           const {stdout, stderr} = await execFile(
             binFile,
@@ -816,7 +819,10 @@ describe('Binary', function () {
       true
     ].forEach((json) => {
       it(
-        'should work without `integrity` (script)',
+        'should work without `integrity` (script)' + (json
+          ? ' (JSON)'
+          : ' (HTML)'
+        ),
         async function () {
           const {stdout, stderr} = await execFile(
             binFile,

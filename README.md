@@ -178,8 +178,6 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 
 1. Fix: Allow local file fetches when not `local` but expressed as
     `node_modules`
-1. Fix: Allow replacing whole `node_modules` path to allow for relative paths
-    even if match isn't designed for it
 1. Enhancement: Force addition of `integrity`
 1. Enhancement: Allow mapping CDNs by package
 1. See about getting HTML parser to preserve whitespace between attributes

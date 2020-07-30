@@ -42,7 +42,8 @@ const pathVersionString = '(?<path>[^ \'"]*)';
 const defaultCdnBasePaths = [
   'https://unpkg.com/(?<name>[^@]*)@' + semverVersionString +
     pathVersionString,
-  'node_modules/(?<name>(?:@[^/]*/)?[^/]*)/' + pathVersionString,
+  '(?<prefix>[./]*)node_modules/(?<name>(?:@[^/]*/)?[^/]*)/' +
+    pathVersionString,
   'https://code.jquery.com/(?<name>[^-]*?)-' + semverVersionString +
     pathVersionString,
   'https://cdn.jsdelivr.net/npm/(?<name>(?:@[^/]*/)?[^@]*?)@' + semverVersionString +
@@ -55,7 +56,7 @@ const defaultCdnBasePaths = [
 
 const defaultNodeModulesReplacements = [
   'node_modules/$<name>$<path>',
-  'node_modules/$<name>/$<path>',
+  '$<prefix>node_modules/$<name>/$<path>',
   'node_modules/$<name>/dist/jquery$<path>',
   'node_modules/$<name>$<path>',
   'node_modules/$<name>/dist$<path>'
@@ -726,7 +727,8 @@ async function integrityMatters (options) {
       const nodeModulesReplacement = nodeModulesReplacements[i] ||
         nodeModulesReplacements[0];
 
-      const nmPath = src.replace(cdnBasePath, nodeModulesReplacement);
+      const relativeNmPath = src.replace(cdnBasePath, nodeModulesReplacement);
+      const nmPath = relativeNmPath.replace(/^[./]*/u, '');
       if (!existsSync(nmPath)) {
         throw new Error(
           `The local path ${nmPath} could not be found.`
@@ -826,7 +828,7 @@ async function integrityMatters (options) {
       const cdnBasePathReplacement = cdnBasePathReplacements[i] ||
         cdnBasePathReplacements[0];
       const newSrc = local
-        ? nmPath
+        ? relativeNmPath
         : avoidVersionSetting
           ? src
           : src.replace(
@@ -885,7 +887,7 @@ async function integrityMatters (options) {
           newIntegrity,
           fallback: fallback || strategyFallback,
           local,
-          localPath: nmPath,
+          localPath: relativeNmPath,
           globalCheck: globalChecks[name] || glbl,
           addCrossorigin: !local && (addCrossorigin || strategyCrossorigin)
         }
