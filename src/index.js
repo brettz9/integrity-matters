@@ -42,10 +42,10 @@ const pathVersionString = '(?<path>[^ \'"]*)';
 const defaultCdnBasePaths = [
   'https://unpkg.com/(?<name>[^@]*)@' + semverVersionString +
     pathVersionString,
-  'node_modules/(?<name>[^/]*)/' + pathVersionString,
+  'node_modules/(?<name>(?:@[^/]*/)?[^/]*)/' + pathVersionString,
   'https://code.jquery.com/(?<name>[^-]*?)-' + semverVersionString +
     pathVersionString,
-  'https://cdn.jsdelivr.net/npm/(?<name>[^@]*?)@' + semverVersionString +
+  'https://cdn.jsdelivr.net/npm/(?<name>(?:@[^/]*/)?[^@]*?)@' + semverVersionString +
     pathVersionString,
   'https://stackpath.bootstrapcdn.com/(?<name>[^/]*)/' + semverVersionString +
     pathVersionString

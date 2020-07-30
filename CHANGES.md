@@ -1,5 +1,9 @@
 # CHANGES for integrity-matters
 
+## 0.4.1
+
+- Fix: Have regexes handle scoped packages
+
 ## 0.4.0
 
 - Change (JSON): Add newline to JSON
