@@ -226,7 +226,7 @@ class HTMLStrategy {
     }
     if (fallback && localPath) {
       const syncElement = type === 'link'
-        ? `<link href="${localPath}" />`
+        ? `<link rel="stylesheet" href="${localPath}" />`
         : `<script src="${localPath}">\\u003C/script>`;
 
       elem.after(

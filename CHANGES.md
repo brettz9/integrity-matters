@@ -1,5 +1,9 @@
 # CHANGES for integrity-matters
 
+## 0.4.3
+
+- Fix: Ensure `rel="stylesheet"` added to fallback links
+
 ## 0.4.2
 
 - Fix: Preserve relative path characters at beginning of `node_modules`

@@ -178,8 +178,10 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 
 1. Fix: Allow local file fetches when not `local` but expressed as
     `node_modules` (or auto-act like `--ignoreURLFetches`)
-1. Enhancement: Force addition of `integrity`
+1. Enhancement: Force addition of `integrity` even when attribute not present
 1. Enhancement: Allow mapping CDNs by package
+1. Enhancement: Use `data-*` attributes in HTML for in-data config, e.g.,
+    choice of CDN in output, globalCheck, fallback, etc.
 1. See about getting HTML parser to preserve whitespace between attributes
     so that preserves preexisting whitespace when re-serialized?
     Seems `cheerio` is using
