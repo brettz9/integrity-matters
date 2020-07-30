@@ -177,7 +177,7 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 ## To-dos
 
 1. Fix: Allow local file fetches when not `local` but expressed as
-    `node_modules`
+    `node_modules` (or auto-act like `--ignoreURLFetches`)
 1. Enhancement: Force addition of `integrity`
 1. Enhancement: Allow mapping CDNs by package
 1. See about getting HTML parser to preserve whitespace between attributes
