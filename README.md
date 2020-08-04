@@ -204,8 +204,8 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 
 ## Potential to-dos
 
-1. Fix: Avoid reinserting fallbacks if detected in some way as
-    next item
+1. Fix: Avoid reinserting fallbacks (and beginning disclaimer comments) if
+    detected in some way as next item
 1. Enhancement: Add some auto-fallbacks, e.g., `window.jQuery` for
     well-known libraries?
 1. Enhancement: Could make optional to only update URL if that version
