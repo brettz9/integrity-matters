@@ -161,7 +161,7 @@ class JSONStrategy {
   /**
    * @type {UpdateStrategy#save}
    */
-  async save (file, jsonSpace) {
+  async save (file, {jsonSpace}) {
     const serialized = JSON.stringify(
       this.doc, null, jsonSpace === undefined ? 2 : jsonSpace
     );
@@ -248,7 +248,26 @@ class HTMLStrategy {
   /**
    * @type {UpdateStrategy#save}
    */
-  async save (file) {
+  async save (file, {disclaimer, dropModules}) {
+    if (disclaimer) {
+      const $ = cheerio.load(this.doc);
+      $('*').first().before(
+        `<!--${disclaimer.replace(/--/gu, '&hyphen;-')}-->`,
+        '\n'
+      );
+    }
+    if (dropModules) {
+      const $ = cheerio.load(this.doc);
+      $('script[type="module"]').removeAttr('type').attr('defer', 'defer');
+      const nomoduleScripts = $('script[nomodule]');
+      nomoduleScripts.each((i, nomoduleScript) => {
+        const {previousSibling} = $(nomoduleScript)[0];
+        if (previousSibling.nodeValue.match(/^\s+$/u)) {
+          $(previousSibling).remove();
+        }
+      });
+      nomoduleScripts.remove();
+    }
     const serialized = cheerio.html(this.doc);
     await writeFile(file, serialized);
   }
@@ -334,6 +353,8 @@ async function integrityMatters (options) {
     domHandlerOptions,
     htmlparser2Options,
     jsonSpace,
+    dropModules,
+    disclaimer,
     // cli,
     cwd = process.cwd()
   } = opts;
@@ -572,7 +593,10 @@ async function integrityMatters (options) {
   /**
    * @function UpdateStrategy#save
    * @param {string} file Path
-   * @param {number|string} [jsonSpace] For JSON only
+   * @param {PlainObject} cfg
+   * @param {number|string} [cfg.jsonSpace] For JSON only
+   * @param {string} [cfg.disclaimer] For HTML only
+   * @param {boolean} [cfg.dropModules] For HTML only
    * @returns {Promise<void>}
    */
 
@@ -952,7 +976,9 @@ async function integrityMatters (options) {
 
     if (!dryRun) {
       const outputFile = (outputPaths && outputPaths[fileIdx]) || file;
-      await strategy.save(outputFile, jsonSpace);
+      await strategy.save(outputFile, {
+        jsonSpace, disclaimer, dropModules
+      });
       fileLogs[fileIdx].push({
         method: 'info', message: `INFO: Finished writing to ${outputFile}`
       });

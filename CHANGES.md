@@ -4,6 +4,9 @@
 
 - Enhancement: `DomHandler` or `htmlparser2` options
 - Enhancement: `jsonSpace` option
+- Enhancement: Add `dropModules` option
+- Enhancement: Add `disclaimer` option
+- Refactoring: Have Strategy's `save` accept an object
 
 ## 0.4.3
 

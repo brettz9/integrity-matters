@@ -114,6 +114,12 @@ const parserOptions = getFixturePath(
 const parserOptionsResult = getFixturePath(
   'result-parser-options.html'
 );
+const disclaimer = getFixturePath(
+  'result-disclaimer.html'
+);
+const dropModules = getFixturePath(
+  'result-drop-modules.html'
+);
 
 const unlinker = async () => {
   try {
@@ -1097,7 +1103,7 @@ describe('Binary', function () {
     );
 
     it(
-      'should allow parser options',
+      'should allow parser options (HTML)',
       async function () {
         const {stdout, stderr} = await execFile(
           binFile,
@@ -1144,6 +1150,97 @@ describe('Binary', function () {
         //  spaces, we adjust our expected result file to completely match
         //  expectations.
         expect(contents).to.equal(expected.replace(/\n$/u, ' '));
+      }
+    );
+
+    it(
+      'should allow adding a disclaimer (HTML)',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--ignoreURLFetches',
+            '--file',
+            '--disclaimer',
+            'This is a <disclaimer> --!',
+            'test/fixtures/sample.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
+
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: Finished writing to ${outputPath}\n`
+          ),
+          'u'
+        ));
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
+              `a valid installed version to update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(disclaimer, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+
+    it(
+      'should allow `dropModules` (HTML)',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--ignoreURLFetches',
+            '--file',
+            '--dropModules',
+            'test/fixtures/drop-modules.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
+
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: Finished writing to ${outputPath}\n`
+          ),
+          'u'
+        ));
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
+              `a valid installed version to update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(dropModules, 'utf8');
+        expect(contents).to.equal(expected);
       }
     );
   });

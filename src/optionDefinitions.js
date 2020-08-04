@@ -151,6 +151,21 @@ const optionDefinitions = [
     typeLabel: '{underline JSON object string}'
   },
   {
+    name: 'dropModules', type: Boolean,
+    description: 'Whether to convert `type="module"` scripts to `defer=""` ' +
+      'and drop any `nomodule=""` scripts (assumes targeted script file ' +
+      'will be of the same name as the ESM input, but resolving to a ' +
+      'different (UMD/IIFE) path after rolling up). Useful when source is ' +
+      'intended to avoid a build step (e.g., functional ESM with ' +
+      '`node_modules` paths in source) but output is CDN-friendly UMD or' +
+      'IIFE without the cascading HTTP requests of ESM. Default is `false`.'
+  },
+  {
+    name: 'disclaimer', type: String,
+    description: 'Comment text to add at beginning of output HTML file.',
+    typeLabel: '{underline disclaimer string}'
+  },
+  {
     name: 'forceIntegrityChecks', type: Boolean,
     description: 'Forces `integrity` checks even when the version ' +
       'does not need to be changed. Defaults to `false`.'

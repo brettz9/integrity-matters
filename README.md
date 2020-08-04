@@ -177,14 +177,7 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 ## To-dos
 
 1. Enhancement: Use `data-*` attributes in HTML for in-data config, e.g.,
-    choice of CDN in output, globalCheck, fallback, etc.
-1. Enhancement: Given recurring and often accompanying use case of having
-    local scripts work as ESM (given that they are useful for avoiding a
-    build step), converting them to non-ESM for better network performance,
-    can give option to:
-    1. Convert `type="module"` to `defer=""` scripts (controllable by inline)
-    2. Drop any `nomodule=""` scripts (since will then use UMD)
-    3. Attach disclaimer as first comment (e.g., that this is a built file)
+    choice of CDN in output, globalCheck, fallback, dropModules, etc.
 1. Enhancement: Allow mapping CDNs by package (controllable by inline)
 
 ## Medium priority to-dos
