@@ -99,13 +99,19 @@ class JSONStrategy {
       const {
         integrity, local, remote, crossorigin,
         fallback,
+        cdn,
         global: glbl
       } = info;
       return {
         type: 'script',
         crossorigin,
         fallback,
-        glbl,
+        cdn,
+        glbl: glbl
+          ? {
+            link: glbl
+          }
+          : undefined,
         src: remote || local,
         integrity,
         elem: info
@@ -115,14 +121,19 @@ class JSONStrategy {
       this.doc.link || {}
     ).map(([pkg, info]) => {
       const {
-        integrity, local, remote, crossorigin, fallback,
+        integrity, local, remote, crossorigin, fallback, cdn,
         global: glbl
       } = info;
       return {
         type: 'link',
         crossorigin,
         fallback,
-        glbl,
+        cdn,
+        glbl: glbl
+          ? {
+            link: glbl
+          }
+          : undefined,
         src: remote || local,
         integrity,
         elem: info
@@ -197,16 +208,49 @@ class HTMLStrategy {
 
     const scripts = $('script[src]').toArray().map((elem) => {
       const {
-        attribs: {src, integrity}
+        attribs: {
+          src, integrity,
+          'data-im-cdn': cdn,
+          'data-im-global': glbl
+        }
       } = elem;
-      return {src, integrity, type: 'script', elem: $(elem)};
+
+      return {
+        type: 'script', elem: $(elem),
+        src, integrity,
+        cdn,
+        glbl: glbl
+          ? {
+            script: glbl
+          }
+          : undefined,
+        // Boolean
+        fallback: glbl !== undefined
+      };
     });
 
     const links = $('link[rel=stylesheet][href]').toArray().map((elem) => {
       const {
-        attribs: {href: src, integrity}
+        attribs: {
+          href: src,
+          integrity,
+          'data-im-cdn': cdn,
+          'data-im-global': glbl
+        }
       } = elem;
-      return {src, integrity, type: 'link', elem: $(elem)};
+
+      return {
+        type: 'link', elem: $(elem),
+        src, integrity,
+        cdn,
+        glbl: glbl
+          ? {
+            link: glbl
+          }
+          : undefined,
+        // Boolean
+        fallback: glbl !== undefined
+      };
     });
 
     return [...scripts, ...links];
@@ -224,6 +268,8 @@ class HTMLStrategy {
     newSrc, newIntegrity, addCrossorigin, noLocalIntegrity,
     fallback, localPath, local, globalCheck
   }) {
+    elem.removeAttr('data-im-cdn');
+    elem.removeAttr('data-im-global');
     if (type === 'link') {
       elem.attr('href', newSrc);
     } else {
@@ -646,8 +692,10 @@ async function integrityMatters (options) {
       src, integrity,
       crossorigin: strategyCrossorigin,
       fallback: strategyFallback,
-      glbl
+      glbl,
+      cdn: strategyCdn
     } = info;
+
     /**
      * @param {string} name
      * @param {string} version
@@ -892,9 +940,11 @@ async function integrityMatters (options) {
             //  from the end in case user adds extra parentheticals
             (mtch, ...args) => {
               const {name} = args.pop();
-              const cdnIndex = hasOwn(packagesToCdns, name)
-                ? cdnNames.indexOf(packagesToCdns[name])
-                : i;
+              const cdnIndex = strategyCdn
+                ? cdnNames.indexOf(strategyCdn)
+                : hasOwn(packagesToCdns, name)
+                  ? cdnNames.indexOf(packagesToCdns[name])
+                  : i;
               const cdnBasePathReplacement =
                 cdnBasePathReplacements[cdnIndex] || cdnBasePathReplacements[0];
               return mtch.replace(

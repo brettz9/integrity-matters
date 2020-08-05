@@ -149,10 +149,17 @@ file; you should not attempt to set `--fallback` with HTML files if your
 source already has fallback code, as we do not auto-detect whether you already
 have such fallback code in place. You can, however, use `fallback` with
 `--outputPath` and `--globalCheck` and allow the output file to be written
-anew each time, adding the fallback code during this process.
+anew each time, adding the fallback code during this process. In place of
+`globalCheck`, you can also add a `data-im-global` attribute within your
+HTML source file, e.g., `data-im-global="window.jQuery"`. If this attribute is
+present, `fallback` will automatically be set to `true` for this element.
 
 In the HTML strategy, the local fallback file path is either the `src`/`href`
 used in source or it is derived from the CDN by `--nodeModulesReplacements`.
+
+Another `data-im-*` attribute that can override behavior is `data-im-cdn`
+which points to a `cdnName` and can be used in place of `packagesToCdns` to
+specify a specific CDN to use for a specific package.
 
 A preexisting HTML `crossorigin` attribute will be respected but can be
 overridden for all cases using `--addCrossorigin`.
@@ -173,11 +180,6 @@ Be sure to use `npm` to install rather than `yarn` as our local copy
 (which only impacts dev. installations) is deliberately missing an item
 (`chai`) and using a version older than that in `package.json` (`mocha`)
 for testing purposes. The `yarn.lock` should therefore not be updated.
-
-## To-dos
-
-1. Enhancement: Use `data-*` attributes in HTML for in-data config, e.g.,
-    choice of CDN in output, globalCheck, fallback, dropModules, etc.
 
 ## Medium priority to-dos
 

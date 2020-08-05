@@ -123,6 +123,12 @@ const dropModules = getFixturePath(
 const remappedPackages = getFixturePath(
   'result-remapped-packages.html'
 );
+const attributeControl = getFixturePath(
+  'result-attribute-control.html'
+);
+const attributeControlJSON = getFixturePath(
+  'result-attribute-control.json'
+);
 
 const unlinker = async () => {
   try {
@@ -516,10 +522,7 @@ describe('Binary', function () {
       }
     );
 
-    [
-      false,
-      true
-    ].forEach((json) => {
+    [false, true].forEach((json) => {
       it(
         'should allow `local`-only write' + (json
           ? ' (JSON)'
@@ -567,6 +570,59 @@ describe('Binary', function () {
           const contents = await readFile(outputPath, 'utf8');
           const expected = await readFile(
             json ? localOnlyPathJSON : localOnlyPath,
+            'utf8'
+          );
+          expect(contents).to.equal(expected);
+        }
+      );
+    });
+
+    [false, true].forEach((json) => {
+      it(
+        'should allow inline `data-im-*` attributes (`global` and `cdn`)' +
+          (json ? ' (JSON)' : ', dropping crossorigin'),
+        async function () {
+          const {stdout, stderr} = await execFile(
+            binFile,
+            [
+              '--ignoreURLFetches',
+              '--file',
+              (json
+                ? 'test/fixtures/attribute-control.json'
+                : 'test/fixtures/attribute-control.html'),
+              '--outputPath', outputPath
+            ],
+            {
+              timeout: 15000
+            }
+          );
+
+          if (debug) {
+            console.log('stdout', stdout);
+            console.log('stderr', stderr);
+          }
+
+          expect(stdout).to.contain(
+            `INFO: Finished writing to ${outputPath}\n`
+          );
+
+          expect(stderr).to.match(new RegExp(
+            escStringRegex(
+              `WARNING: The URL's version (1.4.0) is less than the ` +
+                `devDependency "leaflet"'s current \`package.json\` range, ` +
+                `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
+                `for a valid installed version to update the URL...\n` +
+              `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+                `greater for package "leaflet" than the URL version 1.4.0. ` +
+                `Checking \`node_modules\` for a valid installed version to ` +
+                `update the URL...\n`
+            ),
+            'u'
+          ));
+
+          const contents = await readFile(outputPath, 'utf8');
+          const expected = await readFile(
+            json ? attributeControlJSON : attributeControl,
             'utf8'
           );
           expect(contents).to.equal(expected);
@@ -669,10 +725,7 @@ describe('Binary', function () {
       }
     );
 
-    [
-      false,
-      true
-    ].forEach((json) => {
+    [false, true].forEach((json) => {
       it(
         'should work with `fallback` and `globalCheck`' +
           (json ? ' (JSON)' : ''),
@@ -777,10 +830,7 @@ describe('Binary', function () {
       }
     );
 
-    [
-      false,
-      true
-    ].forEach((json) => {
+    [false, true].forEach((json) => {
       it(
         'should work without `integrity` (link)' + (json
           ? ' (JSON)'
@@ -836,10 +886,7 @@ describe('Binary', function () {
       );
     });
 
-    [
-      false,
-      true
-    ].forEach((json) => {
+    [false, true].forEach((json) => {
       it(
         'should work without `integrity` (script)' + (json
           ? ' (JSON)'

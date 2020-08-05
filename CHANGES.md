@@ -1,5 +1,11 @@
 # CHANGES for integrity-matters
 
+## 0.6.0
+
+- Enhancement (HTML): Use `data-*` attributes in HTML for in-data
+    config (`cdn`, `global`, and auto-set `fallback` if `global` present)
+- Enhancement (JSON): Support `cdn` inline override
+
 ## 0.5.0
 
 - Breaking change: Expect `dist` normally in replacement paths
