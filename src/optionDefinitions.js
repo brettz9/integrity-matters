@@ -3,6 +3,14 @@
 const pkg = require('../package.json');
 const {basePathToRegex} = require('./common.js');
 
+const JSONParser = JSON.parse.bind(JSON);
+
+const getChalkTemplateSingleEscape = (s) => {
+  return s.replace(/[{}\\]/gu, (ch) => {
+    return `\\u${ch.codePointAt().toString(16).padStart(4, '0')}`;
+  });
+};
+
 // Todo: We really need a comamnd-line-args-TO-typedef-jsdoc generator!
 //  Might see about https://github.com/dsheiko/bycontract/
 /* eslint-disable jsdoc/require-property -- Should get property from schema */
@@ -37,20 +45,36 @@ const optionDefinitions = [
     name: 'cdnBasePath', type: basePathToRegex,
     multiple: true,
     description: 'Regular expression path(s) with named capturing groups, ' +
-      '"name", "version", and "path", indicating how to find CDN URLs and ' +
-      'identify the name, version, and path portions. Defaults to an array ' +
-      'of these URLs: ' +
-      '`https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/' +
-        '(?<path>[^ \'"]*)`, `node_modules/(?<name>[^/]*)/(?<path>[^\'"]*)`',
+      '"name", "version", "dist", and "path", indicating how to find CDN ' +
+      'URLs and identify the name, version, and path portions. Defaults to ' +
+      'an array of specific paths (see source).',
     typeLabel: '{underline base path}'
+  },
+  {
+    name: 'cdnName', type: String,
+    multiple: true,
+    description: 'Name of the CDN. Should be supplied in the order of ' +
+      '`cdnBasePath`. ' +
+      `Defaults to 'unpkg', 'node_modules', 'jquery', 'jsdelivr', and ` +
+      `'bootstrap'`,
+    typeLabel: '{underline CDN name}'
   },
   {
     name: 'cdnBasePathReplacements', type: String,
     multiple: true,
     description: 'Regular expression replacement expression with named ' +
+      'capturing replacements (`$<name>`, `$<path>`, and optionally' +
+      '`$<dist>` and `$<version>`; the latter defaults to the detected ' +
+      'installed version). Defaults to a list of replacements (see source).',
+    typeLabel: '{underline path replacement expression}'
+  },
+  {
+    name: 'nodeModulesReplacements', type: String,
+    multiple: true,
+    description: 'Regular expression replacement expression with named ' +
       'capturing replacements (`$<name>`, `$<path>`, and optionally ' +
-      '`$<version>`; the latter defaults to the detected installed version).' +
-      'Defaults to a list of replacements (see source).',
+      '`$<dist>` and `$<version>`). Used to convert a CDN pattern to ' +
+      'local `node_modules`. Defaults to a list of replacements (see source).',
     typeLabel: '{underline path replacement expression}'
   },
   {
@@ -87,15 +111,6 @@ const optionDefinitions = [
     description: 'Add a `document.write` fallback. Defaults to `false`.'
   },
   {
-    name: 'nodeModulesReplacements', type: String,
-    multiple: true,
-    description: 'Regular expression replacement expression with named ' +
-      'capturing replacements (`$<name>`, `$<path>`, and optionally ' +
-      '`$<version>`). Used to convert a CDN pattern to local `node_modules`.' +
-      'Defaults to a list of replacements (see source).',
-    typeLabel: '{underline path replacement expression}'
-  },
-  {
     name: 'noConfig', type: Boolean,
     description: 'Avoid checking any config, including defaulting to ' +
       'checking `package.json`. Defaults to `false`.'
@@ -130,12 +145,24 @@ const optionDefinitions = [
     typeLabel: '{underline ""|"anonymous"|"use-credentials"}'
   },
   {
-    name: 'domHandlerOptions', type: String,
+    name: 'packagesToCdns', type: JSONParser,
+    description: 'Maps npm package names to the CDN names of `cdnName` ' +
+      'so that when specific packages are detected within CDN-ambiguous ' +
+      'URL patterns, e.g., with local `node_modules` URLs, a particular ' +
+      'CDN can be forced for a particular package. Set to an empty object ' +
+      'to avoid package-specific overrides. Defaults to ' +
+      getChalkTemplateSingleEscape(
+        '`{"jquery": "jquery", "bootstrap": "bootstrap"}`'
+      ),
+    typeLabel: '{underline JSON object string}'
+  },
+  {
+    name: 'domHandlerOptions', type: JSONParser,
     description: 'Options to pass to DomHandler. Defaults to none.',
     typeLabel: '{underline JSON object string}'
   },
   {
-    name: 'htmlparser2Options', type: String,
+    name: 'htmlparser2Options', type: JSONParser,
     description: 'Options to pass to htmlparser2. Defaults to none.',
     typeLabel: '{underline JSON object string}'
   },
@@ -158,7 +185,7 @@ const optionDefinitions = [
       'different (UMD/IIFE) path after rolling up). Useful when source is ' +
       'intended to avoid a build step (e.g., functional ESM with ' +
       '`node_modules` paths in source) but output is CDN-friendly UMD or' +
-      'IIFE without the cascading HTTP requests of ESM. Default is `false`.'
+      'IIFE without the cascading HTTP requests of ESM. Defaults to `false`.'
   },
   {
     name: 'disclaimer', type: String,

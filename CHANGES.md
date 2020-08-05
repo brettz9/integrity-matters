@@ -1,7 +1,10 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.5.0
 
+- Breaking change: Expect `dist` normally in replacement paths
+    (unless omitted from result)
+- Enhancement: `cdnName` and `packagesToCdns` options
 - Enhancement: `DomHandler` or `htmlparser2` options
 - Enhancement: `jsonSpace` option
 - Enhancement: Add `dropModules` option

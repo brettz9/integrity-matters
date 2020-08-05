@@ -120,6 +120,9 @@ const disclaimer = getFixturePath(
 const dropModules = getFixturePath(
   'result-drop-modules.html'
 );
+const remappedPackages = getFixturePath(
+  'result-remapped-packages.html'
+);
 
 const unlinker = async () => {
   try {
@@ -1028,7 +1031,7 @@ describe('Binary', function () {
           binFile,
           [
             '--cdnBasePathReplacements',
-            'https://example.com/$<name>@$<version>$<path>',
+            'https://example.com/$<name>@$<version>$<dist>$<path>',
             '--file',
             'test/fixtures/sample.html',
             '--outputPath', outputPath
@@ -1240,6 +1243,51 @@ describe('Binary', function () {
 
         const contents = await readFile(outputPath, 'utf8');
         const expected = await readFile(dropModules, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+
+    it(
+      'should allow remapping of packages to CDNs',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--ignoreURLFetches',
+            '--file',
+            '--dropModules',
+            'test/fixtures/remapped-packages.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
+
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: Finished writing to ${outputPath}\n`
+          ),
+          'u'
+        ));
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
+              `a valid installed version to update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(remappedPackages, 'utf8');
         expect(contents).to.equal(expected);
       }
     );
@@ -1548,7 +1596,7 @@ describe('Binary', function () {
           [
             '--ignoreURLFetches',
             '--nodeModulesReplacements',
-            'node_modules/bad-path/$<name>$<path>',
+            'node_modules/bad-path/$<name>$<dist>$<path>',
             '--local',
             '--file',
             'test/fixtures/sample.html',

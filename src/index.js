@@ -37,12 +37,25 @@ const getLocalJSON = (path) => {
 const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 
 const semverVersionString = '(?<version>\\d+\\.\\d+.\\d+)';
-const pathVersionString = '(?<path>[^ \'"]*)';
+const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*)';
+
+const defaultCdnNames = [
+  'unpkg',
+  'node_modules',
+  'jquery',
+  'jsdelivr',
+  'bootstrap'
+];
+
+const defaultPackagesToCdns = {
+  jquery: 'jquery',
+  bootstrap: 'bootstrap'
+};
 
 const defaultCdnBasePaths = [
   'https://unpkg.com/(?<name>[^@]*)@' + semverVersionString +
     pathVersionString,
-  '(?<prefix>[./]*)node_modules/(?<name>(?:@[^/]*/)?[^/]*)/' +
+  '(?<prefix>[./]*)node_modules/(?<name>(?:@[^/]*/)?[^/]*)' +
     pathVersionString,
   'https://code.jquery.com/(?<name>[^-]*?)-' + semverVersionString +
     pathVersionString,
@@ -55,18 +68,18 @@ const defaultCdnBasePaths = [
 });
 
 const defaultNodeModulesReplacements = [
-  'node_modules/$<name>$<path>',
-  '$<prefix>node_modules/$<name>/$<path>',
-  'node_modules/$<name>/dist/jquery$<path>',
-  'node_modules/$<name>$<path>',
+  'node_modules/$<name>$<dist>$<path>',
+  '$<prefix>node_modules/$<name>$<dist>$<path>',
+  'node_modules/$<name>/dist/jquery$<dist>$<path>',
+  'node_modules/$<name>$<dist>$<path>',
   'node_modules/$<name>/dist$<path>'
 ];
 
 const defaultCdnBasePathReplacements = [
-  'https://unpkg.com/$<name>@$<version>$<path>',
-  'https://unpkg.com/$<name>@$<version>/$<path>',
-  'https://code.jquery.com/$<name>-$<version>$<path>',
-  'https://cdn.jsdelivr.net/npm/$<name>@$<version>$<path>',
+  'https://unpkg.com/$<name>@$<version>$<dist>$<path>',
+  'https://unpkg.com/$<name>@$<version>$<dist>$<path>',
+  'https://code.jquery.com/$<name>-$<version>$<dist>$<path>',
+  'https://cdn.jsdelivr.net/npm/$<name>@$<version>$<dist>$<path>',
   'https://stackpath.bootstrapcdn.com/$<name>/$<version>$<path>'
 ];
 
@@ -324,19 +337,12 @@ async function integrityMatters (options) {
         ...options
       };
 
-  [
-    'domHandlerOptions',
-    'htmlparser2Options'
-  ].forEach((prop) => {
-    if (typeof opts[prop] === 'string') {
-      opts[prop] = JSON.parse(opts[prop]);
-    }
-  });
-
   const {
     file: fileArray,
     outputPath: outputPaths,
     cdnBasePath: cdnBasePaths = defaultCdnBasePaths,
+    cdnName: cdnNames = defaultCdnNames,
+    packagesToCdns = defaultPackagesToCdns,
     cdnBasePathReplacements = defaultCdnBasePathReplacements,
     local,
     fallback,
@@ -699,7 +705,6 @@ async function integrityMatters (options) {
     };
 
     for (const [i, cdnBasePath] of cdnBasePaths.entries()) {
-      // https://unpkg.com/leaflet@1.4.0/dist/leaflet.css
       const match = src.match(cdnBasePath);
       if (!match) {
         continue;
@@ -877,15 +882,28 @@ async function integrityMatters (options) {
       });
       const newIntegrity = integrity ? localHashes.join(' ') : null;
 
-      const cdnBasePathReplacement = cdnBasePathReplacements[i] ||
-        cdnBasePathReplacements[0];
       const newSrc = local
         ? relativeNmPath
         : avoidVersionSetting
           ? src
           : src.replace(
             cdnBasePath,
-            cdnBasePathReplacement.replace(/(?!\\)\$<version>/u, updatingVersion)
+            // Set arguments into `args` so we can obtain arguments safely
+            //  from the end in case user adds extra parentheticals
+            (mtch, ...args) => {
+              const {name} = args.pop();
+              const cdnIndex = hasOwn(packagesToCdns, name)
+                ? cdnNames.indexOf(packagesToCdns[name])
+                : i;
+              const cdnBasePathReplacement =
+                cdnBasePathReplacements[cdnIndex] || cdnBasePathReplacements[0];
+              return mtch.replace(
+                cdnBasePath,
+                cdnBasePathReplacement.replace(
+                  /(?!\\)\$<version>/u, updatingVersion
+                )
+              );
+            }
           );
 
       if (!local && !ignoreURLFetches) {
