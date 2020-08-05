@@ -178,7 +178,6 @@ for testing purposes. The `yarn.lock` should therefore not be updated.
 
 1. Enhancement: Use `data-*` attributes in HTML for in-data config, e.g.,
     choice of CDN in output, globalCheck, fallback, dropModules, etc.
-1. Enhancement: Allow mapping CDNs by package (controllable by inline)
 
 ## Medium priority to-dos
 
