@@ -949,8 +949,8 @@ async function integrityMatters (options) {
       });
       const newIntegrity =
         integrity || strategyAlgorithms.length
-        ? localHashes.join(' ')
-        : null;
+          ? localHashes.join(' ')
+          : null;
 
       const newSrc = local
         ? relativeNmPath
