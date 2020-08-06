@@ -947,7 +947,10 @@ async function integrityMatters (options) {
       localHashLogs.forEach(({method, message}) => {
         addLog(method, message);
       });
-      const newIntegrity = integrity ? localHashes.join(' ') : null;
+      const newIntegrity =
+        integrity || strategyAlgorithms.length
+        ? localHashes.join(' ')
+        : null;
 
       const newSrc = local
         ? relativeNmPath

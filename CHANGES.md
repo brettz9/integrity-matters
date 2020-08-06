@@ -1,13 +1,18 @@
 # CHANGES for integrity-matters
 
+## 0.7.1
+
+- Fix: Force `integrity` to be added when `data-im-algorithms` present even
+    when no `integrity` in source.
+
 ## 0.7.0
 
-- Enhancement (HTML and JSON): Use `data-*` attributes / JSON property for
+- Enhancement (HTML and JSON): Use `data-im-*` attributes / JSON property for
     in-data config (`algorithms`)
 
 ## 0.6.0
 
-- Enhancement (HTML): Use `data-*` attributes in HTML for in-data
+- Enhancement (HTML): Use `data-im-*` attributes in HTML for in-data
     config (`cdn`, `global`, and auto-set `fallback` if `global` present)
 - Enhancement (JSON): Support `cdn` inline override
 
