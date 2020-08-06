@@ -154,19 +154,19 @@ describe('Binary', function () {
 
   describe('Executing', function () {
     [
+      ['should work with `noConfig`', {noConfig: true}],
       ['should execute main CLI'],
       ['should execute main CLI (dry run)', {dryRun: true}],
-      ['should execute main CLI with `ignoreURLFetches`', {
-        ignoreURLFetches: true
-      }],
       ['should execute main CLI with `urlIntegrityCheck`', {
         urlIntegrityCheck: true
       }],
       ['should execute main CLI in-place on file', {
         inPlaceFile: true
       }],
-      ['should work with `noConfig`', {noConfig: true}],
-      ['should execute main CLI (JSON)', {json: true}]
+      ['should execute main CLI (JSON)', {json: true}],
+      ['should execute main CLI with `ignoreURLFetches`', {
+        ignoreURLFetches: true
+      }]
     ].forEach(([
       testMessage, {
         dryRun, ignoreURLFetches, urlIntegrityCheck,
@@ -419,6 +419,50 @@ describe('Binary', function () {
         }
       });
     });
+
+    it(
+      'should err with `cdnBasePathReplacements` and bad status code',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--cdnBasePathReplacements',
+            'https://example.com/$<name>@$<version>$<dist>$<path>',
+            '--file',
+            'test/fixtures/sample.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        if (debug) {
+          console.log('stderr', stderr);
+          console.log('stdout', stdout);
+        }
+
+        expect(stderr).to.match(new RegExp(
+          `Received status code 404 response for (?:` +
+            escStringRegex(
+              `https://example.com/leaflet@${leafletVersion}` +
+              `/dist/leaflet.js`
+            ) + '|' +
+            escStringRegex(
+              `https://example.com/popper.js@${popperJsVersion}` +
+              `/dist/umd/popper.min.js`
+            ) + '|' +
+            escStringRegex(
+              `https://example.com/leaflet@${leafletVersion}` +
+              `/dist/leaflet.css`
+            ) +
+          ')\\.',
+          'u'
+        ));
+
+        expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
 
     [
       [
@@ -1068,50 +1112,6 @@ describe('Binary', function () {
         const contents = await readFile(outputPath, 'utf8');
         const expected = await readFile(sha384AlgorithmsOnlyPath, 'utf8');
         expect(contents).to.equal(expected);
-      }
-    );
-
-    it(
-      'should err with `cdnBasePathReplacements` and bad status code',
-      async function () {
-        const {stdout, stderr} = await execFile(
-          binFile,
-          [
-            '--cdnBasePathReplacements',
-            'https://example.com/$<name>@$<version>$<dist>$<path>',
-            '--file',
-            'test/fixtures/sample.html',
-            '--outputPath', outputPath
-          ],
-          {
-            timeout: 15000
-          }
-        );
-
-        if (debug) {
-          console.log('stderr', stderr);
-          console.log('stdout', stdout);
-        }
-
-        expect(stderr).to.match(new RegExp(
-          `Received status code 404 response for (?:` +
-            escStringRegex(
-              `https://example.com/leaflet@${leafletVersion}` +
-              `/dist/leaflet.js`
-            ) + '|' +
-            escStringRegex(
-              `https://example.com/popper.js@${popperJsVersion}` +
-              `/dist/umd/popper.min.js`
-            ) + '|' +
-            escStringRegex(
-              `https://example.com/leaflet@${leafletVersion}` +
-              `/dist/leaflet.css`
-            ) +
-          ')\\.',
-          'u'
-        ));
-
-        expect(stdout).to.not.contain('Finished writing to');
       }
     );
 
