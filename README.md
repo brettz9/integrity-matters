@@ -161,6 +161,11 @@ Another `data-im-*` attribute that can override behavior is `data-im-cdn`
 which points to a `cdnName` and can be used in place of `packagesToCdns` to
 specify a specific CDN to use for a specific package.
 
+Still another is `data-im-algorithms`, e.g.,
+`data-im-algorithms="sha512 sha384"`, which can be used to indicate the
+algorithms to generate (useful if you don't want to maintain working
+`integrity` in source, e.g., for `node_modules` paths).
+
 A preexisting HTML `crossorigin` attribute will be respected but can be
 overridden for all cases using `--addCrossorigin`.
 

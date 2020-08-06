@@ -1,5 +1,10 @@
 # CHANGES for integrity-matters
 
+## 0.7.0
+
+- Enhancement (HTML and JSON): Use `data-*` attributes / JSON property for
+    in-data config (`algorithms`)
+
 ## 0.6.0
 
 - Enhancement (HTML): Use `data-*` attributes in HTML for in-data

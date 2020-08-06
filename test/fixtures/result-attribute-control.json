@@ -10,8 +10,12 @@
     "leaflet": {
       "global": "window.LeafletTestGlobalCSS",
       "cdn": "jsdelivr",
+      "algorithms": [
+        "sha384",
+        "sha256"
+      ],
       "remote": "https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css",
-      "integrity": "sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==",
+      "integrity": "sha384-eS4bw6aEvhCSXWGP85ANR/N8isWKzT7P36NvcuTJGkrj6wsbxLVpXslrNXYHyseD sha256-SHMGCYmST46SoyGgo4YR/9AlK1vf3ff84Aq9yK4hdqM=",
       "crossorigin": "",
       "local": "node_modules/leaflet/dist/leaflet.css"
     }
@@ -19,6 +23,9 @@
   "script": {
     "leaflet": {
       "global": "window.LeafletTestGlobal",
+      "algorithms": [
+        "sha512"
+      ],
       "remote": "https://unpkg.com/leaflet@1.6.0/dist/leaflet.js",
       "integrity": "sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==",
       "crossorigin": "",

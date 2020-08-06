@@ -99,7 +99,7 @@ class JSONStrategy {
       const {
         integrity, local, remote, crossorigin,
         fallback,
-        cdn,
+        cdn, algorithms,
         global: glbl
       } = info;
       return {
@@ -107,6 +107,7 @@ class JSONStrategy {
         crossorigin,
         fallback,
         cdn,
+        algorithms,
         glbl: glbl
           ? {
             link: glbl
@@ -122,6 +123,7 @@ class JSONStrategy {
     ).map(([pkg, info]) => {
       const {
         integrity, local, remote, crossorigin, fallback, cdn,
+        algorithms,
         global: glbl
       } = info;
       return {
@@ -129,6 +131,7 @@ class JSONStrategy {
         crossorigin,
         fallback,
         cdn,
+        algorithms,
         glbl: glbl
           ? {
             link: glbl
@@ -210,6 +213,7 @@ class HTMLStrategy {
       const {
         attribs: {
           src, integrity,
+          'data-im-algorithms': algorithms,
           'data-im-cdn': cdn,
           'data-im-global': glbl
         }
@@ -218,6 +222,9 @@ class HTMLStrategy {
       return {
         type: 'script', elem: $(elem),
         src, integrity,
+        algorithms: algorithms
+          ? algorithms.split(/\s+/u)
+          : undefined,
         cdn,
         glbl: glbl
           ? {
@@ -234,6 +241,7 @@ class HTMLStrategy {
         attribs: {
           href: src,
           integrity,
+          'data-im-algorithms': algorithms,
           'data-im-cdn': cdn,
           'data-im-global': glbl
         }
@@ -242,6 +250,9 @@ class HTMLStrategy {
       return {
         type: 'link', elem: $(elem),
         src, integrity,
+        algorithms: algorithms
+          ? algorithms.split(/\s+/u)
+          : undefined,
         cdn,
         glbl: glbl
           ? {
@@ -270,6 +281,7 @@ class HTMLStrategy {
   }) {
     elem.removeAttr('data-im-cdn');
     elem.removeAttr('data-im-global');
+    elem.removeAttr('data-im-algorithms');
     if (type === 'link') {
       elem.attr('href', newSrc);
     } else {
@@ -400,7 +412,7 @@ async function integrityMatters (options) {
     noLocalIntegrity,
     ignoreURLFetches,
     urlIntegrityCheck,
-    algorithm: userAlgorithms,
+    algorithm: userAlgorithms = [],
     dryRun,
     domHandlerOptions,
     htmlparser2Options,
@@ -693,8 +705,13 @@ async function integrityMatters (options) {
       crossorigin: strategyCrossorigin,
       fallback: strategyFallback,
       glbl,
+      algorithms: strategyAlgorithms = [],
       cdn: strategyCdn
     } = info;
+
+    const userOrInlineAlgorithms = [
+      ...new Set([...userAlgorithms, ...strategyAlgorithms])
+    ];
 
     /**
      * @param {string} name
@@ -840,9 +857,9 @@ async function integrityMatters (options) {
         );
       }
       const integrityHashes = integrity ? integrity.split(/\s+/u) : [];
-      if (userAlgorithms) {
+      if (userOrInlineAlgorithms.length) {
         // Only add missing algorithms
-        integrityHashes.push(...userAlgorithms.map((algorithm) => {
+        integrityHashes.push(...userOrInlineAlgorithms.map((algorithm) => {
           const alreadyHasHash = integrityHashes.find((integrityHash) => {
             return integrityHash.startsWith(`${algorithm}-`);
           });
@@ -889,7 +906,9 @@ async function integrityMatters (options) {
                 `from integrity value, "${integrityHash}")`
             );
           }
-          if (userAlgorithms && !userAlgorithms.includes(algorithm)) {
+          if (userOrInlineAlgorithms.length &&
+            !userOrInlineAlgorithms.includes(algorithm)
+          ) {
             addHashLog(
               j,
               'warn',
