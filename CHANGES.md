@@ -1,6 +1,6 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.7.3
 
 - Docs: Update CLI docs to document `ext`
 
