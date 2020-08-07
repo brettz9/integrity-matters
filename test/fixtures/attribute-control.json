@@ -13,6 +13,13 @@
       "remote": "node_modules/leaflet/dist/leaflet.css",
       "integrity": "sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==",
       "crossorigin": ""
+    },
+    "@fortawesome/fontawesome": {
+      "remote": "https://use.fontawesome.com/releases/v5.8.1/css/brands.css",
+      "algorithms": [
+        "sha384"
+      ],
+      "crossorigin": "anonymous"
     }
   },
   "script": {
@@ -36,6 +43,13 @@
     "bootstrap": {
       "remote": "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js",
       "integrity": "sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV",
+      "crossorigin": "anonymous"
+    },
+    "@fortawesome/fontawesome": {
+      "remote": "https://use.fontawesome.com/releases/v5.8.1/js/all.js",
+      "algorithms": [
+        "sha384"
+      ],
       "crossorigin": "anonymous"
     }
   }

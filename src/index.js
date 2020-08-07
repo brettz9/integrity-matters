@@ -45,7 +45,8 @@ const defaultCdnNames = [
   'node_modules',
   'jquery',
   'jsdelivr',
-  'bootstrap'
+  'bootstrap',
+  '@fortawesome/fontawesome-free'
 ];
 
 const defaultPackagesToCdns = {
@@ -63,6 +64,8 @@ const defaultCdnBasePaths = [
   'https://cdn.jsdelivr.net/npm/(?<name>(?:@[^/]*/)?[^@]*?)@' + semverVersionString +
     pathVersionString,
   'https://stackpath.bootstrapcdn.com/(?<name>[^/]*)/' + semverVersionString +
+    pathVersionString,
+  'https://use.fontawesome.com/releases/v' + semverVersionString +
     pathVersionString
 ].map((url) => {
   return basePathToRegex(url);
@@ -73,7 +76,8 @@ const defaultNodeModulesReplacements = [
   '$<prefix>node_modules/$<name>$<dist>$<path>',
   'node_modules/$<name>/dist/jquery$<dist>$<path>',
   'node_modules/$<name>$<dist>$<path>',
-  'node_modules/$<name>/dist$<path>'
+  'node_modules/$<name>/dist$<path>',
+  'node_modules/@fortawesome/fontawesome-free$<path>'
 ];
 
 const defaultCdnBasePathReplacements = [
@@ -81,7 +85,8 @@ const defaultCdnBasePathReplacements = [
   'https://unpkg.com/$<name>@$<version>$<dist>$<path>',
   'https://code.jquery.com/$<name>-$<version>$<ext>',
   'https://cdn.jsdelivr.net/npm/$<name>@$<version>$<dist>$<path>',
-  'https://stackpath.bootstrapcdn.com/$<name>/$<version>$<path>'
+  'https://stackpath.bootstrapcdn.com/$<name>/$<version>$<path>',
+  'https://use.fontawesome.com/releases/v$<version>$<path>'
 ];
 
 /**
@@ -776,7 +781,7 @@ async function integrityMatters (options) {
         continue;
       }
       const {groups: {
-        name, version // , path
+        name = defaultCdnNames[i], version // , path
       }} = match;
       // console.log(`Path: ${path}`);
 
@@ -962,7 +967,7 @@ async function integrityMatters (options) {
             // Set arguments into `args` so we can obtain arguments safely
             //  from the end in case user adds extra parentheticals
             (mtch, ...args) => {
-              const {name} = args.pop();
+              const {name = defaultCdnNames[i]} = args.pop();
               const cdnIndex = strategyCdn
                 ? cdnNames.indexOf(strategyCdn)
                 : hasOwn(packagesToCdns, name)

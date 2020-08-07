@@ -18,6 +18,15 @@
       "integrity": "sha384-eS4bw6aEvhCSXWGP85ANR/N8isWKzT7P36NvcuTJGkrj6wsbxLVpXslrNXYHyseD sha256-SHMGCYmST46SoyGgo4YR/9AlK1vf3ff84Aq9yK4hdqM=",
       "crossorigin": "",
       "local": "node_modules/leaflet/dist/leaflet.css"
+    },
+    "@fortawesome/fontawesome": {
+      "remote": "https://use.fontawesome.com/releases/v5.14.0/css/brands.css",
+      "algorithms": [
+        "sha384"
+      ],
+      "crossorigin": "anonymous",
+      "local": "node_modules/@fortawesome/fontawesome-free/css/brands.css",
+      "integrity": "sha384-CAIUtd3vjyyeMBbeIxEzPlUGote+msZ7MIsF///0+ah26OWguEmEj3jH26wdQK/y"
     }
   },
   "script": {
@@ -49,6 +58,15 @@
       "remote": "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js",
       "integrity": "sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV",
       "crossorigin": "anonymous"
+    },
+    "@fortawesome/fontawesome": {
+      "remote": "https://use.fontawesome.com/releases/v5.14.0/js/all.js",
+      "algorithms": [
+        "sha384"
+      ],
+      "crossorigin": "anonymous",
+      "local": "node_modules/@fortawesome/fontawesome-free/js/all.js",
+      "integrity": "sha384-RnI/VSjsX1YD15N0Ae3st2pv7/p2+7ZvsFSCSsYqG0B/+XPA+MZQmkDaDJllP7cY"
     }
   }
 }
