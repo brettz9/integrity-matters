@@ -5,6 +5,9 @@
 - Fix: Proper jquery CDN mapping
 - Testing: Check default bootstrap and jquery for convertability from
     `node_modules`
+- Testing: Avoid hard-coding bootstrap version in test file; adjust fixtures
+- npm: Add script for reapplying yarn changes
+- npm: Update devDeps
 
 ## 0.7.1
 

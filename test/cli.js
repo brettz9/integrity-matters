@@ -342,11 +342,11 @@ describe('Binary', function () {
                     `${popperJsVersion}/dist/umd/popper.min.js.\n\n\n`
                 : '\n\n')
             ) +
-            `INFO: The URL's version (4.5.0) is satisfied by the ` +
-              `devDependency "bootstrap"'s current \`package.json\` range, ` +
-              `"${devDependencies.bootstrap}". Continuing...\n` +
+            `INFO: The URL's version (${bootstrapVersion}) is satisfied by ` +
+              `the devDependency "bootstrap"'s current \`package.json\` ` +
+              `range, "${devDependencies.bootstrap}". Continuing...\n` +
             `INFO: Dependency bootstrap in your lock file already matches ` +
-              `URL version (4.5.0).\n` +
+              `URL version (${bootstrapVersion}).\n` +
             `INFO: The \`package-lock.json\`'s version ` +
               `(${lockDeps.bootstrap.version}) is satisfied by the ` +
               `devDependency "bootstrap"'s current \`package.json\` range, ` +
@@ -357,11 +357,11 @@ describe('Binary', function () {
               `"bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n\n\n` +
 
-            `INFO: The URL's version (4.5.0) is satisfied by the ` +
-              `devDependency "bootstrap"'s current \`package.json\` range, ` +
-              `"${devDependencies.bootstrap}". Continuing...\n` +
+            `INFO: The URL's version (${bootstrapVersion}) is satisfied by ` +
+              `the devDependency "bootstrap"'s current \`package.json\` ` +
+              `range, "${devDependencies.bootstrap}". Continuing...\n` +
             `INFO: Dependency bootstrap in your lock file already matches ` +
-              `URL version (4.5.0).\n` +
+              `URL version (${bootstrapVersion}).\n` +
             `INFO: The \`package-lock.json\`'s version ` +
               `(${lockDeps.bootstrap.version}) is satisfied by the ` +
               `devDependency "bootstrap"'s current \`package.json\` range, ` +
