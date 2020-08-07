@@ -100,23 +100,25 @@ auto-generated or updated in the output instead of being present in source):
 
 ```json
 {
-  "link": {
-    "bootstrap": {
+  "link": [
+    {
+      "name": "bootstrap",
       "crossorigin": "anonymous",
       "local": "/node_modules/bootstrap/dist/css/bootstrap.min.css",
       "integrity": "sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I",
       "remote": "https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
     }
-  },
-  "script": {
-    "jquery": {
+  ],
+  "script": [
+    {
+      "name": "jquery",
       "global": "jQuery",
       "fallback": true,
       "local": "/node_modules/jquery/dist/jquery.min.js",
       "integrity": "sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=",
       "remote": "https://code.jquery.com/jquery-3.5.1.min.js"
     }
-  }
+  ]
 }
 ```
 
@@ -128,6 +130,7 @@ you should at least have empty algorithms or use `--algorithm` (see
 In the JSON strategy, the following additional properties can be added, some
 of which do not have exact equivalents in the HTML (See "HTML Strategy").
 
+- `name` - The npm package name
 - `fallback` - Ensures server-side renderers can dynamically determine
     whether to add fallback code. Can be forced by `--fallback` CLI.
 - `global` - Ensures server-side renderers can dynamically add a global check
