@@ -1,14 +1,16 @@
 {
-  "link": {
-    "leaflet": {
+  "link": [
+    {
+      "name": "leaflet",
       "local": "node_modules/leaflet/dist/leaflet.css",
       "crossorigin": ""
     }
-  },
-  "script": {
-    "leaflet": {
+  ],
+  "script": [
+    {
+      "name": "leaflet",
       "local": "node_modules/leaflet/dist/leaflet.js",
       "crossorigin": ""
     }
-  }
+  ]
 }

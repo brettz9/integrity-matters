@@ -1,12 +1,14 @@
 {
-  "link": {
-    "bootstrap": {
+  "link": [
+    {
+      "name": "bootstrap",
       "cdn": "unpkg",
       "integrity": "sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z",
       "local": "node_modules/bootstrap/dist/css/bootstrap.min.css",
       "crossorigin": "anonymous"
     },
-    "leaflet": {
+    {
+      "name": "leaflet",
       "global": "window.LeafletTestGlobalCSS",
       "cdn": "jsdelivr",
       "algorithms": ["sha384", "sha256"],
@@ -14,43 +16,57 @@
       "integrity": "sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==",
       "crossorigin": ""
     },
-    "@fortawesome/fontawesome": {
+    {
+      "name": "@fortawesome/fontawesome",
       "remote": "https://use.fontawesome.com/releases/v5.8.1/css/brands.css",
       "algorithms": [
         "sha384"
       ],
       "crossorigin": "anonymous"
+    },
+    {
+      "name": "@fortawesome/fontawesome",
+      "remote": "node_modules/@fortawesome/fontawesome-free/css/fontawesome.css",
+      "algorithms": [
+        "sha384"
+      ],
+      "crossorigin": "anonymous"
     }
-  },
-  "script": {
-    "leaflet": {
+  ],
+  "script": [
+    {
+      "name": "leaflet",
       "global": "window.LeafletTestGlobal",
       "algorithms": ["sha512"],
       "remote": "https://unpkg.com/leaflet@1.4.0/dist/leaflet.js",
       "integrity": "sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==",
       "crossorigin": ""
     },
-    "jquery": {
+    {
+      "name": "jquery",
       "remote": "https://code.jquery.com/jquery-3.5.1.slim.min.js",
       "integrity": "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj",
       "crossorigin": "anonymous"
     },
-    "popper.js": {
+    {
+      "name": "popper.js",
       "algorithms": ["sha384"],
       "remote": "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js",
       "crossorigin": "anonymous"
     },
-    "bootstrap": {
+    {
+      "name": "bootstrap",
       "remote": "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js",
       "integrity": "sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV",
       "crossorigin": "anonymous"
     },
-    "@fortawesome/fontawesome": {
+    {
+      "name": "@fortawesome/fontawesome",
       "remote": "https://use.fontawesome.com/releases/v5.8.1/js/all.js",
       "algorithms": [
         "sha384"
       ],
       "crossorigin": "anonymous"
     }
-  }
+  ]
 }

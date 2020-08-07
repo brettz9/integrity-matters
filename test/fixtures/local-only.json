@@ -1,39 +1,45 @@
 {
-  "link": {
-    "bootstrap": {
+  "link": [
+    {
+      "name": "bootstrap",
       "integrity": "sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z",
       "remote": "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css",
       "crossorigin": "anonymous"
     },
-    "leaflet": {
+    {
+      "name": "leaflet",
       "remote": "https://unpkg.com/leaflet@1.4.0/dist/leaflet.css",
       "integrity": "sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==",
       "crossorigin": "",
       "local": "node_modules/leaflet/dist/leaflet.css"
     }
-  },
-  "script": {
-    "leaflet": {
+  ],
+  "script": [
+    {
+      "name": "leaflet",
       "remote": "https://unpkg.com/leaflet@1.4.0/dist/leaflet.js",
       "integrity": "sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==",
       "crossorigin": "",
       "local": "node_modules/leaflet/dist/leaflet.js"
     },
-    "jquery": {
+    {
+      "name": "jquery",
       "remote": "https://code.jquery.com/jquery-3.5.1.slim.min.js",
       "integrity": "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj",
       "crossorigin": "anonymous"
     },
-    "popper.js": {
+    {
+      "name": "popper.js",
       "remote": "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js",
       "integrity": "sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN",
       "crossorigin": "anonymous",
       "local": "node_modules/popper.js/dist/umd/popper.min.js"
     },
-    "bootstrap": {
+    {
+      "name": "bootstrap",
       "remote": "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js",
       "integrity": "sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV",
       "crossorigin": "anonymous"
     }
-  }
+  ]
 }

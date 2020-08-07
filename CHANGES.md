@@ -1,5 +1,11 @@
 # CHANGES for integrity-matters
 
+## 0.9.0
+
+- Breaking change: Let JSON format accept an array of links and scripts
+- Testing: Add case where name is repeated (multiple fontawesome links under
+    attribute-control test)
+
 ## 0.8.0
 
 - Enhancement: Support `@fortawesome/fontawesome-free` CDN

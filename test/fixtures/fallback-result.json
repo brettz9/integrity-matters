@@ -1,6 +1,7 @@
 {
-  "link": {
-    "leaflet": {
+  "link": [
+    {
+      "name": "leaflet",
       "remote": "https://unpkg.com/leaflet@1.6.0/dist/leaflet.css",
       "integrity": "sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==",
       "crossorigin": "",
@@ -8,9 +9,10 @@
       "fallback": true,
       "global": "window.SomeLeafletCSSCheck"
     }
-  },
-  "script": {
-    "leaflet": {
+  ],
+  "script": [
+    {
+      "name": "leaflet",
       "remote": "https://unpkg.com/leaflet@1.6.0/dist/leaflet.js",
       "integrity": "sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==",
       "crossorigin": "",
@@ -18,5 +20,5 @@
       "fallback": true,
       "global": "window.Leaflet"
     }
-  }
+  ]
 }

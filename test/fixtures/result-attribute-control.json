@@ -1,13 +1,15 @@
 {
-  "link": {
-    "bootstrap": {
+  "link": [
+    {
+      "name": "bootstrap",
       "cdn": "unpkg",
       "integrity": "sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z",
       "local": "node_modules/bootstrap/dist/css/bootstrap.min.css",
       "crossorigin": "anonymous",
       "remote": "https://unpkg.com/bootstrap@4.5.2/dist/css/bootstrap.min.css"
     },
-    "leaflet": {
+    {
+      "name": "leaflet",
       "global": "window.LeafletTestGlobalCSS",
       "cdn": "jsdelivr",
       "algorithms": [
@@ -19,7 +21,8 @@
       "crossorigin": "",
       "local": "node_modules/leaflet/dist/leaflet.css"
     },
-    "@fortawesome/fontawesome": {
+    {
+      "name": "@fortawesome/fontawesome",
       "remote": "https://use.fontawesome.com/releases/v5.14.0/css/brands.css",
       "algorithms": [
         "sha384"
@@ -27,10 +30,21 @@
       "crossorigin": "anonymous",
       "local": "node_modules/@fortawesome/fontawesome-free/css/brands.css",
       "integrity": "sha384-CAIUtd3vjyyeMBbeIxEzPlUGote+msZ7MIsF///0+ah26OWguEmEj3jH26wdQK/y"
+    },
+    {
+      "name": "@fortawesome/fontawesome",
+      "remote": "https://unpkg.com/@fortawesome/fontawesome-free@5.14.0/css/fontawesome.css",
+      "algorithms": [
+        "sha384"
+      ],
+      "crossorigin": "anonymous",
+      "local": "node_modules/@fortawesome/fontawesome-free/css/fontawesome.css",
+      "integrity": "sha384-M85p/qLtSqy1vZj2ANZq6d77wrWM+bdLYKAcVgdm4O+74zsOsXXWCkE+PpULD2GI"
     }
-  },
-  "script": {
-    "leaflet": {
+  ],
+  "script": [
+    {
+      "name": "leaflet",
       "global": "window.LeafletTestGlobal",
       "algorithms": [
         "sha512"
@@ -40,12 +54,14 @@
       "crossorigin": "",
       "local": "node_modules/leaflet/dist/leaflet.js"
     },
-    "jquery": {
+    {
+      "name": "jquery",
       "remote": "https://code.jquery.com/jquery-3.5.1.slim.min.js",
       "integrity": "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj",
       "crossorigin": "anonymous"
     },
-    "popper.js": {
+    {
+      "name": "popper.js",
       "algorithms": [
         "sha384"
       ],
@@ -54,12 +70,14 @@
       "local": "node_modules/popper.js/dist/umd/popper.min.js",
       "integrity": "sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
     },
-    "bootstrap": {
+    {
+      "name": "bootstrap",
       "remote": "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js",
       "integrity": "sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV",
       "crossorigin": "anonymous"
     },
-    "@fortawesome/fontawesome": {
+    {
+      "name": "@fortawesome/fontawesome",
       "remote": "https://use.fontawesome.com/releases/v5.14.0/js/all.js",
       "algorithms": [
         "sha384"
@@ -68,5 +86,5 @@
       "local": "node_modules/@fortawesome/fontawesome-free/js/all.js",
       "integrity": "sha384-RnI/VSjsX1YD15N0Ae3st2pv7/p2+7ZvsFSCSsYqG0B/+XPA+MZQmkDaDJllP7cY"
     }
-  }
+  ]
 }

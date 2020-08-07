@@ -99,9 +99,7 @@ class JSONStrategy {
   getObjects (contents) {
     this.doc = JSON.parse(contents);
 
-    const scripts = Object.entries(
-      this.doc.script || {}
-    ).map(([pkg, info]) => {
+    const scripts = (this.doc.script || []).map((info) => {
       const {
         integrity, local, remote, crossorigin,
         fallback,
@@ -124,9 +122,7 @@ class JSONStrategy {
         elem: info
       };
     });
-    const links = Object.entries(
-      this.doc.link || {}
-    ).map(([pkg, info]) => {
+    const links = (this.doc.link || []).map((info) => {
       const {
         integrity, local, remote, crossorigin, fallback, cdn,
         algorithms,

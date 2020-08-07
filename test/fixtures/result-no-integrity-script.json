@@ -1,9 +1,10 @@
 {
-  "script": {
-    "leaflet": {
+  "script": [
+    {
+      "name": "leaflet",
       "remote": "https://unpkg.com/leaflet@1.4.0/dist/leaflet.js",
       "crossorigin": "",
       "local": "node_modules/leaflet/dist/leaflet.js"
     }
-  }
+  ]
 }
