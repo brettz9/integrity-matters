@@ -1,5 +1,11 @@
 # CHANGES for integrity-matters
 
+## 0.7.2
+
+- Fix: Proper jquery CDN mapping
+- Testing: Check default bootstrap and jquery for convertability from
+    `node_modules`
+
 ## 0.7.1
 
 - Fix: Force `integrity` to be added when `data-im-algorithms` present even

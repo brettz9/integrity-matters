@@ -37,7 +37,8 @@ const getLocalJSON = (path) => {
 const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 
 const semverVersionString = '(?<version>\\d+\\.\\d+.\\d+)';
-const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*)';
+const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*?' +
+  '(?<ext>(?:\\.slim)?(?:\\.min)?(?:\\.js)?))$';
 
 const defaultCdnNames = [
   'unpkg',
@@ -78,7 +79,7 @@ const defaultNodeModulesReplacements = [
 const defaultCdnBasePathReplacements = [
   'https://unpkg.com/$<name>@$<version>$<dist>$<path>',
   'https://unpkg.com/$<name>@$<version>$<dist>$<path>',
-  'https://code.jquery.com/$<name>-$<version>$<dist>$<path>',
+  'https://code.jquery.com/$<name>-$<version>$<ext>',
   'https://cdn.jsdelivr.net/npm/$<name>@$<version>$<dist>$<path>',
   'https://stackpath.bootstrapcdn.com/$<name>/$<version>$<path>'
 ];
