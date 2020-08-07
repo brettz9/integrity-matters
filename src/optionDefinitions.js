@@ -45,9 +45,9 @@ const optionDefinitions = [
     name: 'cdnBasePath', type: basePathToRegex,
     multiple: true,
     description: 'Regular expression path(s) with named capturing groups, ' +
-      '"name", "version", "dist", and "path", indicating how to find CDN ' +
-      'URLs and identify the name, version, and path portions. Defaults to ' +
-      'an array of specific paths (see source).',
+      '"name", "version", "dist", "path", and "ext", indicating how to find ' +
+      'CDN URLs and identify the name, version, path, and extension ' +
+      'portions. Defaults to an array of specific paths (see source).',
     typeLabel: '{underline base path}'
   },
   {
@@ -64,8 +64,9 @@ const optionDefinitions = [
     multiple: true,
     description: 'Regular expression replacement expression with named ' +
       'capturing replacements (`$<name>`, `$<path>`, and optionally' +
-      '`$<dist>` and `$<version>`; the latter defaults to the detected ' +
-      'installed version). Defaults to a list of replacements (see source).',
+      '`$<dist>`, `$<ext>` and `$<version>`; the latter defaults to the ' +
+      'detected installed version). Defaults to a list of replacements ' +
+      '(see source).',
     typeLabel: '{underline path replacement expression}'
   },
   {
@@ -73,8 +74,9 @@ const optionDefinitions = [
     multiple: true,
     description: 'Regular expression replacement expression with named ' +
       'capturing replacements (`$<name>`, `$<path>`, and optionally ' +
-      '`$<dist>` and `$<version>`). Used to convert a CDN pattern to ' +
-      'local `node_modules`. Defaults to a list of replacements (see source).',
+      '`$<dist>`, `$<ext>` and `$<version>`). Used to convert a CDN pattern ' +
+      'to local `node_modules`. Defaults to a list of replacements (see ' +
+      'source).',
     typeLabel: '{underline path replacement expression}'
   },
   {

@@ -1,5 +1,9 @@
 # CHANGES for integrity-matters
 
+## ?
+
+- Docs: Update CLI docs to document `ext`
+
 ## 0.7.2
 
 - Fix: Proper jquery CDN mapping
