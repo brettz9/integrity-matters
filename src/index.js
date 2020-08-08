@@ -37,8 +37,10 @@ const getLocalJSON = (path) => {
 const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 
 const semverVersionString = '(?<version>\\d+\\.\\d+.\\d+)';
-const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*?' +
-  '(?<ext>(?:\\.slim)?(?:\\.min)?(?:\\.js)?))$';
+const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*?)' +
+  '(?<slim>(?:\\.slim)?)(?<min>(?:\\.min)?)(?<ext>(?:\\.(?:js|css))?)$';
+const noMinPathVersionString = '(?<dist>/dist)?(?<path>[^ \'".]*?)' +
+    '(?<ext>\\.(?:js|css))?$';
 
 const defaultCdnNames = [
   'unpkg',
@@ -66,27 +68,29 @@ const defaultCdnBasePaths = [
   'https://stackpath.bootstrapcdn.com/(?<name>[^/]*)/' + semverVersionString +
     pathVersionString,
   'https://use.fontawesome.com/releases/v' + semverVersionString +
-    pathVersionString
+    noMinPathVersionString
 ].map((url) => {
   return basePathToRegex(url);
 });
 
+const slimMinExt = '$<slim>$<min>$<ext>';
+
 const defaultNodeModulesReplacements = [
-  'node_modules/$<name>$<dist>$<path>',
-  '$<prefix>node_modules/$<name>$<dist>$<path>',
-  'node_modules/$<name>/dist/jquery$<dist>$<path>',
-  'node_modules/$<name>$<dist>$<path>',
-  'node_modules/$<name>/dist$<path>',
-  'node_modules/@fortawesome/fontawesome-free$<path>'
+  'node_modules/$<name>$<dist>$<path>' + slimMinExt,
+  '$<prefix>node_modules/$<name>$<dist>$<path>' + slimMinExt,
+  'node_modules/$<name>/dist/jquery$<dist>$<path>' + slimMinExt,
+  'node_modules/$<name>$<dist>$<path>' + slimMinExt,
+  'node_modules/$<name>/dist$<path>' + slimMinExt,
+  'node_modules/@fortawesome/fontawesome-free$<path>.min$<ext>'
 ];
 
 const defaultCdnBasePathReplacements = [
-  'https://unpkg.com/$<name>@$<version>$<dist>$<path>',
-  'https://unpkg.com/$<name>@$<version>$<dist>$<path>',
-  'https://code.jquery.com/$<name>-$<version>$<ext>',
-  'https://cdn.jsdelivr.net/npm/$<name>@$<version>$<dist>$<path>',
-  'https://stackpath.bootstrapcdn.com/$<name>/$<version>$<path>',
-  'https://use.fontawesome.com/releases/v$<version>$<path>'
+  'https://unpkg.com/$<name>@$<version>$<dist>$<path>' + slimMinExt,
+  'https://unpkg.com/$<name>@$<version>$<dist>$<path>' + slimMinExt,
+  'https://code.jquery.com/$<name>-$<version>' + slimMinExt,
+  'https://cdn.jsdelivr.net/npm/$<name>@$<version>$<dist>$<path>' + slimMinExt,
+  'https://stackpath.bootstrapcdn.com/$<name>/$<version>$<path>' + slimMinExt,
+  'https://use.fontawesome.com/releases/v$<version>$<path>$<ext>'
 ];
 
 /**

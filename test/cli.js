@@ -427,7 +427,7 @@ describe('Binary', function () {
           binFile,
           [
             '--cdnBasePathReplacements',
-            'https://example.com/$<name>@$<version>$<dist>$<path>',
+            'https://example.com/$<name>@$<version>$<dist>$<path>$<min>$<ext>',
             '--file',
             'test/fixtures/sample.html',
             '--outputPath', outputPath
@@ -1643,7 +1643,7 @@ describe('Binary', function () {
           [
             '--ignoreURLFetches',
             '--nodeModulesReplacements',
-            'node_modules/bad-path/$<name>$<dist>$<path>',
+            'node_modules/bad-path/$<name>$<dist>$<path>$<min>$<ext>',
             '--local',
             '--file',
             'test/fixtures/sample.html',

@@ -28,18 +28,18 @@
         "sha384"
       ],
       "crossorigin": "anonymous",
-      "local": "node_modules/@fortawesome/fontawesome-free/css/brands.css",
-      "integrity": "sha384-CAIUtd3vjyyeMBbeIxEzPlUGote+msZ7MIsF///0+ah26OWguEmEj3jH26wdQK/y"
+      "local": "node_modules/@fortawesome/fontawesome-free/css/brands.min.css",
+      "integrity": "sha384-MiOGyNsVTeSVUjE9q/52dpdZjrr7yQAjVRUs23Bir5NhrTq0YA0rny4u/qe4dxNj"
     },
     {
       "name": "@fortawesome/fontawesome",
-      "remote": "https://unpkg.com/@fortawesome/fontawesome-free@5.14.0/css/fontawesome.css",
+      "remote": "https://unpkg.com/@fortawesome/fontawesome-free@5.14.0/css/fontawesome.min.css",
       "algorithms": [
         "sha384"
       ],
       "crossorigin": "anonymous",
-      "local": "node_modules/@fortawesome/fontawesome-free/css/fontawesome.css",
-      "integrity": "sha384-M85p/qLtSqy1vZj2ANZq6d77wrWM+bdLYKAcVgdm4O+74zsOsXXWCkE+PpULD2GI"
+      "local": "node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css",
+      "integrity": "sha384-PRy/NDAXVTUcXlWA3voA+JO/UMtzWgsYuwMxjuu6DfFPgzJpciUiPwgsvp48fl3p"
     }
   ],
   "script": [
@@ -83,8 +83,8 @@
         "sha384"
       ],
       "crossorigin": "anonymous",
-      "local": "node_modules/@fortawesome/fontawesome-free/js/all.js",
-      "integrity": "sha384-RnI/VSjsX1YD15N0Ae3st2pv7/p2+7ZvsFSCSsYqG0B/+XPA+MZQmkDaDJllP7cY"
+      "local": "node_modules/@fortawesome/fontawesome-free/js/all.min.js",
+      "integrity": "sha384-3Nqiqht3ZZEO8FKj7GR1upiI385J92VwWNLj+FqHxtLYxd9l+WYpeqSOrLh0T12c"
     }
   ]
 }

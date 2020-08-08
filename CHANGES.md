@@ -1,5 +1,9 @@
 # CHANGES for integrity-matters
 
+## 0.10.0
+
+- Fix: For `fortawesome/fontawesome-free` CDN, ensure dropping `min`
+
 ## 0.9.0
 
 - Breaking change: Let JSON format accept an array of links and scripts
