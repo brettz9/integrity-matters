@@ -2,6 +2,7 @@
 
 ## 0.10.0
 
+- Breaking change: Require slim and min to paths (allowing dropping of min)
 - Fix: For `fortawesome/fontawesome-free` CDN, ensure dropping `min`
 
 ## 0.9.0
