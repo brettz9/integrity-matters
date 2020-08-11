@@ -56,8 +56,8 @@ const optionDefinitions = [
     multiple: true,
     description: 'Name of the CDN. Should be supplied in the order of ' +
       '`cdnBasePath`. ' +
-      `Defaults to 'unpkg', 'node_modules', 'jquery', 'jsdelivr', and ` +
-      `'bootstrap'`,
+      `Defaults to 'unpkg', 'node_modules', 'jquery', 'jsdelivr', ` +
+      `'bootstrap', and '@fortawesome/fontawesome-free'`,
     typeLabel: '{underline CDN name}'
   },
   {

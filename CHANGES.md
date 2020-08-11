@@ -1,5 +1,9 @@
 # CHANGES for integrity-matters
 
+## ?
+
+- Docs: Update docs on `cdnName` from CLI
+
 ## 0.10.0
 
 - Breaking change: Require slim and min to paths (allowing dropping of min)
