@@ -120,6 +120,9 @@ const disclaimer = getFixturePath(
 const dropModules = getFixturePath(
   'result-drop-modules.html'
 );
+const dropBase = getFixturePath(
+  'result-drop-base.html'
+);
 const remappedPackages = getFixturePath(
   'result-remapped-packages.html'
 );
@@ -1290,6 +1293,51 @@ describe('Binary', function () {
 
         const contents = await readFile(outputPath, 'utf8');
         const expected = await readFile(dropModules, 'utf8');
+        expect(contents).to.equal(expected);
+      }
+    );
+
+    it(
+      'should allow `dropBase` (HTML)',
+      async function () {
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--ignoreURLFetches',
+            '--file',
+            '--dropBase',
+            'test/fixtures/drop-base.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
+
+        expect(stdout).to.match(new RegExp(
+          escStringRegex(
+            `INFO: Finished writing to ${outputPath}\n`
+          ),
+          'u'
+        ));
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `WARNING: The URL's version (1.4.0) is less than the ` +
+              `devDependency "leaflet"'s current \`package.json\` range, ` +
+              `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
+              `a valid installed version to update the URL...\n`
+          ),
+          'u'
+        ));
+
+        const contents = await readFile(outputPath, 'utf8');
+        const expected = await readFile(dropBase, 'utf8');
         expect(contents).to.equal(expected);
       }
     );

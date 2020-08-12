@@ -191,6 +191,12 @@ const optionDefinitions = [
       'IIFE without the cascading HTTP requests of ESM. Defaults to `false`.'
   },
   {
+    name: 'dropBase', type: Boolean,
+    description: 'Whether to drop `<base href>` in the output. Useful when ' +
+      'source is intended to work against development files but the ' +
+      'output file does not need this.'
+  },
+  {
     name: 'disclaimer', type: String,
     description: 'Comment text to add at beginning of output HTML file.',
     typeLabel: '{underline disclaimer string}'

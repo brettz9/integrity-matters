@@ -1,7 +1,8 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.11.0
 
+- Enhancement: Add `dropBase` option for dropping `<base href>` in dev. file
 - Docs: Update docs on `cdnName` from CLI
 
 ## 0.10.0

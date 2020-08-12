@@ -325,7 +325,7 @@ class HTMLStrategy {
   /**
    * @type {UpdateStrategy#save}
    */
-  async save (file, {disclaimer, dropModules}) {
+  async save (file, {disclaimer, dropModules, dropBase}) {
     if (disclaimer) {
       const $ = cheerio.load(this.doc);
       $('*').first().before(
@@ -333,17 +333,25 @@ class HTMLStrategy {
         '\n'
       );
     }
+    const $ = cheerio.load(this.doc);
+    const removeWhitespace = function (element) {
+      const {previousSibling} = $(element)[0];
+      if (previousSibling.nodeValue.match(/^\s+$/u)) {
+        $(previousSibling).remove();
+      }
+    };
     if (dropModules) {
-      const $ = cheerio.load(this.doc);
       $('script[type="module"]').removeAttr('type').attr('defer', 'defer');
       const nomoduleScripts = $('script[nomodule]');
       nomoduleScripts.each((i, nomoduleScript) => {
-        const {previousSibling} = $(nomoduleScript)[0];
-        if (previousSibling.nodeValue.match(/^\s+$/u)) {
-          $(previousSibling).remove();
-        }
+        removeWhitespace(nomoduleScript);
       });
       nomoduleScripts.remove();
+    }
+    if (dropBase) {
+      const base = $('base[href]');
+      removeWhitespace(base);
+      base.remove();
     }
     const serialized = cheerio.html(this.doc);
     await writeFile(file, serialized);
@@ -424,6 +432,7 @@ async function integrityMatters (options) {
     htmlparser2Options,
     jsonSpace,
     dropModules,
+    dropBase,
     disclaimer,
     // cli,
     cwd = process.cwd()
@@ -667,6 +676,7 @@ async function integrityMatters (options) {
    * @param {number|string} [cfg.jsonSpace] For JSON only
    * @param {string} [cfg.disclaimer] For HTML only
    * @param {boolean} [cfg.dropModules] For HTML only
+   * @param {boolean} [cfg.dropBase] For HTML only
    * @returns {Promise<void>}
    */
 
@@ -1073,7 +1083,7 @@ async function integrityMatters (options) {
     if (!dryRun) {
       const outputFile = (outputPaths && outputPaths[fileIdx]) || file;
       await strategy.save(outputFile, {
-        jsonSpace, disclaimer, dropModules
+        jsonSpace, disclaimer, dropModules, dropBase
       });
       fileLogs[fileIdx].push({
         method: 'info', message: `INFO: Finished writing to ${outputFile}`
