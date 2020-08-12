@@ -182,6 +182,12 @@ updates are automatically reflected in your CDN URL versions. (You may
 wish to have it run a local install first as well to ensure that updates
 made by others contributing to your project are reflected locally.)
 
+If you ever open your `node_modules` files within your IDE, and if your IDE
+has features like auto-stripping trailing spaces or adding an end-of-file
+newline and you save the file even with these minor changes, this will break
+your `integrity` against the original. If you accidentally do this, you can
+remove the package and re-run `npm install`.
+
 ## Developing
 
 Be sure to use `npm` to install rather than `yarn` as our local copy
