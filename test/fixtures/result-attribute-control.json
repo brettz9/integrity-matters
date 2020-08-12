@@ -22,7 +22,8 @@
       "local": "node_modules/leaflet/dist/leaflet.css"
     },
     {
-      "name": "@fortawesome/fontawesome",
+      "name": "@fortawesome/fontawesome-free",
+      "cdn": "@fortawesome/fontawesome-free",
       "remote": "https://use.fontawesome.com/releases/v5.14.0/css/brands.css",
       "algorithms": [
         "sha384"
@@ -32,7 +33,7 @@
       "integrity": "sha384-MiOGyNsVTeSVUjE9q/52dpdZjrr7yQAjVRUs23Bir5NhrTq0YA0rny4u/qe4dxNj"
     },
     {
-      "name": "@fortawesome/fontawesome",
+      "name": "@fortawesome/fontawesome-free",
       "remote": "https://unpkg.com/@fortawesome/fontawesome-free@5.14.0/css/fontawesome.min.css",
       "algorithms": [
         "sha384"
@@ -77,7 +78,7 @@
       "crossorigin": "anonymous"
     },
     {
-      "name": "@fortawesome/fontawesome",
+      "name": "@fortawesome/fontawesome-free",
       "remote": "https://use.fontawesome.com/releases/v5.14.0/js/all.js",
       "algorithms": [
         "sha384"

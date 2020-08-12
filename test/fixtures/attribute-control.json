@@ -17,15 +17,16 @@
       "crossorigin": ""
     },
     {
-      "name": "@fortawesome/fontawesome",
-      "remote": "https://use.fontawesome.com/releases/v5.8.1/css/brands.css",
+      "name": "@fortawesome/fontawesome-free",
+      "cdn": "@fortawesome/fontawesome-free",
+      "remote": "node_modules/@fortawesome/fontawesome-free/css/brands.min.css",
       "algorithms": [
         "sha384"
       ],
       "crossorigin": "anonymous"
     },
     {
-      "name": "@fortawesome/fontawesome",
+      "name": "@fortawesome/fontawesome-free",
       "remote": "node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css",
       "algorithms": [
         "sha384"
@@ -61,7 +62,7 @@
       "crossorigin": "anonymous"
     },
     {
-      "name": "@fortawesome/fontawesome",
+      "name": "@fortawesome/fontawesome-free",
       "remote": "https://use.fontawesome.com/releases/v5.8.1/js/all.js",
       "algorithms": [
         "sha384"
