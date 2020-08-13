@@ -1,5 +1,9 @@
 # CHANGES for integrity-matters
 
+## 0.11.1
+
+- Fix: semver check to support prerelease formats
+
 ## 0.11.0
 
 - Enhancement: Add `dropBase` option for dropping `<base href>` in dev. file

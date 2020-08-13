@@ -13,6 +13,7 @@ const {promisify} = require('util');
 
 const cheerio = require('cheerio');
 const semver = require('semver');
+const semverRegex = require('semver-regex');
 // const prompts = require('prompts');
 const globby = require('globby');
 const fetch = require('node-fetch');
@@ -36,7 +37,11 @@ const getLocalJSON = (path) => {
 // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 
-const semverVersionString = '(?<version>\\d+\\.\\d+.\\d+)';
+const semverVersionString = `(?<version>${
+  // Strip off `(?<=^v?|\sv?)` lookbehind at beginning and lookahead
+  //  `(?=$|\s)` at end
+  semverRegex().source.slice(13, -8)
+})`;
 const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*?)' +
   '(?<slim>(?:\\.slim)?)(?<min>(?:\\.min)?)(?<ext>(?:\\.(?:js|css))?)$';
 const noMinPathVersionString = '(?<dist>/dist)?(?<path>[^ \'".]*?)' +
