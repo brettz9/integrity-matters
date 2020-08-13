@@ -71,6 +71,22 @@ npm i -D integrity-matters
 
 ![badges/cli.svg](./badges/cli.svg)
 
+## Example projects
+
+- [qiblih-website](https://github.com/bahaidev/qiblih-website) - This project
+    uses `integrity-matters` with
+    [HTML in source](https://github.com/bahaidev/qiblih-website/blob/master/src/index.html),
+    where
+    [this npm CLI script](https://github.com/bahaidev/qiblih-website/blob/dce2886e86d82750b3b85db75afa14ffae1ffb24/package.json#L12)
+    is used to convert its local `node_modules` URLs into public CDN URLs
+    in [a separate HTML file](https://github.com/bahaidev/qiblih-website/blob/master/public/index.html).
+- [nogin](https://github.com/brettz9/nogin) - This project uses
+    `integrity-matters` where the [JSON input file](https://github.com/brettz9/nogin/blob/master/app/server/integrityMap.json)
+    is the same as the output file (i.e., when [this npm CLI script](https://github.com/brettz9/nogin/blob/55498837a95b93c8e75a2ea14cbfda8ae18bbd82/package.json#L42)
+    is run, it will overwrite the JSON input file based on any new dependency versions and their updated `integrity` info). (The [server-side code](https://github.com/brettz9/nogin/blob/master/app/server/routeUtils.js)
+    reads this file at run-time in order to generates the HTML dynamically,
+    e.g., based on whether the user wishes to use local or CDN URLs.)
+
 ## Forcing new or changed hashing algorithms
 
 If you simply change the `integrity` attribute (or, for JSON, the JSON

@@ -1,5 +1,9 @@
 # CHANGES for integrity-matters
 
+## ?
+
+- Docs: Example projects
+
 ## 0.11.2
 
 - Fix: Avoid overwriting `local` for JSON (server may need more precise path
