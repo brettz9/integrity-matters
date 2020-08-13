@@ -168,8 +168,12 @@ class JSONStrategy {
     newSrc, newIntegrity, addCrossorigin, noLocalIntegrity, fallback, local,
     localPath, globalCheck
   }) {
-    // Unlike HTML, we don't depend on `fallback` to set this value
-    elem.local = localPath;
+    // Unlike HTML, we don't depend on `fallback` to set this value; however,
+    //  we don't want to overwrite a more precise value (e.g., full relative
+    //  path), so we only do if local or no previous `local` existing
+    if (local || !elem.local) {
+      elem.local = localPath;
+    }
 
     // As both forms are available in JSON, we aren't allowing for
     //  overwriting `remote` with the local path (when `local` is in use);

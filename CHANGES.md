@@ -1,5 +1,10 @@
 # CHANGES for integrity-matters
 
+## 0.11.2
+
+- Fix: Avoid overwriting `local` for JSON (server may need more precise path
+    for its own purposes)
+
 ## 0.11.1
 
 - Fix: semver check to support prerelease formats
