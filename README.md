@@ -80,7 +80,11 @@ npm i -D integrity-matters
     [this npm CLI script](https://github.com/bahaidev/qiblih-website/blob/dce2886e86d82750b3b85db75afa14ffae1ffb24/package.json#L12)
     is used to convert its functional local `node_modules` URLs into
     public production CDN URLs in
-    [a separate HTML file](https://github.com/bahaidev/qiblih-website/blob/master/public/index.html).
+    [a separate HTML file](https://github.com/bahaidev/qiblih-website/blob/master/public/index.html). While we could have source the same as output,
+    with CDN URLs being replaced with more updated CDN URLs, the approach
+    of using `node_modules` URLs not only allows local testing but potentially
+    avoids extra diff noise if the output HTML is not committed to the
+    repository (though it would be built before deploying).
 - [nogin](https://github.com/brettz9/nogin) - This project uses
     `integrity-matters` where the [JSON input file](https://github.com/brettz9/nogin/blob/master/app/server/integrityMap.json)
     is the same as the output file (i.e., when [this npm CLI script](https://github.com/brettz9/nogin/blob/55498837a95b93c8e75a2ea14cbfda8ae18bbd82/package.json#L42)
