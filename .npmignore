@@ -4,6 +4,7 @@ coverage
 .idea
 .travis.yml
 .mocharc.js
+.ncurc.js
 mocha-multi-reporters.json
 lgtm.yml
 badges
