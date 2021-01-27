@@ -216,8 +216,8 @@ Be sure to use `npm` to install rather than `yarn` as our local copy
 (`chai`) and using a version older than that in `package.json` (`mocha@7`)
 for testing purposes.
 
-However, upon updating `package.json`, and after committing the changes
-(without any staged or working copy changes to `package.json`), then run
+Upon updating `package.json`, and after committing the changes
+(without any staged or working copy changes to `package.json`), run
 `npm run update-yarn-for-tests` so that most of the updates can be reflected
 in the `yarn.lock` file, while reapplying the chai and mocha changes. You can
 then commit the resulting `yarn.lock` changes.

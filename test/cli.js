@@ -22,9 +22,12 @@ const {
 const {
   version: bootstrapVersion
 } = require('../node_modules/bootstrap/package.json');
-const {
-  version: mochaVersion
-} = require('../node_modules/mocha/package.json');
+
+// Hard-code to prevent test breakage
+// const {
+//  version: mochaVersion
+// } = require('../node_modules/mocha/package.json');
+const mochaVersion = '8.1.1';
 
 const debug = false;
 

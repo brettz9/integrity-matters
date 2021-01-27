@@ -38,10 +38,11 @@ const getLocalJSON = (path) => {
 const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 
 const semverVersionString = `(?<version>${
-  // Strip off `(?<=^v?|\sv?)` lookbehind at beginning and lookahead
-  //  `(?=$|\s)` at end
-  semverRegex().source.slice(13, -8)
+  // Strip off `(?<=^v?|\sv?)` lookbehind at beginning and word break
+  //  `\b` at end
+  semverRegex().source.slice(13, -2)
 })`;
+
 const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*?)' +
   '(?<slim>(?:\\.slim)?)(?<min>(?:\\.min)?)(?<ext>(?:\\.(?:js|css))?)$';
 const noMinPathVersionString = '(?<dist>/dist)?(?<path>[^ \'".]*?)' +
@@ -345,7 +346,7 @@ class HTMLStrategy {
     const $ = cheerio.load(this.doc);
     const removeWhitespace = function (element) {
       const {previousSibling} = $(element)[0];
-      if (previousSibling.nodeValue.match(/^\s+$/u)) {
+      if ((/^\s+$/u).test(previousSibling.nodeValue)) {
         $(previousSibling).remove();
       }
     };
