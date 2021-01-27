@@ -8,7 +8,7 @@
 - Docs: Update badges
 - npm: Switch `prepare` to `prepublishOnly`
 - npm: Use stable `mocha-multi-reporters`
-- npm: Update array.prototype.flat, cheerio, domhandler, globby, htmlparser2,
+- npm: Update array.prototype.flat, domhandler, globby, htmlparser2,
     node-fetch, prompts, semver, semver-regex; devDeps
 
 ## 0.11.2

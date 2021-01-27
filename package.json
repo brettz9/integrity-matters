@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepublishOnly": "npm run license-badges",
-    "update-yarn-for-tests": "yarn && yarn add mocha@7 @fortawesome/fontawesome-free@5.14.0 && yarn remove chai && git checkout -- package.json && npm i",
+    "update-yarn-for-tests": "yarn && yarn add mocha@7 cheerio@1.0.0-rc.3 @fortawesome/fontawesome-free@5.14.0 && yarn remove chai && git checkout -- package.json && npm i",
     "license-badge": "license-badger --corrections --uncategorizedLicenseTemplate \"\\${license} (\\${name} (\\${version}))\" --filteredTypes=nonempty --textTemplate \"License types\n(project, deps, and bundled devDeps)\" --packageJson --production badges/licenses-badge.svg",
     "license-badge-dev": "license-badger --corrections --filteredTypes=nonempty --textTemplate \"License types\n(all devDeps)\" --allDevelopment badges/licenses-badge-dev.svg",
     "license-badges": "npm run license-badge && npm run license-badge-dev",
@@ -63,7 +63,7 @@
     "command-line-basics": "^0.8.0",
     "domhandler": "^4.0.0",
     "globby": "^11.0.2",
-    "htmlparser2": "^5.0.1",
+    "htmlparser2": "^6.0.0",
     "node-fetch": "^2.6.1",
     "prompts": "^2.4.0",
     "semver": "^7.3.4",
