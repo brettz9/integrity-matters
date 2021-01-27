@@ -126,8 +126,8 @@ auto-generated or updated in the output instead of being present in source):
       "name": "bootstrap",
       "crossorigin": "anonymous",
       "local": "/node_modules/bootstrap/dist/css/bootstrap.min.css",
-      "integrity": "sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I",
-      "remote": "https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+      "integrity": "sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z",
+      "remote": "https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css"
     }
   ],
   "script": [

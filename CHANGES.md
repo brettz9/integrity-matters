@@ -1,5 +1,11 @@
 # CHANGES for integrity-matters
 
+## 0.13.0
+
+- Breaking change: Default of bootstrap now set to jsdelivr (boostrap CDN on
+    stackpath [no longer being maintained](https://github.com/twbs/bootstrap/issues/32790#issuecomment-759942499)); `packagesToCdns` still supports mapping to
+    `bootstrap` for the old CDN, though that may be removed in the future
+
 ## 0.12.0
 
 - Update: Per new semver regex

@@ -59,7 +59,7 @@ const defaultCdnNames = [
 
 const defaultPackagesToCdns = {
   jquery: 'jquery',
-  bootstrap: 'bootstrap'
+  bootstrap: 'jsdelivr'
 };
 
 const defaultCdnBasePaths = [

@@ -155,7 +155,7 @@ const optionDefinitions = [
       'CDN can be forced for a particular package. Set to an empty object ' +
       'to avoid package-specific overrides. Defaults to ' +
       getChalkTemplateSingleEscape(
-        '`{"jquery": "jquery", "bootstrap": "bootstrap"}`'
+        '`{"jquery": "jquery", "bootstrap": "jsdelivr"}`'
       ),
     typeLabel: '{underline JSON object string}'
   },
