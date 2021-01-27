@@ -1,6 +1,6 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.12.0
 
 - Update: Per new semver regex
 - Linting: As per latest ash-nazg
