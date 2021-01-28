@@ -1,6 +1,6 @@
 {
   "name": "integrity-matters",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "Confirm the integrity of CDN URLs based on installed npm packages and update their integrity attribute (HTML) and paths (JS or HTML).",
   "main": "src/index.js",
   "bin": {
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepublishOnly": "npm run license-badges",
-    "update-yarn-for-tests": "yarn && yarn add mocha@7 cheerio@1.0.0-rc.3 @fortawesome/fontawesome-free@5.14.0 && yarn remove chai && git checkout -- package.json && npm i",
+    "update-yarn-for-tests": "yarn && yarn add mocha@7 @fortawesome/fontawesome-free@5.14.0 && yarn remove chai && git checkout -- package.json && npm i",
     "license-badge": "license-badger --corrections --uncategorizedLicenseTemplate \"\\${license} (\\${name} (\\${version}))\" --filteredTypes=nonempty --textTemplate \"License types\n(project, deps, and bundled devDeps)\" --packageJson --production badges/licenses-badge.svg",
     "license-badge-dev": "license-badger --corrections --filteredTypes=nonempty --textTemplate \"License types\n(all devDeps)\" --allDevelopment badges/licenses-badge-dev.svg",
     "license-badges": "npm run license-badge && npm run license-badge-dev",
@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "array.prototype.flat": "^1.2.4",
-    "cheerio": "^1.0.0-rc.3",
+    "cheerio": "1.0.0-rc.3",
     "command-line-basics": "^0.8.0",
     "domhandler": "^4.0.0",
     "globby": "^11.0.2",

@@ -1,5 +1,10 @@
 # CHANGES for integrity-matters
 
+## 0.13.1
+
+- Fix: Do not allow downstream to use updated cheerio
+- npm: Remove redundant Yarn override in CDN updating script
+
 ## 0.13.0
 
 - Breaking change: Default of bootstrap now set to jsdelivr (boostrap CDN on
