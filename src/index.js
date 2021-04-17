@@ -34,6 +34,10 @@ const getLocalJSON = (path) => {
   return JSON.parse(readFileSync(path), 'utf8');
 };
 
+const escapeRegExp = (text) => {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/gu, '\\$&');
+};
+
 // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 
@@ -63,17 +67,17 @@ const defaultPackagesToCdns = {
 };
 
 const defaultCdnBasePaths = [
-  'https://unpkg.com/(?<name>[^@]*)@' + semverVersionString +
+  escapeRegExp('https://unpkg.com/') + '(?<name>[^@]*)@' + semverVersionString +
     pathVersionString,
   '(?<prefix>[./]*)node_modules/(?<name>(?:@[^/]*/)?[^/]*)' +
     pathVersionString,
-  'https://code.jquery.com/(?<name>[^-]*?)-' + semverVersionString +
+  escapeRegExp('https://code.jquery.com/') + '(?<name>[^-]*?)-' + semverVersionString +
     pathVersionString,
-  'https://cdn.jsdelivr.net/npm/(?<name>(?:@[^/]*/)?[^@]*?)@' + semverVersionString +
+  escapeRegExp('https://cdn.jsdelivr.net/npm/') + '(?<name>(?:@[^/]*/)?[^@]*?)@' + semverVersionString +
     pathVersionString,
-  'https://stackpath.bootstrapcdn.com/(?<name>[^/]*)/' + semverVersionString +
+  escapeRegExp('https://stackpath.bootstrapcdn.com/') + '(?<name>[^/]*)/' + semverVersionString +
     pathVersionString,
-  'https://use.fontawesome.com/releases/v' + semverVersionString +
+  escapeRegExp('https://use.fontawesome.com/releases/v') + semverVersionString +
     noMinPathVersionString
 ].map((url) => {
   return basePathToRegex(url);
@@ -468,10 +472,12 @@ async function integrityMatters (options) {
     : [];
 
   const fileContentsArr = await Promise.all(files.map(async (file) => {
-    const extension = file.match(/\..*$/u);
+    // Avoid polynomail regex (LGTM)
+    const dotIdx = file.indexOf('.');
+    const extension = dotIdx > 0 ? file.slice(dotIdx) : '';
     return {
       file,
-      extension: extension && extension[0],
+      extension,
       contents: await readFile(file, 'utf8')
     };
   }));

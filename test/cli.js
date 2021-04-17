@@ -172,11 +172,14 @@ describe('Binary', function () {
       ['should execute main CLI (JSON)', {json: true}],
       ['should execute main CLI with `ignoreURLFetches`', {
         ignoreURLFetches: true
+      }],
+      ['should execute main CLI (with missing extension and `noGlobs`)', {
+        noExtension: true
       }]
     ].forEach(([
       testMessage, {
         dryRun, ignoreURLFetches, urlIntegrityCheck,
-        inPlaceFile, json, noConfig
+        inPlaceFile, json, noConfig, noExtension
       } = {}
     ]) => {
       it(testMessage, async function () {
@@ -198,11 +201,14 @@ describe('Binary', function () {
             ...(dryRun ? ['--dryRun'] : ''),
             ...(ignoreURLFetches ? ['--ignoreURLFetches'] : ''),
             ...(urlIntegrityCheck ? ['--urlIntegrityCheck'] : ''),
+            ...(noExtension ? ['--noGlobs'] : ''),
             (inPlaceFile
               ? outputPath
               : (json
                 ? 'test/fixtures/sample.json'
-                : 'test/fixtures/sample.html')),
+                : noExtension
+                  ? 'test/fixtures/sample'
+                  : 'test/fixtures/sample.html')),
             ...(inPlaceFile ? '' : ['--outputPath', outputPath])
           ],
           {

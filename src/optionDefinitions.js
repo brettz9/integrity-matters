@@ -187,7 +187,7 @@ const optionDefinitions = [
       'will be of the same name as the ESM input, but resolving to a ' +
       'different (UMD/IIFE) path after rolling up). Useful when source is ' +
       'intended to avoid a build step (e.g., functional ESM with ' +
-      '`node_modules` paths in source) but output is CDN-friendly UMD or' +
+      '`node_modules` paths in source) but output is CDN-friendly UMD or ' +
       'IIFE without the cascading HTTP requests of ESM. Defaults to `false`.'
   },
   {

@@ -1,5 +1,10 @@
 # CHANGES for integrity-matters
 
+## 0.13.2
+
+- Fix: Missing space in CLI docs (LGTM-identified)
+- Linting: Escape regexes for dots in URLs; avoid polynomial regex
+
 ## 0.13.1
 
 - Fix: Do not allow downstream to use updated cheerio
