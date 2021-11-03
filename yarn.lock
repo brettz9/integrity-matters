@@ -222,10 +222,10 @@
   resolved "https://registry.npmjs.org/@blueoak/list/-/list-2.0.0.tgz"
   integrity sha512-yQ6/CTy6DYvmJOAIw/BJjKeNG2ZyF8uxgTN8Yvcv4L9YavoVp9xUgmoVUKN5l24NGPDQpswavNanHOqB00ZNXg==
 
-"@brettz9/eslint-plugin@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/@brettz9/eslint-plugin/-/eslint-plugin-1.0.3.tgz"
-  integrity sha512-2ESGw4oZJ5IvkFitzRXzfdUY8hzSPSanQ8i+adzWMQPK7jxxUHkZ6GEslOd7GjHFZIcwqc1xVXVU0itf8zYFGA==
+"@brettz9/eslint-plugin@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@brettz9/eslint-plugin/-/eslint-plugin-1.0.4.tgz#47d281669d0f8dab03230b42d6cec15c1ef620ed"
+  integrity sha512-BDKec0j1PbKhX6RNuEehwr65yUAo/zALbrJ5aogAZnrafrFfPvstI6osQr0NYZKFVoxWLCDwShPIcuKYvOc/GA==
 
 "@es-joy/jsdoccomment@0.12.0":
   version "0.12.0"
@@ -1530,10 +1530,10 @@ escape-string-regexp@^4.0.0, escape-string-regexp@~4.0.0:
   resolved "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz"
   integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
 
-eslint-config-ash-nazg@^31.2.2:
-  version "31.2.2"
-  resolved "https://registry.npmjs.org/eslint-config-ash-nazg/-/eslint-config-ash-nazg-31.2.2.tgz"
-  integrity sha512-wzURhoKzl6/bz/uXpIEYvnpEEfBiKy4mGVdYoYzjHX2tVmsjK7+oB5NB6M8zvQLpssLK7FV7B43qAiuK682o0w==
+eslint-config-ash-nazg@^32.0.0:
+  version "32.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-ash-nazg/-/eslint-config-ash-nazg-32.0.0.tgz#0ed7d4d6252328116eeb0c58f4f6ece0cd774e61"
+  integrity sha512-B8SdXZPqY3StQwPYB9XeJJehPaxWDVl28+rn7HIrLDEMjbw7kC15nlt7hg8+wp0M/fag8JWXCJCiu1hCk/syeQ==
   dependencies:
     semver "^7.3.5"
 
@@ -2102,7 +2102,7 @@ gensync@^1.0.0-beta.2:
 
 get-caller-file@^2.0.1:
   version "2.0.5"
-  resolved "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz"
+  resolved "https://registry.yarnpkg.com/get-caller-file/-/get-caller-file-2.0.5.tgz#4f94412a82db32f36e3b0b9741f8a97feb031f7e"
   integrity sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==
 
 get-intrinsic@^1.0.2, get-intrinsic@^1.1.0, get-intrinsic@^1.1.1:
@@ -4775,7 +4775,7 @@ yargs-parser@^18.1.2:
 
 yargs-parser@^20.2.9:
   version "20.2.9"
-  resolved "https://registry.npmjs.org/yargs-parser/-/yargs-parser-20.2.9.tgz"
+  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-20.2.9.tgz#2eb7dc3b0289718fc295f362753845c41a0c94ee"
   integrity sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==
 
 yargs-unparser@1.6.0:
