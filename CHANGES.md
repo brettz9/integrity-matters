@@ -1,5 +1,23 @@
 # CHANGES for integrity-matters
 
+## 0.14.0
+
+### User-impacting
+
+- Fix: Update and pin `semver-regex` (will need to manually update) with
+    suitable internal use; narrow ranges of other updated deps.; fixes #2
+- Docs: Update CLI
+- Docs: Update license badges
+- npm: Update deps.
+
+### Dev-impacting
+
+- Linting: As per latest ash-nazg
+- Testing: Avoid new npm updating Yarn lock
+- npm: Update package-lock to 2.0
+- npm: Narrow devDep. ranges so shouldn't be updated anymore
+- npm: Update devDeps.
+
 ## 0.13.2
 
 - Fix: Missing space in CLI docs (LGTM-identified)

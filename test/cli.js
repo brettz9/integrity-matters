@@ -1028,7 +1028,7 @@ describe('Binary', function () {
           escStringRegex(
             `The \`node_modules\` \`package.json\`'s version ` +
             `(${leafletVersion}) is satisfied by the devDependency ` +
-            `"leaflet"'s current \`package.json\` range, "^1.6.0".`
+            `"leaflet"'s current \`package.json\` range, "~1.6.0".`
           ),
           'u'
         ));
@@ -1074,7 +1074,7 @@ describe('Binary', function () {
             escStringRegex(
               `The \`node_modules\` \`package.json\`'s version ` +
               `(${leafletVersion}) is satisfied by the devDependency ` +
-              `"leaflet"'s current \`package.json\` range, "^1.6.0".`
+              `"leaflet"'s current \`package.json\` range, "~1.6.0".`
             ),
             'u'
           ));

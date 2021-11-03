@@ -2,8 +2,7 @@
 
 module.exports = {
   extends: [
-    'ash-nazg/sauron',
-    'plugin:node/recommended-script'
+    'ash-nazg/sauron-node-script-overrides'
   ],
   env: {
     browser: false,
@@ -29,7 +28,7 @@ module.exports = {
       'node/exports-style': 0
     }
   }, {
-    files: ['*.md'],
+    files: ['*.md/*.js'],
     globals: {
     },
     rules: {
@@ -49,6 +48,11 @@ module.exports = {
     'compat/compat': 0,
 
     // Reenabled by plugin:node/recommended-script
-    'no-process-exit': 0
+    'no-process-exit': 0,
+
+    'node/exports-style': 0,
+
+    // Reenable when ESLint 8 support
+    'jsdoc/check-examples': 0
   }
 };

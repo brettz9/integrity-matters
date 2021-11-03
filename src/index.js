@@ -44,7 +44,8 @@ const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 const semverVersionString = `(?<version>${
   // Strip off `(?<=^v?|\sv?)` lookbehind at beginning and word break
   //  `\b` at end
-  semverRegex().source.slice(13, -2)
+  semverRegex().source
+    .replace('(?:(?<=^v?|\\sv?)', '').replace('\\b){1,200}', '')
 })`;
 
 const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*?)' +
@@ -410,10 +411,12 @@ async function integrityMatters (options) {
   const opts = noConfig
     ? options
     : configPath
-      // eslint-disable-next-line import/no-dynamic-require -- User file
+      // eslint-disable-next-line max-len -- Long
+      // eslint-disable-next-line import/no-dynamic-require, node/global-require -- User file
       ? {...require(pathResolve(process.cwd(), configPath)), ...options}
       : {
-        // eslint-disable-next-line import/no-dynamic-require -- User file
+        // eslint-disable-next-line max-len -- Long
+        // eslint-disable-next-line import/no-dynamic-require, node/global-require -- User file
         ...require(
           pathResolve(
             process.cwd(),
