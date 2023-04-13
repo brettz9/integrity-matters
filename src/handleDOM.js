@@ -1,7 +1,5 @@
-'use strict';
-
-const {DomHandler} = require('domhandler');
-const {Parser} = require('htmlparser2');
+import {DomHandler} from 'domhandler';
+import {Parser} from 'htmlparser2';
 
 /**
  * @external DOMHandlerObject
@@ -10,9 +8,9 @@ const {Parser} = require('htmlparser2');
 
 /**
  * @param {string} domString
- * @param {external:DomHandlerOptions} domHandlerOptions
- * @param {external:Htmlparser2Options} htmlparser2Options
- * @returns {Promise<external:DOMHandlerObject>}
+ * @param {DomHandlerOptions} domHandlerOptions
+ * @param {Htmlparser2Options} htmlparser2Options
+ * @returns {Promise<DOMHandlerObject>}
  */
 function handleDOM (domString, domHandlerOptions, htmlparser2Options) {
   // eslint-disable-next-line promise/avoid-new -- Has no Promise API
@@ -36,4 +34,4 @@ function handleDOM (domString, domHandlerOptions, htmlparser2Options) {
   });
 }
 
-module.exports = handleDOM;
+export default handleDOM;

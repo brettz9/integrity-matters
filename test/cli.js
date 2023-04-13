@@ -1,29 +1,40 @@
-'use strict';
+/* eslint-disable no-console -- Testing */
+import {readFile, unlink, writeFile, copyFile} from 'fs/promises';
+import {promisify} from 'util';
+import {join} from 'path';
+import {execFile as ef} from 'child_process';
+import escStringRegex from 'escape-string-regexp';
 
-const {
-  readFile: rf, unlink: ul, writeFile: wf,
-  copyFile: copyFileCallback
-} = require('fs');
-const {promisify} = require('util');
-const {join} = require('path');
-const {execFile: ef} = require('child_process');
-const escStringRegex = require('escape-string-regexp');
-const {dependencies: deps, devDependencies} = require('../package.json');
+const {dirname} = import.meta;
+
+const {dependencies: deps, devDependencies} = JSON.parse(
+  await readFile(dirname + '/../package.json')
+);
 const {
   packages: lockDeps
-} = require('../package-lock.json');
+} = JSON.parse(
+  await readFile(dirname + '/../package-lock.json')
+);
 const {
   version: leafletVersion
-} = require('../node_modules/leaflet/package.json');
+} = JSON.parse(await readFile(
+  dirname + '/../node_modules/leaflet/package.json'
+));
 const {
   version: jqueryVersion
-} = require('../node_modules/jquery/package.json');
+} = JSON.parse(await readFile(
+  dirname + '/../node_modules/jquery/package.json'
+));
 const {
   version: popperJsVersion
-} = require('../node_modules/popper.js/package.json');
+} = JSON.parse(await readFile(
+  dirname + '/../node_modules/popper.js/package.json'
+));
 const {
   version: bootstrapVersion
-} = require('../node_modules/bootstrap/package.json');
+} = JSON.parse(await readFile(
+  dirname + '/../node_modules/bootstrap/package.json'
+));
 
 // Hard-code to prevent test breakage
 // const {
@@ -33,23 +44,19 @@ const mochaVersion = '8.1.1';
 
 const debug = false;
 
-const packageLockPath = join(__dirname, '../package-lock.json');
-const yarnLockPath = join(__dirname, '../yarn.lock');
+const packageLockPath = join(dirname, '../package-lock.json');
+const yarnLockPath = join(dirname, '../yarn.lock');
 
-const readFile = promisify(rf);
 const execFile = promisify(ef);
-const unlink = promisify(ul);
-const copyFile = promisify(copyFileCallback);
-const writeFile = promisify(wf);
 
-const binFile = join(__dirname, '../bin/index.js');
+const binFile = join(dirname, '../bin/index.js');
 
 const getFixturePath = (path) => {
-  return join(__dirname, `fixtures/${path}`);
+  return join(dirname, `fixtures/${path}`);
 };
 
 const getResultsPath = (path) => {
-  return join(__dirname, `results/${path}`);
+  return join(dirname, `results/${path}`);
 };
 
 const outputPath = getResultsPath('cli-results.html');
@@ -198,12 +205,12 @@ describe('Binary', function () {
                 // Ensure `noConfig` avoids use of this
                 '--configPath', 'badFile'
               ]
-              : ''
+              : []
             ),
-            ...(dryRun ? ['--dryRun'] : ''),
-            ...(ignoreURLFetches ? ['--ignoreURLFetches'] : ''),
-            ...(urlIntegrityCheck ? ['--urlIntegrityCheck'] : ''),
-            ...(noExtension ? ['--noGlobs'] : ''),
+            ...(dryRun ? ['--dryRun'] : []),
+            ...(ignoreURLFetches ? ['--ignoreURLFetches'] : []),
+            ...(urlIntegrityCheck ? ['--urlIntegrityCheck'] : []),
+            ...(noExtension ? ['--noGlobs'] : []),
             (inPlaceFile
               ? outputPath
               : (json
@@ -211,7 +218,7 @@ describe('Binary', function () {
                 : noExtension
                   ? 'test/fixtures/sample'
                   : 'test/fixtures/sample.html')),
-            ...(inPlaceFile ? '' : ['--outputPath', outputPath])
+            ...(inPlaceFile ? [] : ['--outputPath', outputPath])
           ],
           {
             timeout: 25000
@@ -241,12 +248,12 @@ describe('Binary', function () {
           escStringRegex(
             `WARNING: Local hash `
           ) +
-          '\\S+' +
+          String.raw`\S+` +
           escStringRegex(
             ` does not match corresponding hash (index 0) within the ` +
             `integrity attribute (`
           ) +
-          '\\S+' +
+          String.raw`\S+` +
           escStringRegex(
             `); algorithm: sha512; file node_modules/leaflet/dist/leaflet.js\n`
           ) +
@@ -290,16 +297,16 @@ describe('Binary', function () {
           escStringRegex(
             `WARNING: Local hash `
           ) +
-          '\\S+' +
+          String.raw`\S+` +
           escStringRegex(
             ` does not match corresponding hash (index 0) within the ` +
             `integrity attribute (`
           ) +
-          '\\S+' +
+          String.raw`\S+` +
           escStringRegex(
             `); algorithm: sha512; file node_modules/leaflet/dist/leaflet.css\n`
           ),
-          'u'
+          'v'
         ));
         expect(stdout).to.match(new RegExp(
           escStringRegex(
@@ -427,7 +434,7 @@ describe('Binary', function () {
               ? ''
               : `INFO: Finished writing to ${outputPath}\n`)
           ),
-          'u'
+          'v'
         ));
 
         if (dryRun) {
@@ -488,8 +495,8 @@ describe('Binary', function () {
               `https://example.com/leaflet@${leafletVersion}` +
               `/dist/leaflet.css`
             ) +
-          ')\\.',
-          'u'
+          String.raw`)\.`,
+          'v'
         ));
 
         expect(stdout).to.not.contain('Finished writing to');
@@ -546,7 +553,7 @@ describe('Binary', function () {
                 `1.4.0. Checking \`node_modules\` for a valid installed ` +
                 `version to update the URL...\n`
             ),
-            'u'
+            'v'
           ));
 
           const contents = await readFile(outputPath, 'utf8');
@@ -585,13 +592,13 @@ describe('Binary', function () {
           escStringRegex(
             `WARNING: Local hash `
           ) +
-          '\\S+' +
+          String.raw`\S+` +
           escStringRegex(
             ` does not match corresponding hash (index 0) within the ` +
             `integrity attribute (simulatingOldIntegrity); algorithm: ` +
             `sha512; file node_modules/leaflet/dist/leaflet.css\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -644,7 +651,7 @@ describe('Binary', function () {
                 `Checking \`node_modules\` for a valid installed version to ` +
                 `update the URL...\n`
             ),
-            'u'
+            'v'
           ));
 
           const contents = await readFile(outputPath, 'utf8');
@@ -699,7 +706,7 @@ describe('Binary', function () {
                 `Checking \`node_modules\` for a valid installed version to ` +
                 `update the URL...\n`
             ),
-            'u'
+            'v'
           ));
 
           const contents = await readFile(outputPath, 'utf8');
@@ -753,7 +760,7 @@ describe('Binary', function () {
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -802,7 +809,7 @@ describe('Binary', function () {
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -822,9 +829,9 @@ describe('Binary', function () {
               '--ignoreURLFetches',
               '--fallback',
               '--globalCheck',
-              'leaflet=script=window.Leaflet',
+              'leaflet=script=globalThis.Leaflet',
               '--globalCheck',
-              'leaflet=link=window.SomeLeafletCSSCheck',
+              'leaflet=link=globalThis.SomeLeafletCSSCheck',
               '--file',
               json
                 ? 'test/fixtures/fallback.json'
@@ -858,7 +865,7 @@ describe('Binary', function () {
                 `1.4.0. Checking \`node_modules\` for a valid installed ` +
                 `version to update the URL...\n`
             ),
-            'u'
+            'v'
           ));
 
           const contents = await readFile(outputPath, 'utf8');
@@ -903,13 +910,13 @@ describe('Binary', function () {
           escStringRegex(
             `WARNING: Local hash `
           ) +
-          '\\S+' +
+          String.raw`\S+` +
           escStringRegex(
             ` does not match corresponding hash (index 0) within the ` +
             `integrity attribute (badIntegrity); algorithm: sha384; ` +
             `file node_modules/bootstrap/dist/css/bootstrap.min.css\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -963,7 +970,7 @@ describe('Binary', function () {
                 `Checking \`node_modules\` for a valid installed version to ` +
                 `update the URL...\n`
             ),
-            'u'
+            'v'
           ));
 
           const contents = await readFile(outputPath, 'utf8');
@@ -1021,7 +1028,7 @@ describe('Binary', function () {
                 `Checking \`node_modules\` for a valid installed version to ` +
                 `update the URL...\n`
             ),
-            'u'
+            'v'
           ));
 
           const contents = await readFile(outputPath, 'utf8');
@@ -1066,7 +1073,7 @@ describe('Binary', function () {
             `(${leafletVersion}) is satisfied by the devDependency ` +
             `"leaflet"'s current \`package.json\` range, "~1.6.0".`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1112,7 +1119,7 @@ describe('Binary', function () {
               `(${leafletVersion}) is satisfied by the devDependency ` +
               `"leaflet"'s current \`package.json\` range, "~1.6.0".`
             ),
-            'u'
+            'v'
           ));
 
           const contents = await readFile(outputPath, 'utf8');
@@ -1154,7 +1161,7 @@ describe('Binary', function () {
             `WARNING: Algorithm whitelist did not specify ` +
             `detected "sha512", so dropping.`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1193,7 +1200,7 @@ describe('Binary', function () {
             ` higher URL version (or downgrade your version ` +
             `in the URL).`
           ),
-          'u'
+          'v'
         ));
 
         expect(stdout).to.not.contain('Finished writing to');
@@ -1227,7 +1234,7 @@ describe('Binary', function () {
           escStringRegex(
             `INFO: Finished writing to ${outputPath}\n`
           ),
-          'u'
+          'v'
         ));
 
         expect(stderr).to.match(new RegExp(
@@ -1237,7 +1244,7 @@ describe('Binary', function () {
               `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
               `a valid installed version to update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1273,7 +1280,7 @@ describe('Binary', function () {
           escStringRegex(
             `INFO: Finished writing to ${outputPath}\n`
           ),
-          'u'
+          'v'
         ));
 
         expect(stderr).to.match(new RegExp(
@@ -1283,7 +1290,7 @@ describe('Binary', function () {
               `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
               `a valid installed version to update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1318,7 +1325,7 @@ describe('Binary', function () {
           escStringRegex(
             `INFO: Finished writing to ${outputPath}\n`
           ),
-          'u'
+          'v'
         ));
 
         expect(stderr).to.match(new RegExp(
@@ -1328,7 +1335,7 @@ describe('Binary', function () {
               `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
               `a valid installed version to update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1363,7 +1370,7 @@ describe('Binary', function () {
           escStringRegex(
             `INFO: Finished writing to ${outputPath}\n`
           ),
-          'u'
+          'v'
         ));
 
         expect(stderr).to.match(new RegExp(
@@ -1373,7 +1380,7 @@ describe('Binary', function () {
               `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
               `a valid installed version to update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1408,7 +1415,7 @@ describe('Binary', function () {
           escStringRegex(
             `INFO: Finished writing to ${outputPath}\n`
           ),
-          'u'
+          'v'
         ));
 
         expect(stderr).to.match(new RegExp(
@@ -1418,7 +1425,7 @@ describe('Binary', function () {
               `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
               `a valid installed version to update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1468,7 +1475,7 @@ describe('Binary', function () {
               `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n`
           ),
-          'u'
+          'v'
         ));
 
         expect(stderr).to.match(new RegExp(
@@ -1484,7 +1491,7 @@ describe('Binary', function () {
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1517,25 +1524,25 @@ describe('Binary', function () {
           escStringRegex(
             `The \`yarn.lock\`'s version`
           ),
-          'u'
+          'v'
         ));
         expect(stdout).to.not.match(new RegExp(
           escStringRegex(
             `The \`yarn.lock\`'s version`
           ),
-          'u'
+          'v'
         ));
         expect(stdout).to.match(new RegExp(
           escStringRegex(
             `INFO: Found \`yarn.lock\`.`
           ),
-          'u'
+          'v'
         ));
         expect(stdout).to.match(new RegExp(
           escStringRegex(
             `INFO: Found valid \`package.json\` for "chai".`
           ),
-          'u'
+          'v'
         ));
 
         expect(stdout).to.contain('Finished writing to');
@@ -1571,7 +1578,7 @@ describe('Binary', function () {
             `${mochaVersion}. Please update your lock file (or ` +
             `downgrade the version in your URL)...`
           ),
-          'u'
+          'v'
         ));
 
         expect(stdout).to.not.contain('Finished writing to');
@@ -1620,7 +1627,7 @@ describe('Binary', function () {
               `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n`
           ),
-          'u'
+          'v'
         ));
 
         expect(stderr).to.match(new RegExp(
@@ -1636,7 +1643,7 @@ describe('Binary', function () {
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1693,7 +1700,7 @@ describe('Binary', function () {
             `INFO: No valid \`package-lock.json\` found.\n` +
             `INFO: No valid \`yarn.lock\` found.\n`
           ),
-          'u'
+          'v'
         ));
 
         expect(stderr).to.match(new RegExp(
@@ -1703,7 +1710,7 @@ describe('Binary', function () {
               `"${devDependencies.leaflet}". Checking \`node_modules\` for ` +
               `a valid installed version to update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         expect(stderr).to.not.match(new RegExp(
@@ -1715,7 +1722,7 @@ describe('Binary', function () {
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
           ),
-          'u'
+          'v'
         ));
 
         const contents = await readFile(outputPath, 'utf8');
@@ -1769,7 +1776,7 @@ describe('Binary', function () {
             escStringRegex(`leaflet/dist/leaflet.css`) +
           ')' +
           ` could not be found`,
-          'u'
+          'v'
         ));
 
         expect(stdout).to.not.contain('Finished writing to');
@@ -1804,7 +1811,7 @@ describe('Binary', function () {
                 'Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCA' +
                 'Wi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==")'
           ),
-          'u'
+          'v'
         ));
 
         expect(stdout).to.not.contain('Finished writing to');
@@ -1836,7 +1843,7 @@ describe('Binary', function () {
           escStringRegex(
             `Bad integrity value, "badIntegrity"`
           ),
-          'u'
+          'v'
         ));
 
         expect(stdout).to.not.contain('Finished writing to');
@@ -1868,7 +1875,7 @@ describe('Binary', function () {
           escStringRegex(
             `Package "react" is not found in \`package.json\`.`
           ),
-          'u'
+          'v'
         ));
 
         expect(stdout).to.not.contain('Finished writing to');

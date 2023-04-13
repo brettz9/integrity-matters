@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css" integrity="sha384-eS4bw6aEvhCSXWGP85ANR/N8isWKzT7P36NvcuTJGkrj6wsbxLVpXslrNXYHyseD sha256-SHMGCYmST46SoyGgo4YR/9AlK1vf3ff84Aq9yK4hdqM=" crossorigin>
 <script>
           'use strict';
-          window.LeafletTestGlobalCSS || document.write(
+          globalThis.LeafletTestGlobalCSS || document.write(
             '<link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />'
           );
         </script>
@@ -44,7 +44,7 @@
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin></script>
 <script>
           'use strict';
-          window.LeafletTestGlobal || document.write(
+          globalThis.LeafletTestGlobal || document.write(
             '<script src="node_modules/leaflet/dist/leaflet.js">\u003C/script>'
           );
         </script>

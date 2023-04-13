@@ -1,9 +1,7 @@
-'use strict';
-
-exports.basePathToRegex = (cliString) => {
-  return new RegExp(cliString, 'um');
+export const basePathToRegex = (cliString) => {
+  return new RegExp(cliString, 'vm');
 };
 
-exports.hasOwn = (obj, prop) => {
+export const hasOwn = (obj, prop) => {
   return {}.hasOwnProperty.call(obj, prop);
 };

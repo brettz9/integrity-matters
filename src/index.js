@@ -1,36 +1,27 @@
-'use strict';
+import {readFile, writeFile} from 'fs/promises';
+import {existsSync} from 'fs';
 
-const {
-  readFile: readFileCallback,
-  writeFile: writeFileCallback,
-  readFileSync,
-  existsSync
-} = require('fs');
+// eslint-disable-next-line no-shadow -- Still supporting Node < 23
+import crypto from 'crypto';
+import {resolve as pathResolve, join} from 'path';
 
-const crypto = require('crypto');
-const {resolve: pathResolve, join} = require('path');
-const {promisify} = require('util');
+import cheerio from 'cheerio';
+import semver from 'semver';
+import semverRegex from 'semver-regex';
+// import prompts from 'prompts';
+import {globby} from 'globby';
+// import fetch from 'node-fetch';
 
-const cheerio = require('cheerio');
-const semver = require('semver');
-const semverRegex = require('semver-regex');
-// const prompts = require('prompts');
-const globby = require('globby');
-// const fetch = require('node-fetch');
+import {basePathToRegex, hasOwn} from './common.js';
+import handleDOM from './handleDOM.js';
+import getHash from './getHash.js';
 
-const {basePathToRegex, hasOwn} = require('./common.js');
-const handleDOM = require('./handleDOM.js');
-const getHash = require('./getHash.js');
-
-const readFile = promisify(readFileCallback);
-const writeFile = promisify(writeFileCallback);
-
-const getLocalJSON = (path) => {
-  return JSON.parse(readFileSync(path), 'utf8');
+const getLocalJSON = async (path) => {
+  return JSON.parse(await readFile(path), 'utf8');
 };
 
 const escapeRegExp = (text) => {
-  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/gu, '\\$&');
+  return text.replaceAll(/[\-\[\]\{\}\(\)*+?.,\\^$\|#\s]/gv, String.raw`\$&`);
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
@@ -39,14 +30,19 @@ const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 const semverVersionString = `(?<version>${
   // Strip off `(?<=^v?|\sv?)` lookbehind at beginning and word break
   //  `\b` at end
-  semverRegex().source
-    .replace('(?:(?<=^v?|\\sv?)', '').replace('\\b){1,200}', '')
+  semverRegex().source.
+    replaceAll('[a-z-]', String.raw`[a-z\-]`).
+    replaceAll(String.raw`[\da-z-]`, String.raw`[\da-z\-]`).
+    replace(String.raw`(?:(?<=^v?|\sv?)`, '').replace(
+      String.raw`\b){1,200}`,
+      ''
+    )
 })`;
 
 const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*?)' +
-  '(?<slim>(?:\\.slim)?)(?<min>(?:\\.min)?)(?<ext>(?:\\.(?:js|css))?)$';
+  String.raw`(?<slim>(?:\.slim)?)(?<min>(?:\.min)?)(?<ext>(?:\.(?:js|css))?)$`;
 const noMinPathVersionString = '(?<dist>/dist)?(?<path>[^ \'".]*?)' +
-    '(?<ext>\\.(?:js|css))?$';
+    String.raw`(?<ext>\.(?:js|css))?$`;
 
 const defaultCdnNames = [
   'unpkg',
@@ -63,15 +59,16 @@ const defaultPackagesToCdns = {
 };
 
 const defaultCdnBasePaths = [
-  escapeRegExp('https://unpkg.com/') + '(?<name>[^@]*)@' + semverVersionString +
+  escapeRegExp('https://unpkg.com/') +
+    '(?<name>[^@]*)@' + semverVersionString +
+      pathVersionString,
+  String.raw`(?<prefix>[.\/]*)node_modules/(?<name>(?:@[^\/]*/)?[^\/]*)` +
     pathVersionString,
-  '(?<prefix>[./]*)node_modules/(?<name>(?:@[^/]*/)?[^/]*)' +
+  escapeRegExp('https://code.jquery.com/') + String.raw`(?<name>[^\-]*?)-` + semverVersionString +
     pathVersionString,
-  escapeRegExp('https://code.jquery.com/') + '(?<name>[^-]*?)-' + semverVersionString +
+  escapeRegExp('https://cdn.jsdelivr.net/npm/') + String.raw`(?<name>(?:@[^\/]*/)?[^@]*?)@` + semverVersionString +
     pathVersionString,
-  escapeRegExp('https://cdn.jsdelivr.net/npm/') + '(?<name>(?:@[^/]*/)?[^@]*?)@' + semverVersionString +
-    pathVersionString,
-  escapeRegExp('https://stackpath.bootstrapcdn.com/') + '(?<name>[^/]*)/' + semverVersionString +
+  escapeRegExp('https://stackpath.bootstrapcdn.com/') + String.raw`(?<name>[^\/]*)/` + semverVersionString +
     pathVersionString,
   escapeRegExp('https://use.fontawesome.com/releases/v') + semverVersionString +
     noMinPathVersionString
@@ -104,7 +101,7 @@ const defaultCdnBasePathReplacements = [
  */
 class JSONStrategy {
   /**
-   * @type {UpdateStrategy#getObjects}
+   * @type {UpdateStrategy.getObjects}
    */
   getObjects (contents) {
     this.doc = JSON.parse(contents);
@@ -161,12 +158,13 @@ class JSONStrategy {
   /* eslint-disable class-methods-use-this -- Might use `this` later
     for config */
   /**
-  * @type {UpdateStrategy#update}
+  * @type {UpdateStrategy.update}
   */
   update ({type, elem}, {
     /* eslint-enable class-methods-use-this -- Might use `this` later
       for config */
-    newSrc, newIntegrity, addCrossorigin, noLocalIntegrity, fallback, local,
+    newSrc, newIntegrity, addCrossorigin, // noLocalIntegrity,
+    fallback, local,
     localPath, globalCheck
   }) {
     // Unlike HTML, we don't depend on `fallback` to set this value; however,
@@ -202,7 +200,7 @@ class JSONStrategy {
   }
 
   /**
-   * @type {UpdateStrategy#save}
+   * @type {UpdateStrategy.save}
    */
   async save (file, {jsonSpace}) {
     const serialized = JSON.stringify(
@@ -217,7 +215,7 @@ class JSONStrategy {
  */
 class HTMLStrategy {
   /**
-   * @type {UpdateStrategy#getObjects}
+   * @type {UpdateStrategy.getObjects}
    */
   async getObjects (contents, domHandlerOptions, htmlparser2Options) {
     this.doc = await handleDOM(
@@ -239,7 +237,7 @@ class HTMLStrategy {
         type: 'script', elem: $(elem),
         src, integrity,
         algorithms: algorithms
-          ? algorithms.split(/\s+/u)
+          ? algorithms.split(/\s+/v)
           : undefined,
         cdn,
         glbl: glbl
@@ -267,7 +265,7 @@ class HTMLStrategy {
         type: 'link', elem: $(elem),
         src, integrity,
         algorithms: algorithms
-          ? algorithms.split(/\s+/u)
+          ? algorithms.split(/\s+/v)
           : undefined,
         cdn,
         glbl: glbl
@@ -287,7 +285,7 @@ class HTMLStrategy {
     for config */
   /**
    * For `elem`, see {@link CheerioElement}.
-   * @type {UpdateStrategy#update}
+   * @type {UpdateStrategy.update}
    */
   update ({type, elem}, {
     /* eslint-enable class-methods-use-this -- Might use `this` later
@@ -333,20 +331,20 @@ class HTMLStrategy {
   }
 
   /**
-   * @type {UpdateStrategy#save}
+   * @type {UpdateStrategy.save}
    */
   async save (file, {disclaimer, dropModules, dropBase}) {
     if (disclaimer) {
       const $ = cheerio.load(this.doc);
       $('*').first().before(
-        `<!--${disclaimer.replace(/--/gu, '&hyphen;-')}-->`,
+        `<!--${disclaimer.replaceAll('--', '&hyphen;-')}-->`,
         '\n'
       );
     }
     const $ = cheerio.load(this.doc);
     const removeWhitespace = function (element) {
       const {previousSibling} = $(element)[0];
-      if ((/^\s+$/u).test(previousSibling.nodeValue)) {
+      if ((/^\s+$/v).test(previousSibling.nodeValue)) {
         $(previousSibling).remove();
       }
     };
@@ -406,18 +404,18 @@ async function integrityMatters (options) {
   const opts = noConfig
     ? options
     : configPath
-      // eslint-disable-next-line max-len -- Long
-      // eslint-disable-next-line import/no-dynamic-require, n/global-require -- User file
-      ? {...require(pathResolve(process.cwd(), configPath)), ...options}
+      // // eslint-disable-next-line no-unsanitized/method -- User file
+      ? {...(
+        JSON.parse(await readFile(pathResolve(process.cwd(), configPath)))
+      ), ...options}
       : {
-        // eslint-disable-next-line max-len -- Long
-        // eslint-disable-next-line import/no-dynamic-require, n/global-require -- User file
-        ...require(
+      // // eslint-disable-next-line no-unsanitized/method -- User file
+        ...(JSON.parse(await readFile(
           pathResolve(
             process.cwd(),
             packageJsonPath || './package.json'
           )
-        ).integrityMatters,
+        ))).integrityMatters,
         ...options
       };
 
@@ -482,7 +480,7 @@ async function integrityMatters (options) {
 
   let checkDependency;
   try {
-    const packageJSON = getLocalJSON(
+    const packageJSON = await getLocalJSON(
       join(cwd, 'package.json')
     );
     const {dependencies, devDependencies} = packageJSON;
@@ -516,7 +514,7 @@ async function integrityMatters (options) {
 
   let packageLockJSON;
   try {
-    packageLockJSON = getLocalJSON(
+    packageLockJSON = await getLocalJSON(
       join(cwd, 'package-lock.json')
     );
     addMainLog('info', 'INFO: Found `package-lock.json`');
@@ -529,7 +527,7 @@ async function integrityMatters (options) {
     // Todo: Should use a proper parser, but
     // https://www.npmjs.com/package/parse-yarn-lock
     //  seems to be for older verions only.
-    const yarnContents = readFileSync(join(cwd, 'yarn.lock'), 'utf8');
+    const yarnContents = await readFile(join(cwd, 'yarn.lock'), 'utf8');
     if (packageLockJSON) { // yarn.lock exists due to no errors
       addMainLog(
         'warn',
@@ -538,8 +536,7 @@ async function integrityMatters (options) {
       );
     } else {
       yarnLockDeps = {};
-      // eslint-disable-next-line unicorn/no-unsafe-regex -- Disable for now
-      const yarnPattern = /^"?(?<dep>@?[^"@\n\d]*).*?:\n {2}version "(?<version>[^"\n]*)"(?:\n {2}resolved (?<resolved>[^\n]*))?\n {2}integrity (?<integrity>[^\n]*)\n/gum;
+      const yarnPattern = /^"?(?<dep>@?[^"@\n\d]*).*?:\n {2}version "(?<version>[^"\n]*)"(?:\n {2}resolved (?<resolved>[^\n]*))?\n {2}integrity (?<integrity>[^\n]*)\n/gvm;
       let match;
       while ((match = yarnPattern.exec(yarnContents)) !== null) {
         const {groups: {dep, version, integrity}} = match;
@@ -705,8 +702,8 @@ async function integrityMatters (options) {
   /**
    * @function UpdateStrategy#getObjects
    * @param {string} contents
-   * @param {external:DomHandlerOptions} [domHandlerOptions] For HtML only
-   * @param {external:Htmlparser2Options} [htmlparser2Options] For HTML only
+   * @param {DomHandlerOptions} [domHandlerOptions] For HtML only
+   * @param {Htmlparser2Options} [htmlparser2Options] For HTML only
    * @returns {Promise<SrcIntegrityObject[]>}
    */
 
@@ -843,7 +840,8 @@ async function integrityMatters (options) {
 
       let nmVersion;
       try {
-        ({version: nmVersion} = getLocalJSON(
+        // eslint-disable-next-line no-await-in-loop -- Serial
+        ({version: nmVersion} = await getLocalJSON(
           join(cwd, 'node_modules', name, 'package.json')
         ));
         addLog('info', `INFO: Found valid \`package.json\` for "${name}".`);
@@ -880,13 +878,14 @@ async function integrityMatters (options) {
         nodeModulesReplacements[0];
 
       const relativeNmPath = src.replace(cdnBasePath, nodeModulesReplacement);
-      const nmPath = relativeNmPath.replace(/^[./]*/u, '');
+      const nmPath = relativeNmPath.replace(/^[.\/]*/v, '');
+      // eslint-disable-next-line n/no-sync -- Needed for checking
       if (!existsSync(nmPath)) {
         throw new Error(
           `The local path ${nmPath} could not be found.`
         );
       }
-      const integrityHashes = integrity ? integrity.split(/\s+/u) : [];
+      const integrityHashes = integrity ? integrity.split(/\s+/v) : [];
       if (userOrInlineAlgorithms.length) {
         // Only add missing algorithms
         integrityHashes.push(...userOrInlineAlgorithms.map((algorithm) => {
@@ -919,7 +918,7 @@ async function integrityMatters (options) {
           serial loop */
         integrityHashes.map(async (integrityHash, j) => {
           const hashMatch = integrityHash.match(
-            /^(?<algorithm>[^-]*)-(?<base64Hash>.*$)/u
+            /^(?<algorithm>[^\-]*)-(?<base64Hash>.*$)/v
           );
           if (!hashMatch) {
             throw new Error(
@@ -997,7 +996,7 @@ async function integrityMatters (options) {
               return mtch.replace(
                 cdnBasePath,
                 cdnBasePathReplacement.replace(
-                  /(?!\\)\$<version>/u, updatingVersion
+                  /(?!\\)\$<version>/v, updatingVersion
                 )
               );
             }
@@ -1109,4 +1108,4 @@ async function integrityMatters (options) {
   // console.log('fileContentsArr', fileContentsArr);
 }
 
-module.exports = integrityMatters;
+export default integrityMatters;

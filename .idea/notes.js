@@ -1,7 +1,7 @@
 // Parses, but semver doesn't have a utility for `maxRange`, e.g., getting
 //  7.x out of `6.x || 7.x` (as could be used to update to the latest
 //  for the user)
-const Range = require('semver/classes/range');
+import Range from 'semver/classes/range';
 // Todo: Make configurable
 const rangeOptions = {
   loose: false,

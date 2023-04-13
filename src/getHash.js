@@ -1,7 +1,7 @@
-'use strict';
+import {createReadStream} from 'fs';
 
-const {createReadStream} = require('fs');
-const crypto = require('crypto');
+// eslint-disable-next-line no-shadow -- Still supporting Node < 23
+import crypto from 'crypto';
 
 /**
  * @param {"sha256"|"sha384"|"sha512"} algorithm
@@ -11,7 +11,7 @@ const crypto = require('crypto');
 function getHash (algorithm, path) {
   const hash = crypto.createHash(algorithm);
   // eslint-disable-next-line promise/avoid-new -- Has no promise API
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     hash.on('readable', () => {
       const data = hash.read();
       if (data) {
@@ -24,4 +24,5 @@ function getHash (algorithm, path) {
     input.pipe(hash);
   });
 }
-module.exports = getHash;
+
+export default getHash;

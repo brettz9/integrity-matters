@@ -8,3 +8,4 @@ coverage
 mocha-multi-reporters.json
 lgtm.yml
 badges
+eslint.config.js

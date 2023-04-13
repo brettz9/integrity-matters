@@ -10,7 +10,7 @@
     },
     {
       "name": "leaflet",
-      "global": "window.LeafletTestGlobalCSS",
+      "global": "globalThis.LeafletTestGlobalCSS",
       "cdn": "jsdelivr",
       "algorithms": [
         "sha384",
@@ -46,7 +46,7 @@
   "script": [
     {
       "name": "leaflet",
-      "global": "window.LeafletTestGlobal",
+      "global": "globalThis.LeafletTestGlobal",
       "algorithms": [
         "sha512"
       ],
