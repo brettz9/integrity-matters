@@ -18,11 +18,6 @@ const semverRegex = require('semver-regex');
 const globby = require('globby');
 const fetch = require('node-fetch');
 
-// todo[engine:node@>=12]: remove polyfill
-const flat = require('array.prototype.flat');
-
-flat.shim();
-
 const {basePathToRegex, hasOwn} = require('./common.js');
 const handleDOM = require('./handleDOM.js');
 const getHash = require('./getHash.js');

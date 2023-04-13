@@ -56,10 +56,9 @@
   "bugs": "https://github.com/brettz9/integrity-matters/issues",
   "homepage": "https://github.com/brettz9/integrity-matters#readme",
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=14.0.0"
   },
   "dependencies": {
-    "array.prototype.flat": "^1.3.1",
     "cheerio": "1.0.0-rc.3",
     "command-line-basics": "~0.8.0",
     "domhandler": "^5.0.3",
