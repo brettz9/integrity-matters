@@ -9,7 +9,9 @@ const {join} = require('path');
 const {execFile: ef} = require('child_process');
 const escStringRegex = require('escape-string-regexp');
 const {dependencies: deps, devDependencies} = require('../package.json');
-const {dependencies: lockDeps} = require('../package-lock.json');
+const {
+  packages: lockDeps
+} = require('../package-lock.json');
 const {
   version: leafletVersion
 } = require('../node_modules/leaflet/package.json');
@@ -229,7 +231,9 @@ describe('Binary', function () {
               `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
-            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+            `WARNING: The lock file version ${
+              lockDeps['node_modules/leaflet'].version
+            } is ` +
               `greater for package "leaflet" than the URL version 1.4.0. ` +
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
@@ -251,7 +255,9 @@ describe('Binary', function () {
               `devDependency "popper.js"'s current \`package.json\` range, ` +
               `"${devDependencies['popper.js']}". Checking \`node_modules\` ` +
               `for a valid installed version to update the URL...\n` +
-            `WARNING: The lock file version ${lockDeps['popper.js'].version} ` +
+            `WARNING: The lock file version ${
+              lockDeps['node_modules/popper.js'].version
+            } ` +
               `is greater for package "popper.js" than the URL version ` +
               `1.16.0. Checking \`node_modules\` for a valid installed ` +
               `version to update the URL...\n`
@@ -274,7 +280,9 @@ describe('Binary', function () {
               `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
-            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+            `WARNING: The lock file version ${
+              lockDeps['node_modules/leaflet'].version
+            } is ` +
               `greater for package "leaflet" than the URL version 1.4.0. ` +
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
@@ -300,7 +308,9 @@ describe('Binary', function () {
             // `INFO: No valid \`yarn.lock\` found.\n\n\n` +
 
             `INFO: The \`package-lock.json\`'s version (` +
-              `${lockDeps.leaflet.version}) is satisfied by the ` +
+              `${
+                lockDeps['node_modules/leaflet'].version
+              }) is satisfied by the ` +
               `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "leaflet".\n` +
@@ -325,7 +335,9 @@ describe('Binary', function () {
             `INFO: Dependency jquery in your lock file already matches URL ` +
               `version (3.5.1).\n` +
             `INFO: The \`package-lock.json\`'s version ` +
-              `(${lockDeps.jquery.version}) is satisfied by the ` +
+              `(${
+                lockDeps['node_modules/jquery'].version
+              }) is satisfied by the ` +
               `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "jquery".\n` +
@@ -335,7 +347,9 @@ describe('Binary', function () {
               `"${devDependencies.jquery}". Continuing...\n\n\n` +
 
             `INFO: The \`package-lock.json\`'s version ` +
-              `(${lockDeps['popper.js'].version}) is satisfied by the ` +
+              `(${
+                lockDeps['node_modules/popper.js'].version
+              }) is satisfied by the ` +
               `devDependency "popper.js"'s current \`package.json\` range, ` +
               `"${devDependencies['popper.js']}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "popper.js".\n` +
@@ -360,7 +374,9 @@ describe('Binary', function () {
             `INFO: Dependency bootstrap in your lock file already matches ` +
               `URL version (${bootstrapVersion}).\n` +
             `INFO: The \`package-lock.json\`'s version ` +
-              `(${lockDeps.bootstrap.version}) is satisfied by the ` +
+              `(${
+                lockDeps['node_modules/bootstrap'].version
+              }) is satisfied by the ` +
               `devDependency "bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "bootstrap".\n` +
@@ -375,7 +391,9 @@ describe('Binary', function () {
             `INFO: Dependency bootstrap in your lock file already matches ` +
               `URL version (${bootstrapVersion}).\n` +
             `INFO: The \`package-lock.json\`'s version ` +
-              `(${lockDeps.bootstrap.version}) is satisfied by the ` +
+              `(${
+                lockDeps['node_modules/bootstrap'].version
+              }) is satisfied by the ` +
               `devDependency "bootstrap"'s current \`package.json\` range, ` +
               `"${devDependencies.bootstrap}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "bootstrap".\n` +
@@ -385,7 +403,9 @@ describe('Binary', function () {
               `"${devDependencies.bootstrap}". Continuing...\n\n\n` +
 
             `INFO: The \`package-lock.json\`'s version ` +
-              `(${lockDeps.leaflet.version}) is satisfied by the ` +
+              `(${
+                lockDeps['node_modules/leaflet'].version
+              }) is satisfied by the ` +
               `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Continuing...\n` +
             `INFO: Found valid \`package.json\` for "leaflet".\n` +
@@ -519,7 +539,9 @@ describe('Binary', function () {
                 `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
-              `WARNING: The lock file version ${lockDeps.leaflet.version} ` +
+              `WARNING: The lock file version ${
+                lockDeps['node_modules/leaflet'].version
+              } ` +
                 `is greater for package "leaflet" than the URL version ` +
                 `1.4.0. Checking \`node_modules\` for a valid installed ` +
                 `version to update the URL...\n`
@@ -615,7 +637,9 @@ describe('Binary', function () {
                 `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
-              `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `WARNING: The lock file version ${
+                lockDeps['node_modules/leaflet'].version
+              } is ` +
                 `greater for package "leaflet" than the URL version 1.4.0. ` +
                 `Checking \`node_modules\` for a valid installed version to ` +
                 `update the URL...\n`
@@ -668,7 +692,9 @@ describe('Binary', function () {
                 `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
-              `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `WARNING: The lock file version ${
+                lockDeps['node_modules/leaflet'].version
+              } is ` +
                 `greater for package "leaflet" than the URL version 1.4.0. ` +
                 `Checking \`node_modules\` for a valid installed version to ` +
                 `update the URL...\n`
@@ -720,7 +746,9 @@ describe('Binary', function () {
               `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
-            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+            `WARNING: The lock file version ${
+              lockDeps['node_modules/leaflet'].version
+            } is ` +
               `greater for package "leaflet" than the URL version 1.4.0. ` +
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
@@ -767,7 +795,9 @@ describe('Binary', function () {
               `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
-            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+            `WARNING: The lock file version ${
+              lockDeps['node_modules/leaflet'].version
+            } is ` +
               `greater for package "leaflet" than the URL version 1.4.0. ` +
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
@@ -821,7 +851,9 @@ describe('Binary', function () {
                 `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
-              `WARNING: The lock file version ${lockDeps.leaflet.version} ` +
+              `WARNING: The lock file version ${
+                lockDeps['node_modules/leaflet'].version
+              } ` +
                 `is greater for package "leaflet" than the URL version ` +
                 `1.4.0. Checking \`node_modules\` for a valid installed ` +
                 `version to update the URL...\n`
@@ -924,7 +956,9 @@ describe('Binary', function () {
                 `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
-              `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `WARNING: The lock file version ${
+                lockDeps['node_modules/leaflet'].version
+              } is ` +
                 `greater for package "leaflet" than the URL version 1.4.0. ` +
                 `Checking \`node_modules\` for a valid installed version to ` +
                 `update the URL...\n`
@@ -980,7 +1014,9 @@ describe('Binary', function () {
                 `devDependency "leaflet"'s current \`package.json\` range, ` +
                 `"${devDependencies.leaflet}". Checking \`node_modules\` ` +
                 `for a valid installed version to update the URL...\n` +
-              `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+              `WARNING: The lock file version ${
+                lockDeps['node_modules/leaflet'].version
+              } is ` +
                 `greater for package "leaflet" than the URL version 1.4.0. ` +
                 `Checking \`node_modules\` for a valid installed version to ` +
                 `update the URL...\n`
@@ -1174,8 +1210,6 @@ describe('Binary', function () {
             '--file',
             '--htmlparser2Options',
             '{"lowerCaseTags": true}',
-            '--domHandlerOptions',
-            '{"normalizeWhitespace": true}',
             parserOptions,
             '--outputPath', outputPath
           ],
@@ -1208,10 +1242,7 @@ describe('Binary', function () {
 
         const contents = await readFile(outputPath, 'utf8');
         const expected = await readFile(parserOptionsResult, 'utf8');
-        // To allow development IDEs to add ending newline and strip trailing
-        //  spaces, we adjust our expected result file to completely match
-        //  expectations.
-        expect(contents).to.equal(expected.replace(/\n$/u, ' '));
+        expect(contents).to.equal(expected);
       }
     );
 
@@ -1431,7 +1462,9 @@ describe('Binary', function () {
         expect(stdout).to.match(new RegExp(
           escStringRegex(
             `INFO: The \`yarn.lock\`'s version ` +
-              `(${lockDeps.jquery.version}) is satisfied by the ` +
+              `(${
+                lockDeps['node_modules/jquery'].version
+              }) is satisfied by the ` +
               `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n`
           ),
@@ -1444,7 +1477,9 @@ describe('Binary', function () {
               `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
-            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+            `WARNING: The lock file version ${
+              lockDeps['node_modules/leaflet'].version
+            } is ` +
               `greater for package "leaflet" than the URL version 1.4.0. ` +
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
@@ -1579,7 +1614,9 @@ describe('Binary', function () {
         expect(stdout).to.match(new RegExp(
           escStringRegex(
             `INFO: The \`package-lock.json\`'s version ` +
-              `(${lockDeps.jquery.version}) is satisfied by the ` +
+              `(${
+                lockDeps['node_modules/jquery'].version
+              }) is satisfied by the ` +
               `devDependency "jquery"'s current \`package.json\` range, ` +
               `"${devDependencies.jquery}". Continuing...\n`
           ),
@@ -1592,7 +1629,9 @@ describe('Binary', function () {
               `devDependency "leaflet"'s current \`package.json\` range, ` +
               `"${devDependencies.leaflet}". Checking \`node_modules\` for a ` +
               `valid installed version to update the URL...\n` +
-            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+            `WARNING: The lock file version ${
+              lockDeps['node_modules/leaflet'].version
+            } is ` +
               `greater for package "leaflet" than the URL version 1.4.0. ` +
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`
@@ -1669,7 +1708,9 @@ describe('Binary', function () {
 
         expect(stderr).to.not.match(new RegExp(
           escStringRegex(
-            `WARNING: The lock file version ${lockDeps.leaflet.version} is ` +
+            `WARNING: The lock file version ${
+              lockDeps['node_modules/leaflet'].version
+            } is ` +
               `greater for package "leaflet" than the URL version 1.4.0. ` +
               `Checking \`node_modules\` for a valid installed version to ` +
               `update the URL...\n`

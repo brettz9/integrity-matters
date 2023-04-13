@@ -7,6 +7,6 @@ module.exports = {
   ],
   require: [
     // 'esm',
-    'chai/register-expect'
+    'chai/register-expect.js'
   ]
 };
