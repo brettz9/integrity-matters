@@ -1,12 +1,14 @@
 #!/usr/bin/env node
-'use strict';
 
-const {join} = require('path');
+import {join, dirname} from 'path';
+import {fileURLToPath} from 'url';
 
-const {cliBasics} = require('command-line-basics');
-const integrityMatters = require('../src/index.js');
+import {cliBasics} from 'command-line-basics';
+import integrityMatters from '../src/index.js';
 
-const optionDefinitions = cliBasics(
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const optionDefinitions = await cliBasics(
   join(__dirname, '../src/optionDefinitions.js')
 );
 
@@ -14,8 +16,6 @@ if (!optionDefinitions) { // cliBasics handled
   process.exit();
 }
 
-// eslint-disable-next-line unicorn/prefer-top-level-await -- CJS still
-(async () => {
 try {
   await integrityMatters({
     ...optionDefinitions,
@@ -26,4 +26,3 @@ try {
   console.error(err);
   process.exit();
 }
-})();

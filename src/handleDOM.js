@@ -1,7 +1,5 @@
-'use strict';
-
-const {DomHandler} = require('domhandler');
-const {Parser} = require('htmlparser2');
+import {DomHandler} from 'domhandler';
+import {Parser} from 'htmlparser2';
 
 /**
  * @external DOMHandlerObject
@@ -36,4 +34,4 @@ function handleDOM (domString, domHandlerOptions, htmlparser2Options) {
   });
 }
 
-module.exports = handleDOM;
+export default handleDOM;

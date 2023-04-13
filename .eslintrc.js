@@ -2,7 +2,7 @@
 
 module.exports = {
   extends: [
-    'ash-nazg/sauron-node-script-overrides'
+    'ash-nazg/sauron-node-overrides'
   ],
   env: {
     browser: false

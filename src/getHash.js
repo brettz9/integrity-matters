@@ -1,7 +1,5 @@
-'use strict';
-
-const {createReadStream} = require('fs');
-const crypto = require('crypto');
+import {createReadStream} from 'fs';
+import crypto from 'crypto';
 
 /**
  * @param {"sha256"|"sha384"|"sha512"} algorithm
@@ -24,4 +22,5 @@ function getHash (algorithm, path) {
     input.pipe(hash);
   });
 }
-module.exports = getHash;
+
+export default getHash;

@@ -1,29 +1,23 @@
-'use strict';
-
-const {
-  readFile: readFileCallback,
-  writeFile: writeFileCallback,
+import {
+  readFile,
+  writeFile,
   readFileSync,
   existsSync
-} = require('fs');
+} from 'fs/promises';
 
-const crypto = require('crypto');
-const {resolve: pathResolve, join} = require('path');
-const {promisify} = require('util');
+import crypto from 'crypto';
+import {resolve as pathResolve, join} from 'path';
 
-const cheerio = require('cheerio');
-const semver = require('semver');
-const semverRegex = require('semver-regex');
-// const prompts = require('prompts');
-const globby = require('globby');
-// const fetch = require('node-fetch');
+import cheerio from 'cheerio';
+import semver from 'semver';
+import semverRegex from 'semver-regex';
+// import prompts from 'prompts';
+import globby from 'globby';
+// import fetch from 'node-fetch';
 
-const {basePathToRegex, hasOwn} = require('./common.js');
-const handleDOM = require('./handleDOM.js');
-const getHash = require('./getHash.js');
-
-const readFile = promisify(readFileCallback);
-const writeFile = promisify(writeFileCallback);
+import {basePathToRegex, hasOwn} from './common.js';
+import handleDOM from './handleDOM.js';
+import getHash from './getHash.js';
 
 const getLocalJSON = (path) => {
   return JSON.parse(readFileSync(path), 'utf8');
