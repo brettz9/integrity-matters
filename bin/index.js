@@ -14,6 +14,7 @@ if (!optionDefinitions) { // cliBasics handled
   process.exit();
 }
 
+// eslint-disable-next-line unicorn/prefer-top-level-await -- CJS still
 (async () => {
 try {
   await integrityMatters({

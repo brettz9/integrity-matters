@@ -16,7 +16,7 @@ const semver = require('semver');
 const semverRegex = require('semver-regex');
 // const prompts = require('prompts');
 const globby = require('globby');
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
 
 const {basePathToRegex, hasOwn} = require('./common.js');
 const handleDOM = require('./handleDOM.js');
@@ -407,11 +407,11 @@ async function integrityMatters (options) {
     ? options
     : configPath
       // eslint-disable-next-line max-len -- Long
-      // eslint-disable-next-line import/no-dynamic-require, node/global-require -- User file
+      // eslint-disable-next-line import/no-dynamic-require, n/global-require -- User file
       ? {...require(pathResolve(process.cwd(), configPath)), ...options}
       : {
         // eslint-disable-next-line max-len -- Long
-        // eslint-disable-next-line import/no-dynamic-require, node/global-require -- User file
+        // eslint-disable-next-line import/no-dynamic-require, n/global-require -- User file
         ...require(
           pathResolve(
             process.cwd(),
@@ -897,9 +897,7 @@ async function integrityMatters (options) {
             return null;
           }
           return `${algorithm}-`;
-        }).filter((algorithm) => {
-          return algorithm;
-        }));
+        }).filter(Boolean));
       }
 
       const localHashLogs = [];
@@ -969,10 +967,7 @@ async function integrityMatters (options) {
           algos.set(algorithm, localHash);
           return `${algorithm}-${localHash}`;
         })
-      )).filter((localHash) => {
-        // Remove dropped items
-        return localHash;
-      });
+      )).filter(Boolean);
 
       localHashLogs.forEach(({method, message}) => {
         addLog(method, message);

@@ -5,8 +5,10 @@ module.exports = {
     'ash-nazg/sauron-node-script-overrides'
   ],
   env: {
-    browser: false,
-    es6: true
+    browser: false
+  },
+  parserOptions: {
+    ecmaVersion: 2022
   },
   globals: {
     Atomics: 'readonly',
@@ -25,14 +27,14 @@ module.exports = {
       'compat/compat': 0,
       'import/no-commonjs': 0,
       'no-console': 0,
-      'node/exports-style': 0
+      'n/exports-style': 0
     }
   }, {
     files: ['*.md/*.js'],
     globals: {
     },
     rules: {
-      'node/no-missing-require': ['error', {
+      'n/no-missing-require': ['error', {
         allowModules: ['integrity-matters']
       }],
       'no-unused-vars': ['error', {
@@ -48,9 +50,9 @@ module.exports = {
     'compat/compat': 0,
 
     // Reenabled by plugin:node/recommended-script
-    'no-process-exit': 0,
+    'n/no-process-exit': 0,
 
-    'node/exports-style': 0,
+    'n/exports-style': 0,
 
     // Reenable when ESLint 8 support
     'jsdoc/check-examples': 0
