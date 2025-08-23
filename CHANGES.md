@@ -1,5 +1,9 @@
 # CHANGES for integrity-matters
 
+## ?
+
+- fix: supply `command-line-basics` notifier info
+
 ## 0.14.0
 
 ### User-impacting
