@@ -1,8 +1,14 @@
 # CHANGES for integrity-matters
 
-## ?
+## 0.15.0
 
+BREAKING:
+- Require Node ^22.16.0 || >=24.0.0
+
+- feat: switch to ESM
 - fix: supply `command-line-basics` notifier info
+- chore: remove old polyfill
+- chore: update license badge, add lint script, update deps. and devDeps.; update lock expectations per new lock format; update per parser options changes
 
 ## 0.14.0
 

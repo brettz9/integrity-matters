@@ -13,7 +13,6 @@ import {resolve as pathResolve, join} from 'node:path';
 
 import cheerio from 'cheerio';
 import semver from 'semver';
-import semverRegex from 'semver-regex';
 // import prompts from 'prompts';
 import {globby} from 'globby';
 // import fetch from 'node-fetch';
@@ -33,17 +32,18 @@ const escapeRegExp = (text) => {
 // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 const htmlPermittedAlgorithms = new Set(['sha256', 'sha384', 'sha512']);
 
-const semverVersionString = `(?<version>${
-  // Strip off `(?<=^v?|\sv?)` lookbehind at beginning and word break
-  //  `\b` at end
-  semverRegex().source.
-    replaceAll('[a-z-]', String.raw`[a-z\-]`).
-    replaceAll(String.raw`[\da-z-]`, String.raw`[\da-z\-]`).
-    replace(String.raw`(?:(?<=^v?|\sv?)`, '').replace(
-      String.raw`\b){1,200}`,
-      ''
-    )
-})`;
+// Core `major.minor.patch(-prerelease)?(+build)?` pattern, embedded
+//   without the surrounding position assertions (e.g., leading
+//   `(?<=^v?|\sv?)` lookbehind, trailing `\b`) that `semver-regex` itself
+//   requires, as we rely on our own surrounding context (e.g., `@`, `-`)
+//   for placement instead.
+const semverCoreRegexString = String.raw`(?:(?:0|[1-9]\d{0,9})\.){2}` +
+  String.raw`(?:0|[1-9]\d{0,9})` +
+  String.raw`(?:-(?:0|[1-9]\d*?|[\da-z\-]*?[a-z\-][\da-z\-]*?){0,100}` +
+  String.raw`(?:\.(?:0|[1-9]\d*?|[\da-z\-]*?[a-z\-][\da-z\-]*?))*?){0,100}` +
+  String.raw`(?:\+[\da-z\-]+?(?:\.[\da-z\-]+?)*?){0,100}`;
+
+const semverVersionString = `(?<version>${semverCoreRegexString})`;
 
 const pathVersionString = '(?<dist>/dist)?(?<path>[^ \'"]*?)' +
   String.raw`(?<slim>(?:\.slim)?)(?<min>(?:\.min)?)(?<ext>(?:\.(?:js|css))?)$`;
@@ -512,13 +512,13 @@ async function integrityMatters (options) {
   // If we remove `package.json` to test, will either occur before
   //  script and cause error due to binary depending on it, or will
   //  be a race condition to delete it before code reaches it
-  // istanbul ignore next -- See comment above
+  /* c8 ignore start -- See comment above */
   } catch (e) {
-    // istanbul ignore next -- See comment above
     throw new Error('Unable to retrieve `package.json`', {
       cause: e
     });
   }
+  /* c8 ignore stop -- See comment above */
 
   let packageLockJSON;
   try {
@@ -614,7 +614,7 @@ async function integrityMatters (options) {
 
       // `compareLockToPackage` will throw earlier for the lock files, so
       //   this is only here as an extra guard
-      // istanbul ignore if -- See comment above
+      /* c8 ignore start -- See comment above */
       if (![
         'URL',
         '`node_modules` `package.json`'
@@ -624,6 +624,8 @@ async function integrityMatters (options) {
             `\`npm install\`).`
         );
       }
+      /* c8 ignore stop -- See comment above */
+
       // Todo: We'd ideally have an option to update to the max version
       //   in the range ourselves (or update the range to the max
       //   available on npm); see `.idea/notes.js`
@@ -645,7 +647,7 @@ async function integrityMatters (options) {
       });
       */
 
-      // istanbul ignore if -- `semver` will hopefully never get here
+      /* c8 ignore start -- `semver` will hopefully never get here */
       if (!gtr) {
         throw new Error(
           'Unexpected error: Not greater or less than range, nor satisfied. ' +
@@ -653,6 +655,7 @@ async function integrityMatters (options) {
           `(${version}) found in the ${versionSourceType}.`
         );
       }
+      /* c8 ignore stop -- `semver` will hopefully never get here */
 
       const errorMessage =
         `The ${versionSourceType}'s version (${version}) is greater than ` +
@@ -782,7 +785,7 @@ async function integrityMatters (options) {
           updateVersionLock = lockVersion;
         } else {
           const lt = semver.lt(lockVersion, version);
-          // istanbul ignore if -- semver shouldn't have another state
+          /* c8 ignore start -- semver shouldn't have another state */
           if (!lt) {
             throw new Error(
               'Unexpected error: Not greater or less than version, nor ' +
@@ -791,6 +794,7 @@ async function integrityMatters (options) {
               `(${version}) found in the URL.`
             );
           }
+          /* c8 ignore stop -- semver shouldn't have another state */
           throw new Error(
             `The lock file version ${lockVersion} is ` +
             `less for package "${name}" than the URL version ` +
@@ -821,8 +825,9 @@ async function integrityMatters (options) {
         } = checkVersions(name, version, 'URL', addLog);
         updatingVersion = updVers;
 
-        const npmLockDeps = packageLockJSON && packageLockJSON.dependencies;
-        const npmLockDep = npmLockDeps && npmLockDeps[name];
+        const npmLockPackages = packageLockJSON && packageLockJSON.packages;
+        const npmLockDep = npmLockPackages &&
+          npmLockPackages[`node_modules/${name}`];
 
         let updateVersionLock;
         if (npmLockDep) {
@@ -853,9 +858,8 @@ async function integrityMatters (options) {
           join(cwd, 'node_modules', name, 'package.json')
         ));
         addLog('info', `INFO: Found valid \`package.json\` for "${name}".`);
-      // istanbul ignore next -- Would need to downgrade to get coverage
+      /* c8 ignore start -- Would need to downgrade to get coverage */
       } catch (err) {
-        // istanbul ignore next -- Would need to downgrade to get coverage
         throw new Error(
           `No valid \`package.json\` found for "${name}".`,
           {
@@ -863,6 +867,7 @@ async function integrityMatters (options) {
           }
         );
       }
+      /* c8 ignore stop -- Would need to downgrade to get coverage */
 
       checkVersions(name, nmVersion, '`node_modules` `package.json`', addLog);
 
@@ -871,10 +876,11 @@ async function integrityMatters (options) {
       //  `package-lock.json` version
       // Testing this would require a local install which reverted
       //   the version (without updating the package-lock)
-      // istanbul ignore if -- See comment above
+      /* c8 ignore start -- See comment above */
       if (updatingVersion === true) {
         updatingVersion = nmVersion;
       }
+      /* c8 ignore stop -- See comment above */
 
       let avoidVersionSetting = false;
       if (typeof updatingVersion !== 'string') {
@@ -1041,13 +1047,16 @@ async function integrityMatters (options) {
               algo
             ).update(content).digest('base64');
             // eslint-disable-next-line @stylistic/max-len -- Long
-            // istanbul ignore if -- CDN should generally match our local version!
+            /* c8 ignore start -- CDN should generally match our local version! */
             if (urlHash !== hash) {
               throw new Error(
                 `Local hash of algoritm ${algo} does not match hash for ` +
                 `content from URL "${newSrc}".`
               );
             }
+            // eslint-disable-next-line @stylistic/max-len -- Long
+            /* c8 ignore stop -- CDN should generally match our local version! */
+
             addLog(
               'info',
               `INFO: Hash of algorithm ${algo} matches content ` +

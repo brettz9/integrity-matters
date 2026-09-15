@@ -925,6 +925,47 @@ describe('Binary', function () {
       }
     );
 
+    it(
+      'should fall back to the first `nodeModulesReplacements` entry ' +
+        'when none is supplied for the matched CDN base path',
+      async function () {
+        // `bad-integrity-good-version.html` has a single resource
+        //   matched against `cdnBasePath` index 4 (`stackpath`); supplying
+        //   only one `nodeModulesReplacements` entry (for index 0) forces
+        //   the fallback to be used instead of `nodeModulesReplacements[4]`
+        const {stdout, stderr} = await execFile(
+          binFile,
+          [
+            '--ignoreURLFetches',
+            '--forceIntegrityChecks',
+            '--nodeModulesReplacements',
+            'node_modules/bad-path/$<name>$<dist>$<path>$<min>$<ext>',
+            '--file',
+            'test/fixtures/bad-integrity-good-version.html',
+            '--outputPath', outputPath
+          ],
+          {
+            timeout: 15000
+          }
+        );
+
+        if (debug) {
+          console.log('stdout', stdout);
+          console.log('stderr', stderr);
+        }
+
+        expect(stderr).to.match(new RegExp(
+          escStringRegex(
+            `The local path node_modules/bad-path/bootstrap/css/` +
+            `bootstrap.min.css could not be found`
+          ),
+          'v'
+        ));
+
+        expect(stdout).to.not.contain('Finished writing to');
+      }
+    );
+
     [false, true].forEach((json) => {
       it(
         'should work without `integrity` (link)' + (json

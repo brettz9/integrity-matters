@@ -1,6 +1,6 @@
 {
   "name": "integrity-matters",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Confirm the integrity of CDN URLs based on installed npm packages and update their integrity attribute (HTML) and paths (JS or HTML).",
   "type": "module",
   "main": "src/index.js",
@@ -24,13 +24,19 @@
     "eslint": "eslint --ext=js,md,html .",
     "lint": "npm run eslint",
     "mocha": "mocha --jobs 1 test/*.js",
-    "nyc": "rm -rf node_modules/.cache && nyc --all npm run mocha && npm run coverage-badge",
-    "test": "npm run eslint && npm run nyc"
+    "c8": "rm -rf node_modules/.cache && c8 --all npm run mocha && npm run coverage-badge",
+    "test": "npm run eslint && npm run c8"
   },
-  "nyc": {
+  "c8": {
+    "check-coverage": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100,
     "exclude": [
       ".idea",
-      ".*.js",
+      ".*.cjs",
+      "eslint.config.js",
       "coverage",
       "test"
     ],
@@ -70,12 +76,12 @@
     "htmlparser2": "^12.0.0",
     "node-fetch": "~3.3.2",
     "prompts": "^2.4.2",
-    "semver": "^7.8.5",
-    "semver-regex": "4.0.5"
+    "semver": "^7.8.5"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "~5.14.0",
     "bootstrap": "4.5.2",
+    "c8": "^12.0.0",
     "chai": "^6.2.2",
     "command-line-publish": "^2.0.0",
     "coveradge": "^0.9.0",
@@ -88,7 +94,6 @@
     "mocha": "^12.0.1",
     "mocha-badge-generator": "^0.13.0",
     "mocha-multi-reporters": "^1.5.2",
-    "nyc": "^18.0.0",
     "open-cli": "^9.0.0",
     "popper.js": "^1.16.1"
   },

@@ -21,11 +21,12 @@ function handleDOM (domString, domHandlerOptions, htmlparser2Options) {
       //  ...it seems `onerror` should never occur based on our usage (i.e.,
       //  we are not calling `end` or `write` after `end` and states
       //  will presumably not be unknown)
-      // istanbul ignore if -- See comment above
+      /* c8 ignore start -- See comment above */
       if (error) {
         reject(error);
         return;
       }
+      /* c8 ignore stop -- See comment above */
       resolve(dom);
     }, domHandlerOptions);
     const parser = new Parser(handler, htmlparser2Options);
