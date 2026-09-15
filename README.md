@@ -1,21 +1,15 @@
 [![npm](https://img.shields.io/npm/v/integrity-matters.svg)](https://www.npmjs.com/package/integrity-matters)
-[![Dependencies](https://img.shields.io/david/brettz9/integrity-matters.svg)](https://david-dm.org/brettz9/integrity-matters)
-[![devDependencies](https://img.shields.io/david/dev/brettz9/integrity-matters.svg)](https://david-dm.org/brettz9/integrity-matters?type=dev)
+[![Dependencies](https://img.shields.io/librariesio/github/brettz9/integrity-matters.svg)](https://libraries.io/github/brettz9/integrity-matters)
 
-[![eslint badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/eslint-badge.svg?sanitize=true)](badges/eslint-badge.svg)
-
-[![Build Status](https://travis-ci.org/brettz9/integrity-matters.svg?branch=master)](https://travis-ci.com/github/brettz9/integrity-matters)
-[![testing badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/tests-badge.svg?sanitize=true)](badges/tests-badge.svg)
-[![coverage badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/coverage-badge.svg?sanitize=true)](badges/coverage-badge.svg)
+[![Tests badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/tests-badge.svg?sanitize=true)](badges/tests-badge.svg)
+[![Coverage badge](https://raw.githubusercontent.com/brettz9/integrity-matters/main/badges/coverage-badge.svg?sanitize=true)](badges/coverage-badge.svg)
 
 [![Known Vulnerabilities](https://snyk.io/test/github/brettz9/integrity-matters/badge.svg)](https://snyk.io/test/github/brettz9/integrity-matters)
-[![Total Alerts](https://img.shields.io/lgtm/alerts/g/brettz9/integrity-matters.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/integrity-matters/alerts)
-[![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/brettz9/integrity-matters.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/integrity-matters/context:javascript)
 
 <!--[![License](https://img.shields.io/npm/l/integrity-matters.svg)](LICENSE-MIT.txt)-->
-[![Licenses badge](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/licenses-badge.svg?sanitize=true)](badges/licenses-badge.svg)
+[![Licenses badge](https://raw.githubusercontent.com/brettz9/integrity-matters/main/badges/licenses-badge.svg?sanitize=true)](badges/licenses-badge.svg)
 
-(see also [licenses for dev. deps.](https://raw.githubusercontent.com/brettz9/integrity-matters/master/badges/licenses-badge-dev.svg?sanitize=true))
+(see also [licenses for dev. deps.](https://raw.githubusercontent.com/brettz9/integrity-matters/main/badges/licenses-badge-dev.svg?sanitize=true))
 
 [![issuehunt-to-marktext](https://issuehunt.io/static/embed/issuehunt-button-v1.svg)](https://issuehunt.io/r/brettz9/integrity-matters)
 
