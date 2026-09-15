@@ -1,8 +1,8 @@
 /* eslint-disable no-console -- Testing */
-import {readFile, unlink, writeFile, copyFile} from 'fs/promises';
-import {promisify} from 'util';
-import {join} from 'path';
-import {execFile as ef} from 'child_process';
+import {readFile, unlink, writeFile, copyFile} from 'node:fs/promises';
+import {promisify} from 'node:util';
+import {join} from 'node:path';
+import {execFile as ef} from 'node:child_process';
 import escStringRegex from 'escape-string-regexp';
 
 const {dirname} = import.meta;
@@ -272,12 +272,12 @@ describe('Binary', function () {
           escStringRegex(
             `WARNING: Local hash `
           ) +
-          `\\S+` +
+          String.raw`\S+` +
           escStringRegex(
             ` does not match corresponding hash (index 0) within the ` +
             `integrity attribute (`
           ) +
-          `\\S+` +
+          String.raw`\S+` +
           escStringRegex(
             `); algorithm: sha384; file ` +
               `node_modules/popper.js/dist/umd/popper.min.js\n`

@@ -1,3 +1,6 @@
-ignoredBuiltDependencies:
-  - es5-ext
-  - unrs-resolver
+allowBuilds:
+  es5-ext: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - coveradge@0.9.0
+  - license-badger@0.23.1

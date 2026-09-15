@@ -21,7 +21,6 @@
     "example-basepath": "./bin/index.js --file \"test/fixtures/sample.html\" --cdnBasePath=\"https://unpkg.com/(?<name>[^@]*)@(?<version>\\d+\\.\\d+.\\d+)/(?<path>[^'\\\"]*)\"",
     "coverage": "open-cli coverage/lcov-report/index.html",
     "coverage-badge": "coveradge badges/coverage-badge.svg",
-    "eslint-badge": "eslint-formatter-badger --outputPath badges/eslint-badge.svg --lintingTypeTemplate \"\\${lintingType}: \\${failing}/\\${typeCount}\" --file .",
     "eslint": "eslint --ext=js,md,html .",
     "lint": "npm run eslint",
     "mocha": "mocha --jobs 1 test/*.js",
@@ -57,7 +56,7 @@
   "bugs": "https://github.com/brettz9/integrity-matters/issues",
   "homepage": "https://github.com/brettz9/integrity-matters#readme",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.16.0 || >=24.0.0"
   },
   "browserslist": [
     "last 2 Firefox versions",
@@ -65,33 +64,36 @@
   ],
   "dependencies": {
     "cheerio": "1.0.0-rc.3",
-    "command-line-basics": "~2.0.1",
-    "domhandler": "^5.0.3",
-    "globby": "~14.1.0",
-    "htmlparser2": "^10.0.0",
+    "command-line-basics": "~3.0.0",
+    "domhandler": "^6.0.1",
+    "globby": "~16.2.4",
+    "htmlparser2": "^12.0.0",
     "node-fetch": "~3.3.2",
     "prompts": "^2.4.2",
-    "semver": "^7.7.2",
+    "semver": "^7.8.5",
     "semver-regex": "4.0.5"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "~5.14.0",
     "bootstrap": "4.5.2",
-    "chai": "^5.2.0",
-    "command-line-publish": "^1.1.0",
-    "coveradge": "^0.8.2",
+    "chai": "^6.2.2",
+    "command-line-publish": "^2.0.0",
+    "coveradge": "^0.9.0",
     "escape-string-regexp": "~5.0.0",
-    "eslint": "^9.30.0",
-    "eslint-config-ash-nazg": "^38.0.2",
-    "eslint-formatter-badger": "^0.10.0",
+    "eslint": "^10.10.0",
+    "eslint-config-ash-nazg": "^43.1.10",
     "jquery": "~3.5.1",
     "leaflet": "~1.6.0",
-    "license-badger": "^0.21.1",
-    "mocha": "^11.7.1",
-    "mocha-badge-generator": "^0.11.0",
-    "mocha-multi-reporters": "^1.5.1",
-    "nyc": "^17.1.0",
-    "open-cli": "^8.0.0",
+    "license-badger": "^0.23.1",
+    "mocha": "^12.0.1",
+    "mocha-badge-generator": "^0.13.0",
+    "mocha-multi-reporters": "^1.5.2",
+    "nyc": "^18.0.0",
+    "open-cli": "^9.0.0",
     "popper.js": "^1.16.1"
+  },
+  "allowScripts": {
+    "unrs-resolver@1.12.2": true,
+    "es5-ext@0.10.64": true
   }
 }

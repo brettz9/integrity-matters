@@ -21,7 +21,7 @@ function handleDOM (domString, domHandlerOptions, htmlparser2Options) {
       //  ...it seems `onerror` should never occur based on our usage (i.e.,
       //  we are not calling `end` or `write` after `end` and states
       //  will presumably not be unknown)
-      // istanbul ignore if
+      // istanbul ignore if -- See comment above
       if (error) {
         reject(error);
         return;

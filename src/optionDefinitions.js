@@ -1,6 +1,6 @@
-import {readFile} from 'fs/promises';
-import {join, dirname} from 'path';
-import {fileURLToPath} from 'url';
+import {readFile} from 'node:fs/promises';
+import {join, dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 import {basePathToRegex} from './common.js';
 
@@ -12,7 +12,7 @@ const JSONParser = JSON.parse.bind(JSON);
 
 const getChalkTemplateSingleEscape = (s) => {
   return s.replaceAll(/[\{\}\\]/gv, (ch) => {
-    return `\\u${ch.codePointAt().toString(16).padStart(4, '0')}`;
+    return String.raw`\u${ch.codePointAt().toString(16).padStart(4, '0')}`;
   });
 };
 
@@ -20,8 +20,8 @@ const getChalkTemplateSingleEscape = (s) => {
 //  Might see about https://github.com/dsheiko/bycontract/
 /* eslint-disable jsdoc/require-property -- Should get property from schema */
 /**
-* @typedef {PlainObject} IntegrityMattersOptions
-*/
+ * @typedef {object} IntegrityMattersOptions
+ */
 /* eslint-enable jsdoc/require-property -- Should get property from schema */
 
 const optionDefinitions = [
@@ -176,7 +176,8 @@ const optionDefinitions = [
   },
   {
     name: 'jsonSpace', type (val) {
-      if (Number.isNaN(Number.parseInt(val))) {
+      // eslint-disable-next-line unicorn/prefer-number-coercion -- Convenient
+      if (Number.isNaN(Number.parseInt(val, 10))) {
         return val;
       }
       return Number(val);

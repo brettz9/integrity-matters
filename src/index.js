@@ -1,9 +1,15 @@
-import {readFile, writeFile} from 'fs/promises';
-import {existsSync} from 'fs';
+/* eslint-disable unicorn/prefer-direct-iteration -- Todo */
+/* eslint-disable unicorn/prefer-iterator-to-array -- Todo */
+/* eslint-disable unicorn/no-unsafe-string-replacement -- Todo */
+/* eslint-disable unicorn/prefer-iterator-helpers -- Todo */
+/* eslint-disable unicorn/prefer-iterator-to-array-at-end -- Todo */
+/* eslint-disable unicorn/no-undeclared-class-members -- Todo */
+import {readFile, writeFile} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
 
 // eslint-disable-next-line no-shadow -- Still supporting Node < 23
-import crypto from 'crypto';
-import {resolve as pathResolve, join} from 'path';
+import crypto from 'node:crypto';
+import {resolve as pathResolve, join} from 'node:path';
 
 import cheerio from 'cheerio';
 import semver from 'semver';
@@ -158,8 +164,8 @@ class JSONStrategy {
   /* eslint-disable class-methods-use-this -- Might use `this` later
     for config */
   /**
-  * @type {UpdateStrategy.update}
-  */
+   * @type {UpdateStrategy.update}
+   */
   update ({type, elem}, {
     /* eslint-enable class-methods-use-this -- Might use `this` later
       for config */
@@ -194,7 +200,7 @@ class JSONStrategy {
     if (fallback) {
       elem.fallback = fallback;
     }
-    if (globalCheck && globalCheck[type]) {
+    if (globalCheck && Object.hasOwn(globalCheck, type)) {
       elem.global = globalCheck[type];
     }
   }
@@ -316,7 +322,7 @@ class HTMLStrategy {
     if (fallback && localPath) {
       const syncElement = type === 'link'
         ? `<link rel="stylesheet" href="${localPath}" />`
-        : `<script src="${localPath}">\\u003C/script>`;
+        : String.raw`<script src="${localPath}">\u003C/script>`;
 
       elem.after(
         '\n',
@@ -450,8 +456,8 @@ async function integrityMatters (options) {
 
   const globalChecks = Array.isArray(globalCheck)
     ? globalCheck.reduce((obj, keyValue) => {
-      const [key, type, value] = keyValue.split('=');
-      if (!obj[key]) {
+      const [key, type, value] = keyValue.split('=', 3);
+      if (!Object.hasOwn(obj, key)) {
         obj[key] = {};
       }
       obj[key][type] = value;
@@ -506,10 +512,12 @@ async function integrityMatters (options) {
   // If we remove `package.json` to test, will either occur before
   //  script and cause error due to binary depending on it, or will
   //  be a race condition to delete it before code reaches it
-  // istanbul ignore next
+  // istanbul ignore next -- See comment above
   } catch (e) {
-    // istanbul ignore next
-    throw new Error('Unable to retrieve `package.json`');
+    // istanbul ignore next -- See comment above
+    throw new Error('Unable to retrieve `package.json`', {
+      cause: e
+    });
   }
 
   let packageLockJSON;
@@ -556,11 +564,11 @@ async function integrityMatters (options) {
   addMainLog('log', '\n');
 
   /**
-  * @typedef {PlainObject} VersionInfo
-  * @property {"dependency"|"devDependency"} dependencyType
-  * @property {boolean} updatingVersion Whether to update the URL (for
-  * "URL" `versionSourceType`)
-  */
+   * @typedef {object} VersionInfo
+   * @property {"dependency"|"devDependency"} dependencyType
+   * @property {boolean} updatingVersion Whether to update the URL (for
+   * "URL" `versionSourceType`)
+   */
 
   /**
    * @param {string} name
@@ -572,7 +580,6 @@ async function integrityMatters (options) {
    * @returns {VersionInfo}
    */
   function checkVersions (name, version, versionSourceType, addLog) {
-    let updatingVersion = false;
     const {
       dependencyType,
       range,
@@ -590,6 +597,7 @@ async function integrityMatters (options) {
       throw new Error(errorMessage);
     }
 
+    let updatingVersion = false;
     if (satisfied) {
       addLog(
         'info',
@@ -606,7 +614,7 @@ async function integrityMatters (options) {
 
       // `compareLockToPackage` will throw earlier for the lock files, so
       //   this is only here as an extra guard
-      // istanbul ignore if
+      // istanbul ignore if -- See comment above
       if (![
         'URL',
         '`node_modules` `package.json`'
@@ -664,16 +672,16 @@ async function integrityMatters (options) {
   }
 
   /**
-  * @typedef {PlainObject} UpdateInfo
-  * @property {string} newSrc
-  * @property {string} [newIntegrity]
-  * @property {string} [addCrossorigin]
-  * @property {string} [localPath]
-  */
+   * @typedef {PlainObject} UpdateInfo
+   * @property {string} newSrc
+   * @property {string} [newIntegrity]
+   * @property {string} [addCrossorigin]
+   * @property {string} [localPath]
+   */
 
   /**
    * @interface UpdateStrategy
-  */
+   */
   /**
    * @function UpdateStrategy#update
    * @param {SrcIntegrityObject} info
@@ -849,7 +857,10 @@ async function integrityMatters (options) {
       } catch (err) {
         // istanbul ignore next -- Would need to downgrade to get coverage
         throw new Error(
-          `No valid \`package.json\` found for "${name}".`
+          `No valid \`package.json\` found for "${name}".`,
+          {
+            cause: err
+          }
         );
       }
 
@@ -860,7 +871,7 @@ async function integrityMatters (options) {
       //  `package-lock.json` version
       // Testing this would require a local install which reverted
       //   the version (without updating the package-lock)
-      // istanbul ignore if
+      // istanbul ignore if -- See comment above
       if (updatingVersion === true) {
         updatingVersion = nmVersion;
       }
@@ -1029,8 +1040,8 @@ async function integrityMatters (options) {
             const urlHash = crypto.createHash(
               algo
             ).update(content).digest('base64');
-            // CDN should generally match our local version!
-            // istanbul ignore if
+            // eslint-disable-next-line @stylistic/max-len -- Long
+            // istanbul ignore if -- CDN should generally match our local version!
             if (urlHash !== hash) {
               throw new Error(
                 `Local hash of algoritm ${algo} does not match hash for ` +

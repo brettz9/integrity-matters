@@ -1,13 +1,13 @@
-import {createReadStream} from 'fs';
+import {createReadStream} from 'node:fs';
 
 // eslint-disable-next-line no-shadow -- Still supporting Node < 23
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 /**
  * @param {"sha256"|"sha384"|"sha512"} algorithm
  * @param {string} path
  * @returns {Promise<string>}
-*/
+ */
 function getHash (algorithm, path) {
   const hash = crypto.createHash(algorithm);
   // eslint-disable-next-line promise/avoid-new -- Has no promise API

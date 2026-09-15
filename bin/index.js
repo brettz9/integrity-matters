@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
+import {join} from 'node:path';
 import {cliBasics} from 'command-line-basics';
 import integrityMatters from '../src/index.js';
 
 const optionDefinitions = await cliBasics(
-  import.meta.dirname + '/../src/optionDefinitions.js',
+  join(import.meta.dirname, '/../src/optionDefinitions.js'),
   {
-    packageJsonPath: import.meta.dirname + '/../package.json'
+    packageJsonPath: join(import.meta.dirname, '/../package.json')
   }
 );
 
