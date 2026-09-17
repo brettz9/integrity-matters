@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
   reject: [
     // Lock in cheerio as new changes dropped preservation of some info:
     'cheerio',

@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
   reporter: 'mocha-multi-reporters',
   'reporter-option': [
     'configFile=mocha-multi-reporters.json'
